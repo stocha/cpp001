@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include "NinInterf.h"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ using namespace std;
  */
 int main(int argc, char** argv) {
     cout << "whatever";
+    FormulazTests::testAll();
     return 0;
 }
 

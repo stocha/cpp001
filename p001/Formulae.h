@@ -21,7 +21,7 @@
 #include <memory>
 
 using namespace std;
-namespace normalizerCNF {
+
 
     class Var {
     public:
@@ -35,17 +35,18 @@ namespace normalizerCNF {
         int value;
         bool bar = false;
 
-        void debug() {
-            if (bar) cout << '!';
-            cout << value;
-
+        string debug() {
+            std::ostringstream sout;
+            if (bar) sout << '!';
+            sout << value;
+            return sout.str();
         }
     };
 
     enum op {
         AND, OR, XOR, NOT, VAL, VOID
     };
-    string optos[]{"&", "|", "+", "!", "", "VOID"};
+   extern const string optos[];
 
     class Expr {
     public:
@@ -279,20 +280,27 @@ namespace normalizerCNF {
             }
         }
 
-        void debug(int pad) {
+        string debug(int pad) {
+            std::ostringstream sout;
+            
+            //sout << "pomme ";
+            //return sout.str();
+            
             if (type == VAL) {
-                cout << dpad(pad);
+                sout << dpad(pad);
 
-                val.debug();
-                cout << endl;
-                return;
+                sout <<"|" <<val.debug();
+                
+                return sout.str();
             };
 
-            cout << dpad(pad) << optos[type] << "{" << endl;
+            sout << dpad(pad) << optos[type] << "{" ;
             for (int i = 0; i < dat.size(); i++) {
-                dat[i].debug(pad + 1);
+                sout << dat[i].debug(pad );
             }
-            cout << dpad(pad) << "}" << endl;
+            //return sout.str();
+            sout << dpad(pad) << "}" ;
+            return sout.str();
         }
 
         void normalizeAndOr() {
@@ -391,7 +399,6 @@ namespace normalizerCNF {
         }
 
     };
-}
 
 #endif	/* FORMULAE_H */
 

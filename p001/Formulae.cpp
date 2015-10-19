@@ -8,3 +8,4 @@
 #include "Formulae.h"
 
 
+const string optos[]{"&", "|", "+", "!", "", "VOID"};

@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "NinInterf.h"
+#include "NinXorSolv.h"
 
 using namespace std;
 
@@ -16,7 +17,8 @@ using namespace std;
  */
 int main(int argc, char** argv) {
     cout << "whatever";
-    FormulazTests::testAll();
+    //FormulazTests::testAll();
+    NinXorSolv::test();
     return 0;
 }
 

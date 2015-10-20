@@ -16,7 +16,7 @@ void NinXorSolv::test() {
     cout << f.str() << endl;
     NinXorSolv a(sz,f);
     
-    cout << a.debug();
+    cout << a.str();
     
 }
 

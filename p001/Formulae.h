@@ -286,6 +286,11 @@ using namespace std;
             //sout << "pomme ";
             //return sout.str();
             
+            if(type == VOID ){
+                sout << "F";
+                return sout.str();
+            }
+            
             if (type == VAL) {
                 sout << dpad(pad);
 

@@ -8,7 +8,13 @@
 #include "NinXorSolv.h"
 
 void NinXorSolv::test() {
-    NinXorSolv a(8);
+    srand(0xCAFEBABE);
+    
+    int sz=8;
+    bitField f(sz);
+    f.randomize();f.randomize();f.randomize();f.randomize();f.randomize();
+    cout << f.str() << endl;
+    NinXorSolv a(sz,f);
     
     cout << a.debug();
     

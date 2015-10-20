@@ -50,25 +50,29 @@ private :
         vector<xorExpr> diags;
         vector<Expr> solvedVar;
         bitField bound;
+        bitField ovec;
 public:
     
-    NinXorSolv(int szp) : Sz(szp), solvedVar(szp),bound(szp){
+    NinXorSolv(int szp, bitField ovecp) : Sz(szp), solvedVar(szp),bound(szp), ovec(szp){
         
-        
+        ovec=ovecp;
         for(int i=0;i<Sz;i++){
             diags.push_back(diag(i));
         }
         
     }
     
-    NinXorSolv(const NinXorSolv& that) : bound(that.Sz){
+    NinXorSolv(const NinXorSolv& that) : bound(that.Sz), ovec(that.Sz){
         *this=that;
     }
     
     string debug(){
         string res="";
         for(int i=0;i<diags.size(  );i++){
-            res+=diags[i].debug()+"\n";
+            res+=diags[i].debug();
+            res+=" <-> ";
+            res+=(ovec[i]?"T":"F");
+            res+=+"\n";
         }
         return res;
     }
@@ -85,7 +89,7 @@ private:
         int y=max(0,i - half+1 );
         for(int x=min (i,half-1);x>=0 && y<half;x--){
         
-            res.e.push_back(Expr(AND,Expr(Var(x)),Expr(Var(y))));
+            res.e.push_back(Expr(AND,Expr(Var(x)),Expr(Var(y+half))));
             
             y++;
         }

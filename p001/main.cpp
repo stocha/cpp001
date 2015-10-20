@@ -16,7 +16,7 @@ using namespace std;
  * 
  */
 int main(int argc, char** argv) {
-    cout << "whatever";
+    cout << "whatever"<<endl;
     //FormulazTests::testAll();
     NinXorSolv::test();
     return 0;

@@ -16,7 +16,22 @@ void NinXorSolv::test() {
     cout << f.str() << endl;
     NinXorSolv a(sz,f);
     
-    cout << a.str();
+    cout << a.str()<< endl;
+    
+    int un=a.unbound();
+    
+    auto b=NinXorSolv(a);
+    cout << "forcing " << un << endl;
+    b.forceAt(un,true);
+    
+    //auto c=NinXorSolv(a);
+    //c.forceAt(un,false);
+    
+    cout <<"------- true" << endl;
+    cout << b.str()<< endl;
+    
+    //cout <<"------- false" << endl;
+    //cout << c.str()<< endl;    
     
 }
 

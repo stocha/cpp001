@@ -139,11 +139,14 @@ public:
     }
 
     void forceAt(int i, bool force) {
-        if (bound[i]) cerr << "already bound" << endl;
-        exit(1);
-
+        if (bound[i]){ cerr << "already bound" << endl;
+            exit(1);
+        }
         solvedVar[i] = xorExpr();
         solvedVar[i].t = force;
+        bound.set(i,1);
+        
+        substitute(i,solvedVar[i]);
 
     }
 

@@ -17,6 +17,11 @@ using namespace std;
 #include "Formulae.h"
 
 
+class prodExpr {
+    vector<int> e;
+
+};
+
 class xorExpr {
     
     
@@ -24,7 +29,7 @@ public :
     
 
 
-    vector<Expr> e;
+    vector<prodExpr> e;
     bool neg=false;
     
     string debug(){
@@ -48,21 +53,18 @@ public:
     int Sz;
 private :
         vector<xorExpr> diags;
-        vector<Expr> solvedVar;
+        vector<xorExpr> solvedVar;
         bitField bound;
-        bitField ovec;
 public:
     
-    NinXorSolv(int szp, bitField ovecp) : Sz(szp), solvedVar(szp),bound(szp), ovec(szp){
-        
-        ovec=ovecp;
+    NinXorSolv(int szp, bitField ovecp) : Sz(szp), solvedVar(szp),bound(szp){
         for(int i=0;i<Sz;i++){
             diags.push_back(diag(i));
         }
         
     }
     
-    NinXorSolv(const NinXorSolv& that) : bound(that.Sz), ovec(that.Sz){
+    NinXorSolv(const NinXorSolv& that) : bound(that.Sz){
         *this=that;
     }
     
@@ -71,7 +73,7 @@ public:
         for(int i=0;i<diags.size(  );i++){
             res+=diags[i].debug();
             res+=" <-> ";
-            res+=(ovec[i]?"T":"F");
+            res+=(diags[i]?"T":"F");
             res+=+"\n";
         }
         return res;

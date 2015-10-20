@@ -9,6 +9,10 @@
 #define	NINXORSOLV_H
 
     #include <vector>
+#include <algorithm>    // std::min
+
+using namespace std;
+
 #include "NinInterf.h"
 #include "Formulae.h"
 
@@ -44,19 +48,20 @@ public:
     int Sz;
 private :
         vector<xorExpr> diags;
-        
+        vector<Expr> solvedVar;
+        bitField bound;
 public:
     
-    NinXorSolv(int szp) : Sz(szp){
+    NinXorSolv(int szp) : Sz(szp), solvedVar(szp),bound(szp){
         
         
-        for(int i=0;i<Sz/2;i++){
+        for(int i=0;i<Sz;i++){
             diags.push_back(diag(i));
         }
         
     }
     
-    NinXorSolv(const NinXorSolv& that){
+    NinXorSolv(const NinXorSolv& that) : bound(that.Sz){
         *this=that;
     }
     
@@ -75,8 +80,10 @@ private:
     xorExpr diag(int i) {
         xorExpr res;
         
-        int y=0;
-        for(int x=i;x>=0;x--){
+        int half=Sz/2;
+        
+        int y=max(0,i - half+1 );
+        for(int x=min (i,half-1);x>=0 && y<half;x--){
         
             res.e.push_back(Expr(AND,Expr(Var(x)),Expr(Var(y))));
             

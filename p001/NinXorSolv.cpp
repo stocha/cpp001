@@ -11,6 +11,7 @@ void NinXorSolv::test() {
     NinXorSolv a(8);
     
     cout << a.debug();
+    
 }
 
 

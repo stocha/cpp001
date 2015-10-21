@@ -10,9 +10,10 @@
 void NinXorSolv::test() {
     srand(0xCAFEBABE);
     
-    int sz=8;
+    int sz=4;
     bitField f(sz);
     f.randomize();f.randomize();f.randomize();f.randomize();f.randomize();
+    f.set(3,0);
     cout << f.str() << endl;
     NinXorSolv a(sz,f);
     
@@ -24,14 +25,16 @@ void NinXorSolv::test() {
     cout << "forcing " << un << endl;
     b.forceAt(un,true);
     
-    //auto c=NinXorSolv(a);
-    //c.forceAt(un,false);
+    auto c=NinXorSolv(a);
+    c.forceAt(un,false);
     
     cout <<"------- true" << endl;
     cout << b.str()<< endl;
+    cout << b.strbound()<< endl;
     
-    //cout <<"------- false" << endl;
-    //cout << c.str()<< endl;    
+    cout <<"------- false" << endl;
+    cout << c.str()<< endl; 
+    cout << c.strbound()<< endl; 
     
 }
 

@@ -37,9 +37,20 @@ public:
         }
 
         if (found != -1) {
-            e.erase(e.begin() + found);
             
-            return true;
+            if(xe.empty()){
+                if(b){
+                    e.erase(e.begin() + found);
+                    
+                }else{
+                    e.clear();
+                }
+                
+            }
+            
+            
+            
+            return found!=-1;
         }
 
     }
@@ -86,8 +97,7 @@ public:
 
 
         //cerr << " e.sz "<<e.size()<<endl;
-        //sout << t?"":"!";
-
+        sout << (t?"T /":"F /");
         for (int i = 0; i < e.size(); i++) {
             sout << "+";
             sout << e[i].str();
@@ -112,7 +122,7 @@ public:
 
     NinXorSolv(int szp, bitField ovecp) : Sz(szp), solvedVar(szp), bound(szp) {
         for (int i = 0; i < Sz; i++) {
-            diags.push_back(diag(i));
+            diags.push_back(diag(i,ovecp[i]));
         }
 
     }
@@ -129,6 +139,18 @@ public:
         }
         return res;
     }
+    
+    string strbound() {
+        std::ostringstream sout;
+        for (int i = 0; i < diags.size(); i++) {
+            
+            if(bound[i]){
+                sout << i << " -> " << solvedVar[i].str();
+            }
+
+        }
+        return sout.str();
+    }    
 
     int unbound() {
         for (int i = 0; i < Sz; i++) {
@@ -164,7 +186,7 @@ public:
 
 private:
 
-    xorExpr diag(int i) {
+    xorExpr diag(int i, bool b) {
         xorExpr res;
 
         int half = Sz / 2;
@@ -177,6 +199,7 @@ private:
             y++;
         }
 
+        res.t=b;
 
         return res;
 

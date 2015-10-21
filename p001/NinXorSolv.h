@@ -98,7 +98,7 @@ public:
                     if (x && e[i].size() == 1) {
 
                     } else if (x && e[i].size() == 0) {
-                        t=(t!=true);
+                        t = (t != true);
                         e.erase(i + e.begin());
                     }
 
@@ -123,7 +123,7 @@ public:
                 }
             }
 
-            
+
         }
 
         bool evol = !xe.t;
@@ -138,10 +138,10 @@ public:
             }
 
         }
-        
 
 
-        return r|specProd.size()>0;
+
+        return r | specProd.size() > 0;
     }
 
     string str() {
@@ -182,36 +182,46 @@ public:
     NinXorSolv(const NinXorSolv& that) : bound(that.Sz) {
         *this = that;
     }
+    
+            vector<bitField> satres;
+        void satrec() {
+            bool cont = false;
+            do {
+                cout << "-----++++ bound var " << endl << strbound() << endl;
+                cout << "satisfiable = " << unsat << endl;
 
-    void sat() {
-        bool cont = false;
-        do {
-            cout << "-----++++ bound var " << endl << strbound() << endl;
-            cout << "satisfiable = " << unsat << endl;
-            
-            if(unsat) return;
+                if (unsat) return;
 
-            int n = unbound();
+                int n = unbound();
 
-            if (n != -1) {
-                auto c = NinXorSolv(*this);
-                c.forceAt(n, true);
-                c.sat();
+                if (n != -1) {
+                    auto c = NinXorSolv(*this);
+                    c.forceAt(n, true);
+                    c.satrec();
 
-                c = NinXorSolv(*this);
-                c.forceAt(n, false);
-                c.sat();
+                    c = NinXorSolv(*this);
+                    c.forceAt(n, false);
+                    c.satrec();
 
-            }else{
-                cout << "sat for" << endl << str() << endl;
-                cout << "bound var " << endl << strbound() << endl;
+                } else {
+                    cout << "sat for" << endl << str() << endl;
+                    cout << "bound var " << endl << strbound() << endl;
 
-                //cout << "satisfiable = " << unsat << endl;            
-            
-            }
+                    //cout << "satisfiable = " << unsat << endl;            
 
-        } while (cont);
+                }
 
+            } while (cont);
+
+        }    
+
+    vector<bitField> sat() {
+        satres.clear();
+
+        
+
+
+        return satres;
     }
 
     string str() {
@@ -259,15 +269,15 @@ public:
         bound.set(k, 1);
         solvedVar[k] = xe;
 
-        bool res=false;
-        
+        bool res = false;
+
         for (int i = 0; i < Sz; i++) {
-            bool ch=diags[i].substitute(k, xe);
-            res=res||ch;
-            
-            if(diags[i].e.empty() && diags[i].t!=false){
-                unsat=true;
-            }            
+            bool ch = diags[i].substitute(k, xe);
+            res = res || ch;
+
+            if (diags[i].e.empty() && diags[i].t != false) {
+                unsat = true;
+            }
         }
         return res;
     }

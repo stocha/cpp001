@@ -30,6 +30,13 @@ public:
         return e.size();
     }
 
+    void uniqueonly() {
+        sort(e.begin(), e.end());
+        e.erase(unique(e.begin(), e.end()), e.end());
+        
+        cout << "after unique " << str() << endl;
+    }
+
     bool substitute(int v, bool b) {
 
         int found = -1;
@@ -47,7 +54,10 @@ public:
                 e.clear();
             }
 
+            uniqueonly();
         }
+        
+        
         return found != -1;
     }
 
@@ -97,30 +107,30 @@ public:
 
         if (e.size() == 1 && t == true) {
             for (auto x : e[0].e) {
-                
+
                 res.push_back(tuple<int, xorExpr>(x, xorExpr(true)));
             }
 
         } else
-            if (e.size() == 1 && t == false && e[0].e.size()==1) {
-                res.push_back(tuple<int, xorExpr>(e[0].e[0], xorExpr(false)));
-        }else if (e.size() > 1){
-            for(int i=0;i<e.size();i++){
-                if(e[i].e.size()==1){
-                    int val=(e[i].e[0]);
-                    e.erase(e.begin()+i);
-                    t=(t!=true);
-                    
-                    auto r=tuple<int, xorExpr>(val,*this);
-                    cout << "found  " << val << " eq " << get<1>(r).str() << endl; 
-                    
+            if (e.size() == 1 && t == false && e[0].e.size() == 1) {
+            res.push_back(tuple<int, xorExpr>(e[0].e[0], xorExpr(false)));
+        } else if (e.size() > 1) {
+            for (int i = 0; i < e.size(); i++) {
+                if (e[i].e.size() == 1) {
+                    int val = (e[i].e[0]);
+                    e.erase(e.begin() + i);
+                    t = (t != true);
+
+                    auto r = tuple<int, xorExpr>(val, *this);
+                    cout << "found  " << val << " eq " << get<1>(r).str() << endl;
+
                     e.clear();
-                    t=false;
+                    t = false;
                     res.push_back(r);
                     return res;
                 }
             }
-        
+
         }
 
         return res;
@@ -230,11 +240,11 @@ public:
     void satrec(vector<bitField>& satres) {
         bool cont = false;
         do {
-             cout << "sat for" << endl << str() << endl;
-             cout << "-----++++ bound var " << endl << strbound() << endl;
+            cout << "sat for" << endl << str() << endl;
+            cout << "-----++++ bound var " << endl << strbound() << endl;
             deduce();
             cout << "sat deduced" << endl << str() << endl;
-            
+
             cout << "-----++++ bound var deduced " << endl << strbound() << endl;
             //cout << "satisfiable = " << unsat << endl;
 
@@ -282,26 +292,29 @@ public:
 
     long eval(int pos) {
         if (solvedVar[pos].e.empty()) return (solvedVar[pos].t ? 1 : 0);
-        
-        bool res=solvedVar[pos].t;
-        for(auto x : solvedVar[pos].e){
-            bool ad=true;
-            
-            for(auto aa : x.e){
-                
-                if(!bound[aa]){cout << "unbound eval " << aa << endl; return -1;};
-                ad=ad&eval(aa);
+
+        bool res = solvedVar[pos].t;
+        for (auto x : solvedVar[pos].e) {
+            bool ad = true;
+
+            for (auto aa : x.e) {
+
+                if (!bound[aa]) {
+                    cout << "unbound eval " << aa << endl;
+                    return -1;
+                };
+                ad = ad & eval(aa);
             }
-            res=(res!=ad);
+            res = (res != ad);
         }
 
-        
+
         solvedVar[pos].e.clear();
-        solvedVar[pos].t=res;
-        
-        
+        solvedVar[pos].t = res;
+
+
         cout << "eval " << pos << " " << res << endl;
-        return res?1:0;
+        return res ? 1 : 0;
     }
 
     string str() {
@@ -366,17 +379,17 @@ public:
         bool something = false;
 
         do {
-            something=false;
+            something = false;
             for (int i = 0; i < Sz; i++) {
                 auto x = diags[i].deduce();
-                
-                if(!x.empty()){
-                    something=true;
-                    
-                    for(auto it : x){
-                        substitute(get<0>(it),get<1>(it));
+
+                if (!x.empty()) {
+                    something = true;
+
+                    for (auto it : x) {
+                        substitute(get<0>(it), get<1>(it));
                     }
-                    
+
                     break;
                 }
             }

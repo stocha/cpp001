@@ -167,6 +167,7 @@ public:
 private:
     vector<xorExpr> diags;
     vector<xorExpr> solvedVar;
+    
     bitField bound;
 
     bool unsat = false;
@@ -182,46 +183,58 @@ public:
     NinXorSolv(const NinXorSolv& that) : bound(that.Sz) {
         *this = that;
     }
-    
-            vector<bitField> satres;
-        void satrec() {
-            bool cont = false;
-            do {
-                cout << "-----++++ bound var " << endl << strbound() << endl;
-                cout << "satisfiable = " << unsat << endl;
 
-                if (unsat) return;
+    void satrec( vector<bitField>& satres) {
+        bool cont = false;
+        do {
+            //cout << "-----++++ bound var " << endl << strbound() << endl;
+            //cout << "satisfiable = " << unsat << endl;
 
-                int n = unbound();
+            if (unsat) return;
 
-                if (n != -1) {
-                    auto c = NinXorSolv(*this);
-                    c.forceAt(n, true);
-                    c.satrec();
+            int n = unbound();
 
-                    c = NinXorSolv(*this);
-                    c.forceAt(n, false);
-                    c.satrec();
+            if (n != -1) {
+                auto c = NinXorSolv(*this);
+                c.forceAt(n, true);
+                c.satrec(satres);
 
-                } else {
-                    cout << "sat for" << endl << str() << endl;
-                    cout << "bound var " << endl << strbound() << endl;
+                c = NinXorSolv(*this);
+                c.forceAt(n, false);
+                c.satrec(satres);
 
-                    //cout << "satisfiable = " << unsat << endl;            
+            } else {
+                //cout << "sat for" << endl << str() << endl;
+                //cout << "bound var " << endl << strbound() << endl;
+
+                //cout << "satisfiable = " << unsat << endl;            
+                bitField curr(Sz);
+                for (int i = 0; i < Sz; i++) {
+                    curr.set(i, eval(i));
 
                 }
+                satres.push_back(curr);
+                //cout << " push res " << curr.str() << " nb "<< satres.size() << endl;
+            }
 
-            } while (cont);
+        } while (cont);
 
-        }    
+    }
 
     vector<bitField> sat() {
+        vector<bitField> satres;
+        //cout << "clearing the result" << endl;
         satres.clear();
 
-        
+        satrec(satres);
 
 
         return satres;
+    }
+
+    long eval(int pos) {
+        if (solvedVar[pos].e.empty()) return (solvedVar[pos].t ? 1 : 0);
+
     }
 
     string str() {
@@ -238,7 +251,7 @@ public:
         for (int i = 0; i < diags.size(); i++) {
 
             if (bound[i]) {
-                sout << i << " -> " << solvedVar[i].str();
+                sout << i << " -> " << solvedVar[i].str() << "" << eval(i) << ". ";
             }
 
         }

@@ -10,7 +10,7 @@
 void NinXorSolv::test() {
     srand(0xCAFEBABE);
     
-    int sz=6;
+    int sz=16;
     bitField f(sz);
     f.randomize();f.randomize();f.randomize();f.randomize();f.randomize();
     f.set(3,0);
@@ -42,10 +42,17 @@ void NinXorSolv::test() {
     myx.e.push_back(prodExpr(7,6));
     d.substitute(1,myx);  
     cout << d.str()<< endl; 
-    cout << d.strbound()<< endl;     
+    cout << d.strbound()<< endl;    
     
     cout << "-----------------" << endl;
-    a.sat();
+    vector<bitField> invr=a.sat();
+    
+    cout << invr.size() << " results found" <<endl;
+    
+    
+    for( auto b : invr){
+        cout << b.str() << endl;
+    }
     
 }
 

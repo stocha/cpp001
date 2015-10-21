@@ -43,9 +43,15 @@ public:
             } else {
                 e.clear();
             }
-            return found != -1;
-        }
 
+        }
+        return found != -1;
+    }
+    
+    void addAll(prodExpr o){
+        for(auto i : o.e){
+            e.push_back(i);
+        }
     }
 
     string str() {
@@ -77,19 +83,39 @@ public:
     bool t = false;
 
     bool substitute(int v, xorExpr xe) {
-        bool r=false;
-        for (int i = 0; i < e.size(); i++) {
-            
-            if(xe.e.empty()){
-                bool x = e[i].substitute(v,  xe.t);
-                r=r|x;
-            }else{
-                
-            
+        bool r = false;
+
+        vector<prodExpr> specProd;
+        for (int i = e.size() - 1; i >= 0; i--) {
+
+            if (xe.e.empty()) {
+                bool x = e[i].substitute(v, xe.t);
+                r = r | x;
+                if (x && !xe.t) {
+                    e.erase(i + e.begin());
+                }
+            } else {
+                auto pe = e[i];
+                bool x = pe.substitute(v, true);
+                r = r | x;
+                if (x) {
+                    specProd.push_back(pe);
+                    e.erase(i + e.begin());
+                }
             }
-            
+
 
         }
+        
+        for( auto p : xe.e){
+            for(auto po : specProd){
+                auto dup=po;
+                dup.addAll(p);
+                e.push_back(dup);
+            }
+        
+        }
+        
         return r;
     }
 

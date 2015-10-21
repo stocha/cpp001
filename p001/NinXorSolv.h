@@ -16,6 +16,7 @@ using namespace std;
 #include "NinInterf.h"
 
 class prodExpr {
+public:
     vector<int> e;
 
 public:
@@ -79,10 +80,49 @@ public:
 class xorExpr {
 public:
 
+    xorExpr() {
+    }
+
+    xorExpr(bool it) {
+        t = it;
+
+    }
 
 
     vector<prodExpr> e;
     bool t = false;
+
+    vector<std::tuple<int, xorExpr>> deduce() {
+        vector<std::tuple<int, xorExpr>> res;
+
+        if (e.size() == 1 && t == true) {
+            for (auto x : e[0].e) {
+                res.push_back(tuple<int, xorExpr>(x, xorExpr(true)));
+            }
+
+        } else
+            if (e.size() == 1 && t == false && e[0].e.size()==1) {
+                res.push_back(tuple<int, xorExpr>(e[0].e[0], xorExpr(false)));
+        }else if (e.size() > 1){
+            for(int i=0;i<e.size();i++){
+                if(e[i].e.size()==1){
+                    int val=(e[i].e[0]);
+                    e.erase(e.begin()+i);
+                    t=(t!=true);
+                    
+                    auto r=tuple<int, xorExpr>(val,*this);
+                    e.clear();
+                    t=false;
+                    res.push_back(r);
+                    return res;
+                }
+            }
+        
+        }
+
+        return res;
+
+    }
 
     bool substitute(int v, xorExpr xe) {
         bool r = false;
@@ -167,7 +207,7 @@ public:
 private:
     vector<xorExpr> diags;
     vector<xorExpr> solvedVar;
-    
+
     bitField bound;
 
     bool unsat = false;
@@ -184,10 +224,15 @@ public:
         *this = that;
     }
 
-    void satrec( vector<bitField>& satres) {
+    void satrec(vector<bitField>& satres) {
         bool cont = false;
         do {
-            //cout << "-----++++ bound var " << endl << strbound() << endl;
+             cout << "sat for" << endl << str() << endl;
+             cout << "-----++++ bound var " << endl << strbound() << endl;
+            deduce();
+            cout << "sat deduced" << endl << str() << endl;
+            
+            cout << "-----++++ bound var deduced " << endl << strbound() << endl;
             //cout << "satisfiable = " << unsat << endl;
 
             if (unsat) return;
@@ -293,6 +338,29 @@ public:
             }
         }
         return res;
+    }
+
+    void deduce() {
+        bool something = false;
+
+        do {
+            something=false;
+            for (int i = 0; i < Sz; i++) {
+                auto x = diags[i].deduce();
+                
+                if(!x.empty()){
+                    something=true;
+                    
+                    for(auto it : x){
+                        substitute(get<0>(it),get<1>(it));
+                    }
+                    
+                    break;
+                }
+            }
+
+        } while (something);
+
     }
 
 

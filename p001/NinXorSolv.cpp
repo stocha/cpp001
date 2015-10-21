@@ -32,11 +32,39 @@ public:
         return res;
     }
 };
+void test2() {
+    srand(0xCAFEBABE);
+
+    int sz = 4;
+    bitField f(sz);
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.set(3, 0);
+    cout << f.str() << endl;
+    NinXorSolv a(sz, f);
+
+    cout << a.str() << endl;
+
+
+    cout << "-----------------" << endl;
+    vector<bitField> invr = a.sat();
+
+    cout << invr.size() << " results found" << endl;
+
+
+    for (auto b : invr) {
+        cout << b.str() << endl;
+    }    
+    
+}
 
 void oldTest() {
     srand(0xCAFEBABE);
 
-    int sz = 16;
+    int sz = 4;
     bitField f(sz);
     f.randomize();
     f.randomize();
@@ -52,7 +80,7 @@ void oldTest() {
     int un = a.unbound();
 
     auto b = NinXorSolv(a);
-    cout << "forcing " << un << endl;
+    //cout << "forcing " << un << endl;
     b.forceAt(un, true);
 
     auto c = NinXorSolv(a);
@@ -108,7 +136,8 @@ void testCompImplxo() {
 
 void NinXorSolv::test() {
     //oldTest();
-    testCompImplxo();
+    //testCompImplxo();
+    test2();
 }
 
 

@@ -34,7 +34,7 @@ public:
         sort(e.begin(), e.end());
         e.erase(unique(e.begin(), e.end()), e.end());
         
-        cout << "after unique " << str() << endl;
+       // cout << "after unique " << str() << endl;
     }
 
     bool substitute(int v, bool b) {
@@ -53,8 +53,6 @@ public:
             } else {
                 e.clear();
             }
-
-            uniqueonly();
         }
         
         
@@ -65,6 +63,7 @@ public:
         for (auto i : o.e) {
             e.push_back(i);
         }
+        uniqueonly();
     }
 
     string str() {
@@ -114,7 +113,7 @@ public:
         } else
             if (e.size() == 1 && t == false && e[0].e.size() == 1) {
             res.push_back(tuple<int, xorExpr>(e[0].e[0], xorExpr(false)));
-        } else if (e.size() > 1) {
+        } else if (e.size() > 1 && false) {
             for (int i = 0; i < e.size(); i++) {
                 if (e[i].e.size() == 1) {
                     int val = (e[i].e[0]);
@@ -122,7 +121,7 @@ public:
                     t = (t != true);
 
                     auto r = tuple<int, xorExpr>(val, *this);
-                    cout << "found  " << val << " eq " << get<1>(r).str() << endl;
+                  //  cout << "found  " << val << " eq " << get<1>(r).str() << endl;
 
                     e.clear();
                     t = false;
@@ -187,6 +186,7 @@ public:
             for (auto po : specProd) {
                 auto dup = po;
                 dup.addAll(p);
+                
                 e.push_back(dup);
             }
 
@@ -202,11 +202,16 @@ public:
 
 
         //cerr << " e.sz "<<e.size()<<endl;
+        bool m=false;
         sout << (t ? "T /" : "F /");
         for (int i = 0; i < e.size(); i++) {
-            sout << "+";
+           if(m) sout << "+";
             sout << e[i].str();
+            
+            m=true;
         }
+        
+        //sout << "/";
 
         return sout.str();
 
@@ -240,12 +245,12 @@ public:
     void satrec(vector<bitField>& satres) {
         bool cont = false;
         do {
-            cout << "sat for" << endl << str() << endl;
-            cout << "-----++++ bound var " << endl << strbound() << endl;
+           // cout << "sat for" << endl << str() << endl;
+           // cout << "-----++++ bound var " << endl << strbound() << endl;
             deduce();
-            cout << "sat deduced" << endl << str() << endl;
+          //  cout << "sat deduced" << endl << str() << endl;
 
-            cout << "-----++++ bound var deduced " << endl << strbound() << endl;
+           // cout << "-----++++ bound var deduced " << endl << strbound() << endl;
             //cout << "satisfiable = " << unsat << endl;
 
             if (unsat) return;
@@ -313,7 +318,7 @@ public:
         solvedVar[pos].t = res;
 
 
-        cout << "eval " << pos << " " << res << endl;
+      //  cout << "eval " << pos << " " << res << endl;
         return res ? 1 : 0;
     }
 
@@ -394,6 +399,8 @@ public:
                 }
             }
 
+           // cout << " deducing " << endl << str();
+           // cout << " deduc var " << strbound() << endl;
         } while (something);
 
     }

@@ -26,7 +26,7 @@ public:
         e.push_back(b);
     }
 
-    bool substitute(int v, vector<prodExpr> xe, bool b) {
+    bool substitute(int v, bool b) {
 
         int found = -1;
         for (int i = 0; i < e.size(); i++) {
@@ -37,20 +37,13 @@ public:
         }
 
         if (found != -1) {
-            
-            if(xe.empty()){
-                if(b){
-                    e.erase(e.begin() + found);
-                    
-                }else{
-                    e.clear();
-                }
-                
+            if (b) {
+                e.erase(e.begin() + found);
+
+            } else {
+                e.clear();
             }
-            
-            
-            
-            return found!=-1;
+            return found != -1;
         }
 
     }
@@ -83,13 +76,21 @@ public:
     vector<prodExpr> e;
     bool t = false;
 
-    void substitute(int v, xorExpr xe) {
-
+    bool substitute(int v, xorExpr xe) {
+        bool r=false;
         for (int i = 0; i < e.size(); i++) {
-            bool x = e[i].substitute(v, xe.e,xe.t);
             
-        }
+            if(xe.e.empty()){
+                bool x = e[i].substitute(v,  xe.t);
+                r=r|x;
+            }else{
+                
+            
+            }
+            
 
+        }
+        return r;
     }
 
     string str() {
@@ -97,7 +98,7 @@ public:
 
 
         //cerr << " e.sz "<<e.size()<<endl;
-        sout << (t?"T /":"F /");
+        sout << (t ? "T /" : "F /");
         for (int i = 0; i < e.size(); i++) {
             sout << "+";
             sout << e[i].str();
@@ -122,7 +123,7 @@ public:
 
     NinXorSolv(int szp, bitField ovecp) : Sz(szp), solvedVar(szp), bound(szp) {
         for (int i = 0; i < Sz; i++) {
-            diags.push_back(diag(i,ovecp[i]));
+            diags.push_back(diag(i, ovecp[i]));
         }
 
     }
@@ -139,18 +140,18 @@ public:
         }
         return res;
     }
-    
+
     string strbound() {
         std::ostringstream sout;
         for (int i = 0; i < diags.size(); i++) {
-            
-            if(bound[i]){
+
+            if (bound[i]) {
                 sout << i << " -> " << solvedVar[i].str();
             }
 
         }
         return sout.str();
-    }    
+    }
 
     int unbound() {
         for (int i = 0; i < Sz; i++) {
@@ -161,18 +162,20 @@ public:
     }
 
     void forceAt(int i, bool force) {
-        if (bound[i]){ cerr << "already bound" << endl;
+        if (bound[i]) {
+            cerr << "already bound" << endl;
             exit(1);
         }
-        solvedVar[i] = xorExpr();
-        solvedVar[i].t = force;
-        bound.set(i,1);
-        
-        substitute(i,solvedVar[i]);
+        auto a = xorExpr();
+        a.t = force;
 
+        substitute(i, a);
     }
 
     void substitute(int k, xorExpr xe) {
+
+        bound.set(k, 1);
+        solvedVar[k] = xe;
 
         for (int i = 0; i < Sz; i++) {
             diags[i].substitute(k, xe);
@@ -199,7 +202,7 @@ private:
             y++;
         }
 
-        res.t=b;
+        res.t = b;
 
         return res;
 

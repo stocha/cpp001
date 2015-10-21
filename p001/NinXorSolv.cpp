@@ -36,6 +36,14 @@ void NinXorSolv::test() {
     cout << c.str()<< endl; 
     cout << c.strbound()<< endl; 
     
+    auto d=NinXorSolv(a);
+    auto myx=xorExpr();
+    myx.e.push_back(prodExpr(9,8));
+    myx.e.push_back(prodExpr(7,6));
+    d.substitute(1,myx);  
+    cout << d.str()<< endl; 
+    cout << d.strbound()<< endl;     
+    
 }
 
 

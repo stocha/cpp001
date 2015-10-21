@@ -124,7 +124,9 @@ public:
         } else
             if (e.size() == 1 && t == false && e[0].e.size() == 1) {
             res.push_back(tuple<int, xorExpr>(e[0].e[0], xorExpr(false)));
-        } else if (e.size() > 1 ) { //
+        } else if (e.size() > 1 
+                //&& false 
+                ) { // deduc sub
             for (int i = 0; i < e.size(); i++) {
                 if (e[i].e.size() == 1) {
                     
@@ -408,6 +410,9 @@ public:
 
     void deduce() {
         bool something = false;
+        
+        cout << " from " << endl << str();
+            cout << " from var " << strbound() << endl;        
 
         do {
             something = false;
@@ -425,10 +430,10 @@ public:
                 }
             }
 
-          //  cout << " deducing " << endl << str();
-          //  cout << " deduc var " << strbound() << endl;
+            cout << " deducing " << endl << str();
+            cout << " deduc var " << strbound() << endl;
         } while (something);
-        //cout << "------ end deduce -----------" << endl;
+        cout << "------ end deduce -----------" << endl;
     }
 
 

@@ -26,6 +26,10 @@ public:
         e.push_back(b);
     }
 
+    int size() {
+        return e.size();
+    }
+
     bool substitute(int v, bool b) {
 
         int found = -1;
@@ -39,7 +43,6 @@ public:
         if (found != -1) {
             if (b) {
                 e.erase(e.begin() + found);
-
             } else {
                 e.clear();
             }
@@ -47,9 +50,9 @@ public:
         }
         return found != -1;
     }
-    
-    void addAll(prodExpr o){
-        for(auto i : o.e){
+
+    void addAll(prodExpr o) {
+        for (auto i : o.e) {
             e.push_back(i);
         }
     }
@@ -89,11 +92,28 @@ public:
         for (int i = e.size() - 1; i >= 0; i--) {
 
             if (xe.e.empty()) {
-                bool x = e[i].substitute(v, xe.t);
-                r = r | x;
-                if (x && !xe.t) {
-                    e.erase(i + e.begin());
+
+                if (xe.t) {
+                    bool x = e[i].substitute(v, xe.t);
+
+                    if (x && e[i].size() == 1) {
+
+                    } else if (x && e[i].size() == 0) {
+                        t=(t!=true);
+                        e.erase(i + e.begin());
+                    }
+
+                    r = r | x;
+                } else {
+                    bool x = e[i].substitute(v, xe.t);
+                    if (x) {
+                        e.erase(i + e.begin());
+                    }
+
+                    r = r | x;
                 }
+
+
             } else {
                 auto pe = e[i];
                 bool x = pe.substitute(v, true);
@@ -104,19 +124,25 @@ public:
                 }
             }
 
-
+            
         }
-        
-        for( auto p : xe.e){
-            for(auto po : specProd){
-                auto dup=po;
+
+        bool evol = !xe.t;
+        if (specProd.size()&1 == 1) {
+            t = (t != evol);
+        }
+        for (auto p : xe.e) {
+            for (auto po : specProd) {
+                auto dup = po;
                 dup.addAll(p);
                 e.push_back(dup);
             }
-        
+
         }
         
-        return r;
+
+
+        return r|specProd.size()>0;
     }
 
     string str() {
@@ -156,6 +182,37 @@ public:
 
     NinXorSolv(const NinXorSolv& that) : bound(that.Sz) {
         *this = that;
+    }
+
+    void sat() {
+        bool cont = false;
+        do {
+            cout << "-----++++ bound var " << endl << strbound() << endl;
+            cout << "satisfiable = " << unsat << endl;
+            
+            if(unsat) return;
+
+            int n = unbound();
+
+            if (n != -1) {
+                auto c = NinXorSolv(*this);
+                c.forceAt(n, true);
+                c.sat();
+
+                c = NinXorSolv(*this);
+                c.forceAt(n, false);
+                c.sat();
+
+            }else{
+                cout << "sat for" << endl << str() << endl;
+                cout << "bound var " << endl << strbound() << endl;
+
+                //cout << "satisfiable = " << unsat << endl;            
+            
+            }
+
+        } while (cont);
+
     }
 
     string str() {
@@ -198,15 +255,22 @@ public:
         substitute(i, a);
     }
 
-    void substitute(int k, xorExpr xe) {
+    bool substitute(int k, xorExpr xe) {
 
         bound.set(k, 1);
         solvedVar[k] = xe;
 
+        bool res=false;
+        
         for (int i = 0; i < Sz; i++) {
-            diags[i].substitute(k, xe);
+            bool ch=diags[i].substitute(k, xe);
+            res=res||ch;
+            
+            if(diags[i].e.empty() && diags[i].t!=false){
+                unsat=true;
+            }            
         }
-
+        return res;
     }
 
 

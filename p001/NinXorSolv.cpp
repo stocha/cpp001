@@ -10,7 +10,7 @@
 void NinXorSolv::test() {
     srand(0xCAFEBABE);
     
-    int sz=4;
+    int sz=6;
     bitField f(sz);
     f.randomize();f.randomize();f.randomize();f.randomize();f.randomize();
     f.set(3,0);
@@ -43,6 +43,9 @@ void NinXorSolv::test() {
     d.substitute(1,myx);  
     cout << d.str()<< endl; 
     cout << d.strbound()<< endl;     
+    
+    cout << "-----------------" << endl;
+    a.sat();
     
 }
 

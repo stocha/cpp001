@@ -14,7 +14,6 @@
 using namespace std;
 
 #include "NinInterf.h"
-#include "Formulae.h"
 
 class prodExpr {
     vector<int> e;

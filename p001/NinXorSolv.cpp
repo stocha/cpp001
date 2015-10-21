@@ -35,7 +35,7 @@ public:
 void test2() {
     srand(0xCAFEBABE);
 
-    int sz = 4;
+    int sz = 6;
     bitField f(sz);
     f.randomize();
     f.randomize();
@@ -115,7 +115,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 36;
+    int nbBit = 18;
 
     SoluSimp ss(nbBit);
     ss.debug_coef();
@@ -128,16 +128,16 @@ void testCompImplxo() {
     //compareImpl imp(&refInv,&refInv);
     // compareImpl imp(&seqInv,&seqInv); 
     //compareImpl imp(&seqInv, &seqSym);
-    //compareImpl imp(&xoInv, &seqSym);
+    compareImpl imp(&xoInv, &seqSym);
     //compareImpl imp(&seqSym, &seqSym);
-    compareImpl imp(&xoInv, &xoInv);
+    //compareImpl imp(&xoInv, &xoInv);
     imp.compareThem(nbBit, 30);
 }
 
 void NinXorSolv::test() {
     //oldTest();
-    testCompImplxo();
-    //test2();
+    //testCompImplxo();
+    test2();
 }
 
 

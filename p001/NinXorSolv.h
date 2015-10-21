@@ -33,8 +33,8 @@ public:
     void uniqueonly() {
         sort(e.begin(), e.end());
         e.erase(unique(e.begin(), e.end()), e.end());
-        
-       // cout << "after unique " << str() << endl;
+
+        // cout << "after unique " << str() << endl;
     }
 
     bool substitute(int v, bool b) {
@@ -54,8 +54,8 @@ public:
                 e.clear();
             }
         }
-        
-        
+
+
         return found != -1;
     }
 
@@ -98,8 +98,19 @@ public:
     }
 
 
+
     vector<prodExpr> e;
     bool t = false;
+
+    int countIt(int v) {
+        int res=0;
+        for(auto x : e){
+            for (auto y : x.e){
+                if(y==v)res++;
+            }
+        }
+        return res;
+    }
 
     vector<std::tuple<int, xorExpr>> deduce() {
         vector<std::tuple<int, xorExpr>> res;
@@ -113,15 +124,20 @@ public:
         } else
             if (e.size() == 1 && t == false && e[0].e.size() == 1) {
             res.push_back(tuple<int, xorExpr>(e[0].e[0], xorExpr(false)));
-        } else if (e.size() > 1 && false) {
+        } else if (e.size() > 1 ) { //
             for (int i = 0; i < e.size(); i++) {
                 if (e[i].e.size() == 1) {
+                    
+
                     int val = (e[i].e[0]);
+                    int countit=countIt(val);
+                    if(countit>1) continue;
+                    
                     e.erase(e.begin() + i);
                     t = (t != true);
 
                     auto r = tuple<int, xorExpr>(val, *this);
-                  //  cout << "found  " << val << " eq " << get<1>(r).str() << endl;
+                    //  cout << "found  " << val << " eq " << get<1>(r).str() << endl;
 
                     e.clear();
                     t = false;
@@ -130,7 +146,7 @@ public:
                 }
             }
 
-        }
+        } // deduce par substitution d'expressions
 
         return res;
 
@@ -186,7 +202,7 @@ public:
             for (auto po : specProd) {
                 auto dup = po;
                 dup.addAll(p);
-                
+
                 e.push_back(dup);
             }
 
@@ -202,15 +218,15 @@ public:
 
 
         //cerr << " e.sz "<<e.size()<<endl;
-        bool m=false;
+        bool m = false;
         sout << (t ? "T /" : "F /");
         for (int i = 0; i < e.size(); i++) {
-           if(m) sout << "+";
+            if (m) sout << "+";
             sout << e[i].str();
-            
-            m=true;
+
+            m = true;
         }
-        
+
         //sout << "/";
 
         return sout.str();
@@ -245,12 +261,12 @@ public:
     void satrec(vector<bitField>& satres) {
         bool cont = false;
         do {
-           // cout << "sat for" << endl << str() << endl;
-           // cout << "-----++++ bound var " << endl << strbound() << endl;
+            // cout << "sat for" << endl << str() << endl;
+            // cout << "-----++++ bound var " << endl << strbound() << endl;
             deduce();
-          //  cout << "sat deduced" << endl << str() << endl;
+            //  cout << "sat deduced" << endl << str() << endl;
 
-           // cout << "-----++++ bound var deduced " << endl << strbound() << endl;
+            // cout << "-----++++ bound var deduced " << endl << strbound() << endl;
             //cout << "satisfiable = " << unsat << endl;
 
             if (unsat) return;
@@ -273,7 +289,10 @@ public:
                 //cout << "satisfiable = " << unsat << endl;            
                 bitField curr(Sz);
                 for (int i = 0; i < Sz; i++) {
-                    curr.set(i, eval(i));
+                    int e=eval(i);
+                    
+                    if(e==-1) {cerr << "unbound " << i << endl; exit(1);}
+                    curr.set(i, e);
 
                 }
                 satres.push_back(curr);
@@ -298,7 +317,7 @@ public:
     long eval(int pos) {
         if (solvedVar[pos].e.empty()) return (solvedVar[pos].t ? 1 : 0);
 
-        bool res = solvedVar[pos].t;
+        bool res = solvedVar[pos].t!=true;
         for (auto x : solvedVar[pos].e) {
             bool ad = true;
 
@@ -308,7 +327,14 @@ public:
                     cout << "unbound eval " << aa << endl;
                     return -1;
                 };
-                ad = ad & eval(aa);
+                
+                int ev=eval(aa);
+                if (ev==-1) {
+                    cout << "unbound eval " << aa << endl;
+                    return -1;
+                };                
+                
+                ad = ad & ev;
             }
             res = (res != ad);
         }
@@ -318,7 +344,7 @@ public:
         solvedVar[pos].t = res;
 
 
-      //  cout << "eval " << pos << " " << res << endl;
+        //  cout << "eval " << pos << " " << res << endl;
         return res ? 1 : 0;
     }
 
@@ -399,10 +425,10 @@ public:
                 }
             }
 
-           // cout << " deducing " << endl << str();
-           // cout << " deduc var " << strbound() << endl;
+          //  cout << " deducing " << endl << str();
+          //  cout << " deduc var " << strbound() << endl;
         } while (something);
-
+        //cout << "------ end deduce -----------" << endl;
     }
 
 

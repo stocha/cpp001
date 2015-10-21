@@ -97,6 +97,7 @@ public:
 
         if (e.size() == 1 && t == true) {
             for (auto x : e[0].e) {
+                
                 res.push_back(tuple<int, xorExpr>(x, xorExpr(true)));
             }
 
@@ -111,6 +112,8 @@ public:
                     t=(t!=true);
                     
                     auto r=tuple<int, xorExpr>(val,*this);
+                    cout << "found  " << val << " eq " << get<1>(r).str() << endl; 
+                    
                     e.clear();
                     t=false;
                     res.push_back(r);
@@ -279,7 +282,26 @@ public:
 
     long eval(int pos) {
         if (solvedVar[pos].e.empty()) return (solvedVar[pos].t ? 1 : 0);
+        
+        bool res=solvedVar[pos].t;
+        for(auto x : solvedVar[pos].e){
+            bool ad=true;
+            
+            for(auto aa : x.e){
+                
+                if(!bound[aa]){cout << "unbound eval " << aa << endl; return -1;};
+                ad=ad&eval(aa);
+            }
+            res=(res!=ad);
+        }
 
+        
+        solvedVar[pos].e.clear();
+        solvedVar[pos].t=res;
+        
+        
+        cout << "eval " << pos << " " << res << endl;
+        return res?1:0;
     }
 
     string str() {
@@ -296,7 +318,7 @@ public:
         for (int i = 0; i < diags.size(); i++) {
 
             if (bound[i]) {
-                sout << i << " -> " << solvedVar[i].str() << "" << eval(i) << ". ";
+                sout << i << " -> " << solvedVar[i].str() << "[" << eval(i) << ". " << " ||";
             }
 
         }

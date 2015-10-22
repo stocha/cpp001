@@ -35,28 +35,79 @@ public:
     }
 };
 
-void xsolt00(){
-    auto x=vx();
-    
-    x.add(vp(4,5));
-    x.add(vp(4,5)|vp(6,7));
-    x.add(vp(3,3));
-    x.add(vp(4,5));
-    x.add(vp(7,8));
-    
-    
+vector<bool> bftov(bitField bf) {
+    vector<bool> res;
+    for (int i = 0; i < bf.size(); i++) {
+        res.push_back(bf[i]);
+    }
+    return res;
+}
+
+void xsolt00() {
+    auto x = vx();
+
+    x.add(vp(4, 5));
+    x.add(vp(4, 5) | vp(6, 7));
+    x.add(vp(3, 3));
+    x.add(vp(4, 5));
+    x.add(vp(7, 8));
+
+
     cout << x.str() << endl;
-    
-    x.add(vp(4,5)|vp(6,7));
-    x.add(vp(3,3));
+
+    x.add(vp(4, 5) | vp(6, 7));
+    x.add(vp(3, 3));
     x.add(vp());
-    
+
     cout << x.str() << endl;
-    
-    x.add(vp(7,8));
-    x.add(vp());    
-    
+
+    x.add(vp(7, 8));
+    x.add(vp());
+
     cout << x.str() << endl;
+}
+
+void xsolt01() {
+    srand(0xCAFEBABE);
+
+    int sz = 8;
+    bitField f(sz);
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.set(3, 0);
+
+   // f = bitField(8);
+   // f.set(0, 0);
+//    f.set(1, 1);
+//    f.set(2, 0);
+//    f.set(3, 1);
+//    f.set(4, 1);
+//    f.set(5, 1);
+//    f.set(6, 1);
+//    f.set(7, 0);
+
+
+    //0010.1100
+
+    cout << f.str() << endl;
+    equation a(bftov(f));
+
+    cout << a.str() << endl;
+
+
+    cout << "-----------------" << endl;
+    //vector<bitField> invr = a.sat();
+
+    //cout << invr.size() << " results found" << endl;
+
+
+    //for (auto b : invr) {
+    //    cout << b.str() << endl;
+    //}
+
 }
 
 void test2() {
@@ -179,8 +230,9 @@ void NinXorSolv::test() {
     //oldTest();
     //testCompImplxo();
     //test2();
-    
-    xsolt00();
+
+   // xsolt00();
+     xsolt01();
 }
 
 

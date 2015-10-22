@@ -17,6 +17,11 @@
 
 using namespace std;
 
+class vptwice {
+    bitset<512> a;
+    bitset<512> c;
+};
+
 class vp {
 private:
     bitset<512> e;
@@ -57,12 +62,13 @@ public:
     void operator|=(const vp& other)noexcept {
         e |= other.e;
     }
+
     vp operator|(const vp& other)noexcept {
-        auto x=vp(*this);
+        auto x = vp(*this);
         x |= other;
-        
+
         return x;
-    }    
+    }
 
     bool operator<(const vp& ot) const {
         if (isTrue() && !ot.isTrue()) return true;
@@ -78,16 +84,18 @@ public:
         return false;
     }
 
-    string str() const{
+    string str() const {
         std::ostringstream sout;
 
         bool t = false;
         for (int i = 0; i < e.size(); i++) {
             if (e[i] && t) sout << "." << i;
-            else if (e[i]){
-                sout << i;t = true;}
+            else if (e[i]) {
+                sout << i;
+                t = true;
+            }
 
-            
+
         }
         if (isTrue()) sout << "T";
 
@@ -106,8 +114,8 @@ public:
 
     void add(const vp& ot) {
 
-        auto id=e.find(ot);
-        if (id!=e.end()) {
+        auto id = e.find(ot);
+        if (id != e.end()) {
             e.erase(ot);
         } else {
             e.insert(ot);
@@ -123,8 +131,8 @@ public:
 
         bool t = false;
         for (auto i = e.begin(); i != e.end(); ++i) {
-            if ( t) sout << " + " << (i->str());
-            else  sout << i->str();
+            if (t) sout << " + " << (i->str());
+            else sout << i->str();
 
             t = true;
         }
@@ -133,6 +141,59 @@ public:
 
         return sout.str();
     }
+};
+
+class equation {
+private:
+    int sz;
+
+    vector<vx> e;
+
+private:
+
+    vx diag(int i, bool b) {
+        vx res;
+
+        int half = sz / 2;
+
+        int y = max(0, i - half + 1);
+        for (int x = min(i, half - 1); x >= 0 && y < half; x--) {
+
+            res.add(vp(x, y + half));
+
+            y++;
+        }
+
+        if(b) res.add(vp());
+
+        return res;
+
+    }
+
+public:
+
+    equation(const equation& ot) {
+        sz = ot.sz;
+        e = ot.e;
+    }
+
+    equation(vector<bool> in) : sz(in.size()) {
+        for(int i=0;i<sz;i++){
+            e.push_back(diag(i,in[i]));
+        }
+    }
+    
+    string str() const {
+        ostringstream sout;
+
+        for(int i=0;i<sz;i++){
+            sout << e[i].str() << endl;
+        }
+
+
+        return sout.str();
+    }    
+
 };
 
 class XSol2 {

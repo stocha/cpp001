@@ -423,8 +423,8 @@ public:
     void deduce() {
         bool something = false;
 
-        cout << " from " << endl << str();
-        cout << " from var " << strbound() << endl;
+        //cout << " from " << endl << str();
+        //cout << " from var " << strbound() << endl;
 
         do {
             something = false;
@@ -442,10 +442,10 @@ public:
                 }
             }
 
-            cout << " deducing " << endl << str();
-            cout << " deduc var " << strbound() << endl;
+          //  cout << " deducing " << endl << str();
+          //  cout << " deduc var " << strbound() << endl;
         } while (something);
-        cout << "------ end deduce -----------" << endl;
+        //cout << "------ end deduce -----------" << endl;
     }
 
 

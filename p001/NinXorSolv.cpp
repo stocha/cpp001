@@ -32,10 +32,11 @@ public:
         return res;
     }
 };
+
 void test2() {
     srand(0xCAFEBABE);
 
-    int sz = 6;
+    int sz = 8;
     bitField f(sz);
     f.randomize();
     f.randomize();
@@ -43,6 +44,20 @@ void test2() {
     f.randomize();
     f.randomize();
     f.set(3, 0);
+
+    f = bitField(8);
+    f.set(0, 0);
+    f.set(1, 0);
+    f.set(2, 1);
+    f.set(3, 1);
+    f.set(4, 0);
+    f.set(5, 1);
+    f.set(6, 0);
+    f.set(7, 0);
+
+
+    //0010.1100
+
     cout << f.str() << endl;
     NinXorSolv a(sz, f);
 
@@ -57,8 +72,8 @@ void test2() {
 
     for (auto b : invr) {
         cout << b.str() << endl;
-    }    
-    
+    }
+
 }
 
 void oldTest() {
@@ -115,7 +130,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 18;
+    int nbBit = 8;
 
     SoluSimp ss(nbBit);
     ss.debug_coef();

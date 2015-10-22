@@ -20,6 +20,9 @@ public:
     vector<int> e;
 
 public:
+    
+    prodExpr(){
+    }
 
     prodExpr(int a, int b) {
         e.push_back(a);
@@ -103,10 +106,10 @@ public:
     bool t = false;
 
     int countIt(int v) {
-        int res=0;
-        for(auto x : e){
-            for (auto y : x.e){
-                if(y==v)res++;
+        int res = 0;
+        for (auto x : e) {
+            for (auto y : x.e) {
+                if (y == v)res++;
             }
         }
         return res;
@@ -124,17 +127,17 @@ public:
         } else
             if (e.size() == 1 && t == false && e[0].e.size() == 1) {
             res.push_back(tuple<int, xorExpr>(e[0].e[0], xorExpr(false)));
-        } else if (e.size() > 1 
+        } else if (e.size() > 1
                 //&& false 
                 ) { // deduc sub
             for (int i = 0; i < e.size(); i++) {
                 if (e[i].e.size() == 1) {
-                    
+
 
                     int val = (e[i].e[0]);
-                    int countit=countIt(val);
-                    if(countit>1) continue;
-                    
+                    int countit = countIt(val);
+                    if (countit > 1) continue;
+
                     e.erase(e.begin() + i);
                     t = (t != true);
 
@@ -183,7 +186,7 @@ public:
                 }
 
 
-            } else {
+            } else { // non empty expression
                 auto pe = e[i];
                 bool x = pe.substitute(v, true);
                 r = r | x;
@@ -196,11 +199,16 @@ public:
 
         }
 
-        bool evol = !xe.t;
-        if (specProd.size()&1 == 1) {
-            t = (t != evol);
+        //bool evol = !xe.t;
+        //if (specProd.size()&1 == 1) {
+        //   t = (t != evol);
+        //}
+
+        xorExpr mod = xe;
+        if (!xe.t) {
+            mod.e.push_back(prodExpr());
         }
-        for (auto p : xe.e) {
+        for (auto p : mod.e) {
             for (auto po : specProd) {
                 auto dup = po;
                 dup.addAll(p);
@@ -291,9 +299,12 @@ public:
                 //cout << "satisfiable = " << unsat << endl;            
                 bitField curr(Sz);
                 for (int i = 0; i < Sz; i++) {
-                    int e=eval(i);
-                    
-                    if(e==-1) {cerr << "unbound " << i << endl; exit(1);}
+                    int e = eval(i);
+
+                    if (e == -1) {
+                        cerr << "unbound " << i << endl;
+                        exit(1);
+                    }
                     curr.set(i, e);
 
                 }
@@ -319,7 +330,7 @@ public:
     long eval(int pos) {
         if (solvedVar[pos].e.empty()) return (solvedVar[pos].t ? 1 : 0);
 
-        bool res = solvedVar[pos].t!=true;
+        bool res = false;
         for (auto x : solvedVar[pos].e) {
             bool ad = true;
 
@@ -329,18 +340,19 @@ public:
                     cout << "unbound eval " << aa << endl;
                     return -1;
                 };
-                
-                int ev=eval(aa);
-                if (ev==-1) {
+
+                int ev = eval(aa);
+                if (ev == -1) {
                     cout << "unbound eval " << aa << endl;
                     return -1;
-                };                
-                
+                };
+
                 ad = ad & ev;
             }
             res = (res != ad);
         }
 
+        if (!solvedVar[pos].t) res = (res != true);
 
         solvedVar[pos].e.clear();
         solvedVar[pos].t = res;
@@ -410,9 +422,9 @@ public:
 
     void deduce() {
         bool something = false;
-        
+
         cout << " from " << endl << str();
-            cout << " from var " << strbound() << endl;        
+        cout << " from var " << strbound() << endl;
 
         do {
             something = false;

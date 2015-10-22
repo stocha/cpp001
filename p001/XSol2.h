@@ -17,13 +17,8 @@
 
 using namespace std;
 
-class vptwice {
-    bitset<512> a;
-    bitset<512> c;
-};
-
 class vp {
-private:
+public :
     bitset<512> e;
 
 
@@ -106,11 +101,48 @@ public:
 
 };
 
+class vptwice {
+    bitset<512> a;
+    bitset<512> c;
+    
+public :
+    vptwice(){
+        a.reset();
+        c.reset();
+    }
+    
+    void add(const vp it){
+        bitset<512> cf=a;
+        cf&=it.e;
+        a^=it.e;
+        
+        c|=cf;
+        
+    }
+    
+    vp unique(){
+        bitset<512> cf=c;
+        cf.flip();
+        cf&=a;
+        return vp(cf);
+    }
+    
+};
+
 class vx {
 private:
     set<vp> e;
 
 public:
+    
+    vp uniqueCandidate() const{
+        vptwice t;
+        
+        for(auto x : e){
+            t.add(x);
+        }
+        return t.unique();
+    }
 
     void add(const vp& ot) {
 
@@ -147,6 +179,8 @@ class equation {
 private:
     int sz;
 
+    
+public :
     vector<vx> e;
 
 private:
@@ -193,6 +227,17 @@ public:
 
         return sout.str();
     }    
+    
+    string debugUnique() const {
+        ostringstream sout;
+
+        for(int i=0;i<sz;i++){
+            sout << e[i].uniqueCandidate().str() << endl;
+        }
+
+
+        return sout.str();
+    }        
 
 };
 

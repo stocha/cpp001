@@ -96,6 +96,8 @@ void xsolt01() {
     equation a(bftov(f));
 
     cout << a.str() << endl;
+    
+    cout << a.debugUnique() << endl;
 
 
     cout << "-----------------" << endl;

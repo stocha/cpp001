@@ -17,12 +17,5 @@
 
 #include "XSol2.h"
 
-XSol2::XSol2() {
-}
 
-XSol2::XSol2(const XSol2& orig) {
-}
-
-XSol2::~XSol2() {
-}
 

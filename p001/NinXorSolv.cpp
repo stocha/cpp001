@@ -67,6 +67,28 @@ void xsolt00() {
     cout << x.str() << endl;
 }
 
+void xsolt02() {
+    srand(0xCAFEBABE);
+
+    int sz = 8;
+    bitField f(sz);
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.randomize();
+    f.randomize();
+
+   // f = bitField(8);
+    f.set(0, 1);
+    f.set(sz-1, 0);   
+    
+    cout << f.str() << endl;
+    
+    auto x= XSol2(bftov(f)) ;
+    
+    x.dosolve();
+}
+
 void xsolt01() {
     srand(0xCAFEBABE);
 
@@ -234,7 +256,8 @@ void NinXorSolv::test() {
     //test2();
 
    // xsolt00();
-     xsolt01();
+    // xsolt01();
+    xsolt02();
 }
 
 

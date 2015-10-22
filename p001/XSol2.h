@@ -13,6 +13,7 @@
 #include <bitset> 
 #include <set>
 #include <sstream>
+#include <iostream>
 
 
 using namespace std;
@@ -32,6 +33,11 @@ public:
         e.reset();
         e.set(i, true);
         e.set(j, true);
+    }
+    
+    vp(int i){
+        e.reset();
+        e.set(i,true);
     }
 
     vp(const vp& ot) {
@@ -156,6 +162,18 @@ private:
     set<vp> e;
 
 public:
+    
+    vx(){
+    }
+    
+    vx(vp a){
+        e.insert(a);
+    }
+    
+    vx(vp x, vp y){
+        e.insert(x);
+        e.insert(y);
+    }    
 
     vp uniqueCandidate() const {
         vptwice t;
@@ -336,13 +354,13 @@ public:
         sout << "CLEAN" << endl;
         for (auto x : clean) {
             sout << x.str() << endl;
-        }    
-        
+        }
+
         sout << "BOGOSSED" << endl;
         for (auto x : bogossed) {
             sout << x.str() << endl;
-        }    
-        
+        }
+
         sout << " --- end equation --- " << endl;
 
 
@@ -361,13 +379,116 @@ public:
         return sout.str();
     }
 
+    bool brush() {
+
+        for (auto x : dirty) {
+
+            auto b = x.singleBogoss();
+
+            if (b.isTrue()) {
+                dirty.erase(x);
+                clean.insert(x);
+                
+                return true;
+            } else {
+
+                dirty.erase(x);
+                bogossed.insert(x);
+                
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    vp findFree() {
+        for (auto x : clean) {
+            if (x.isFalse()) continue;
+            auto v = x.vars();
+          //  cerr << "vars " << v.str() << endl;
+            
+            if(v.isTrue() ) continue;
+            
+            for (int i = 0; i < 512; i++) {
+                if (v[i]) {
+                    return vp(i);
+                }else{
+            //        cerr << i << " is " << v[i] << endl;
+                
+                }
+            }
+        }
+        return vp();
+    }
+
+    equation derive(bool phase) {
+        equation res = *this;
+
+        auto v=findFree();
+
+        if(!v.isTrue()){
+            if(phase)
+                res.dirty.insert(vx(vp(),v));
+            else
+                res.dirty.insert(vx(v));
+        }else{
+            cerr << "nothing found" << endl;
+        }
+
+
+        return res;
+    }
+
 };
 
 class XSol2 {
+    vector<bool> in;
+
 public:
-    XSol2();
-    XSol2(const XSol2& orig);
-    virtual ~XSol2();
+
+    XSol2(vector<bool> inp) : in(inp) {
+
+
+    }
+
+    void dosolve() {
+        equation eq(in);
+
+        cout << eq.str();
+        while (eq.brush()) {
+
+            cout << "broching " << endl;
+            cout << eq.str();
+
+        }
+
+        
+        equation next1 = eq.derive(true);
+        equation next0 = eq.derive(false);
+        cout << "next T " << endl;
+        cout << next1.str();
+        
+        cout << "next F " << endl;
+        cout << next0.str();    
+        
+        while (next0.brush()) {
+
+            cout << "broching false " << endl;
+            cout << next0.str();
+
+        }      
+        
+        while (next1.brush()) {
+
+            cout << "broching true " << endl;
+            cout << next1.str();
+
+        }               
+
+    }
+
+
 private:
 
 };

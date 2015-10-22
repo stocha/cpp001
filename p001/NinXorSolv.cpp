@@ -7,6 +7,8 @@
 
 #include "NinXorSolv.h"
 
+#include "XSol2.h"
+
 class xorInvert : public inverterInterface {
 
     struct myclass001 {
@@ -32,6 +34,30 @@ public:
         return res;
     }
 };
+
+void xsolt00(){
+    auto x=vx();
+    
+    x.add(vp(4,5));
+    x.add(vp(4,5)|vp(6,7));
+    x.add(vp(3,3));
+    x.add(vp(4,5));
+    x.add(vp(7,8));
+    
+    
+    cout << x.str() << endl;
+    
+    x.add(vp(4,5)|vp(6,7));
+    x.add(vp(3,3));
+    x.add(vp());
+    
+    cout << x.str() << endl;
+    
+    x.add(vp(7,8));
+    x.add(vp());    
+    
+    cout << x.str() << endl;
+}
 
 void test2() {
     srand(0xCAFEBABE);
@@ -151,8 +177,10 @@ void testCompImplxo() {
 
 void NinXorSolv::test() {
     //oldTest();
-    testCompImplxo();
+    //testCompImplxo();
     //test2();
+    
+    xsolt00();
 }
 
 

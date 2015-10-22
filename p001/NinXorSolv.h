@@ -20,24 +20,23 @@ public:
     vector<int> e;
 
 public:
-    
-    bool operator < (const prodExpr& ot) const
-    {
-        if(e.empty()&&ot.e.empty()) return false;
-        if(e.empty()&& !ot.e.empty()) return true;
-        if(!e.empty()&& ot.e.empty()) return false;
-        
-        if(e.size() < ot.e.size()) return true;
-        if(e.size() > ot.e.size()) return false;
-        
-        for(int l=0;l<e.size();l++){
-            if(e[l] < ot.e[l]) return true;
-            if(e[l]> ot.e[l]) return false;              
-        }                        
+
+    bool operator<(const prodExpr& ot) const {
+        if (e.empty() && ot.e.empty()) return false;
+        if (e.empty()&& !ot.e.empty()) return true;
+        if (!e.empty() && ot.e.empty()) return false;
+
+        if (e.size() < ot.e.size()) return true;
+        if (e.size() > ot.e.size()) return false;
+
+        for (int l = 0; l < e.size(); l++) {
+            if (e[l] < ot.e[l]) return true;
+            if (e[l] > ot.e[l]) return false;
+        }
         return false;
-    }    
-    
-    prodExpr(){
+    }
+
+    prodExpr() {
     }
 
     prodExpr(int a, int b) {
@@ -52,8 +51,8 @@ public:
     void uniqueonly() {
         sort(e.begin(), e.end());
         e.erase(unique(e.begin(), e.end()), e.end());
-        
-        sort(e.begin(),e.end());
+
+        sort(e.begin(), e.end());
 
         // cout << "after unique " << str() << endl;
     }
@@ -178,6 +177,8 @@ public:
         bool r = false;
 
         vector<prodExpr> specProd;
+
+        int inv = 0;
         for (int i = e.size() - 1; i >= 0; i--) {
 
             if (xe.e.empty()) {
@@ -205,9 +206,14 @@ public:
 
             } else { // non empty expression
                 auto pe = e[i];
+                int oldsz = pe.e.size();
                 bool x = pe.substitute(v, true);
                 r = r | x;
                 if (x) {
+
+                   // if (oldsz == 1) {
+                   //     inv++;
+                   // }
                     specProd.push_back(pe);
                     e.erase(i + e.begin());
                 }
@@ -215,6 +221,8 @@ public:
 
 
         }
+
+        if (inv & 1) t = (t != true);
 
         //bool evol = !xe.t;
         //if (specProd.size()&1 == 1) {
@@ -237,31 +245,32 @@ public:
 
         trimXors();
 
+
         return r | specProd.size() > 0;
     }
-    
-    void trimXors(){
-        sort(e.begin(),e.end());
-        
-        
-        
-        if(e.size()<2) return;
-        
-        cerr << " triming " << str() << endl;
-        
+
+    void trimXors() {
+        sort(e.begin(), e.end());
+
+
+
+        if (e.size() < 2) return;
+
+       // cerr << " triming " << str() << endl;
+
         //int c=0;
-        
-        for(int i=e.size()-2;i>=0;i--){
-            if(!(e[i]<e[i+1])){
-                e.erase(e.begin()+i+1);
-                e.erase(e.begin()+i);
+
+        for (int i = e.size() - 2; i >= 0; i--) {
+            if (!(e[i] < e[i + 1])) {
+                e.erase(e.begin() + i + 1);
+                e.erase(e.begin() + i);
                 i--;
                 //c++;
             }
         }
-        
+
         //if(c&1) t=(t!=true);
-        
+
         //cerr << " after t " << str() << endl;
     }
 
@@ -274,7 +283,7 @@ public:
         sout << (t ? "T /" : "F /");
         for (int i = 0; i < e.size(); i++) {
             if (m) sout << "+";
-            sout << e[i].str();
+            sout << e[i].str() << "'";
 
             m = true;
         }
@@ -290,6 +299,7 @@ class NinXorSolv {
 public:
 
     int Sz;
+
 private:
     vector<xorExpr> diags;
     vector<xorExpr> solvedVar;
@@ -316,17 +326,35 @@ public:
             // cout << "sat for" << endl << str() << endl;
             // cout << "-----++++ bound var " << endl << strbound() << endl;
             deduce();
+            
+            for(int i=0;i<diags.size();i++){
+                
+               // cout << diags[i].str() << endl << " check unsat "<< endl;
+                 if (diags[i].e.empty() && diags[i].t)
+                 {
+                     unsat = true;
+                   //  cout << diags[i].str() << endl << ">>> UNSAT SET "<< endl;
+                 }else{
+                     int nb=0;
+                     for(auto x : diags[i].e){
+                         if(x.e.empty()){ nb++;};
+                     }
+                     bool tau=(nb&1);
+                     if(diags[i].e.size()==nb && tau!=diags[i].t) unsat=true;
+                 }
+            }
+           
             //  cout << "sat deduced" << endl << str() << endl;
 
             // cout << "-----++++ bound var deduced " << endl << strbound() << endl;
             //cout << "satisfiable = " << unsat << endl;
 
-            if (unsat){ 
-           //   cout << "sat REJECTED" << endl << str() << endl;
+            if (unsat) {
+                 //  cout << "sat REJECTED" << endl << str() << endl;
 
-         //    cout << "-----++++ bound var REJECTED " << endl << strbound() << endl;                
+                //    cout << "-----++++ bound var REJECTED " << endl << strbound() << endl;                
                 return;
-            
+
             }
 
             int n = unbound();
@@ -365,12 +393,16 @@ public:
     }
 
     vector<bitField> sat() {
+        long nbBoolSwitch=0;
+        
         vector<bitField> satres;
         //cout << "clearing the result" << endl;
         satres.clear();
 
         satrec(satres);
 
+        
+       // cout << " nb bool switch  " << nbBoolSwitch << endl;
 
         return satres;
     }
@@ -440,14 +472,15 @@ public:
     }
 
     void forceAt(int i, bool force) {
+        
         if (bound[i]) {
             cerr << "already bound" << endl;
             exit(1);
         }
         auto a = xorExpr();
         a.t = force;
-        
-     //   cout << "forceAt " << i << "  " << (force?"true":"false") << endl;
+
+        //   cout << "forceAt " << i << "  " << (force?"true":"false") << endl;
 
         substitute(i, a);
     }
@@ -463,6 +496,7 @@ public:
             bool ch = diags[i].substitute(k, xe);
             res = res || ch;
 
+            
             if (diags[i].e.empty() && diags[i].t != false) {
                 unsat = true;
             }
@@ -473,13 +507,15 @@ public:
     void deduce() {
         bool something = false;
 
-        cout << " from " << endl << str();
-        cout << " from var " << strbound() << endl;
+       // cout << " from " << endl << str();
+       // cout << " from var " << strbound() << endl;
 
         do {
             something = false;
             for (int i = 0; i < Sz; i++) {
                 auto x = diags[i].deduce();
+
+                
 
                 if (!x.empty()) {
                     something = true;
@@ -488,14 +524,16 @@ public:
                         substitute(get<0>(it), get<1>(it));
                     }
 
+                    
+                    
                     break;
                 }
             }
 
-            cout << " deducing " << endl << str();
-            cout << " deduc var " << strbound() << endl;
+      //      cout << " deducing " << endl << str();
+       //     cout << " deduc var " << strbound() << endl;
         } while (something);
-        cout << "------ end deduce -----------" << endl;
+       // cout << "------ end deduce -----------" << endl;
     }
 
 

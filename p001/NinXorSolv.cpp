@@ -130,7 +130,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 8;
+    int nbBit = 32;
 
     SoluSimp ss(nbBit);
     ss.debug_coef();
@@ -143,16 +143,16 @@ void testCompImplxo() {
     //compareImpl imp(&refInv,&refInv);
     // compareImpl imp(&seqInv,&seqInv); 
     //compareImpl imp(&seqInv, &seqSym);
-    compareImpl imp(&xoInv, &seqSym);
+    //compareImpl imp(&xoInv, &seqSym);
     //compareImpl imp(&seqSym, &seqSym);
-    //compareImpl imp(&xoInv, &xoInv);
-    imp.compareThem(nbBit, 40);
+    compareImpl imp(&xoInv, &xoInv);
+    imp.compareThem(nbBit, 30);
 }
 
 void NinXorSolv::test() {
     //oldTest();
-    //testCompImplxo();
-    test2();
+    testCompImplxo();
+    //test2();
 }
 
 

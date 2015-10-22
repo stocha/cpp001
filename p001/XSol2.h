@@ -18,7 +18,7 @@
 using namespace std;
 
 class vp {
-public :
+public:
     bitset<512> e;
 
 
@@ -36,7 +36,7 @@ public:
 
     vp(const vp& ot) {
         e = ot.e;
-    } 
+    }
 
     vp(const bitset<512>& ot) {
         e = ot;
@@ -53,7 +53,7 @@ public:
     bool isTrue()const noexcept {
         return e.none();
     }
-    
+
     int count()const {
         return e.count();
     }
@@ -61,10 +61,10 @@ public:
     void operator|=(const vp& other)noexcept {
         e |= other.e;
     }
-    
+
     void operator&=(const vp& other)noexcept {
         e &= other.e;
-    }    
+    }
 
     vp operator|(const vp& other)noexcept {
         auto x = vp(*this);
@@ -72,13 +72,13 @@ public:
 
         return x;
     }
-    
+
     vp operator&(const vp& other)noexcept {
         auto x = vp(*this);
         x &= other;
 
         return x;
-    }    
+    }
 
     bool operator<(const vp& ot) const {
         if (isTrue() && !ot.isTrue()) return true;
@@ -119,106 +119,105 @@ public:
 class vptwice {
     bitset<512> a;
     bitset<512> c;
-    
-public :
-    vptwice(){
+
+public:
+
+    vptwice() {
         a.reset();
         c.reset();
     }
-    
-    void add(const vp it){
-        bitset<512> cf=a;
-        cf&=it.e;
-        a^=it.e;
-        
-        c|=cf;
-        
+
+    void add(const vp it) {
+        bitset<512> cf = a;
+        cf &= it.e;
+        a ^= it.e;
+
+        c |= cf;
+
     }
-    
-    vp unique(){
-        bitset<512> cf=c;
+
+    vp unique() {
+        bitset<512> cf = c;
         cf.flip();
-        cf&=a;
+        cf &= a;
         return vp(cf);
     }
-    
-    vp vars(){
-        bitset<512> cf=c;
-        cf|=a;
-        return vp(cf);        
+
+    vp vars() {
+        bitset<512> cf = c;
+        cf |= a;
+        return vp(cf);
     }
-    
+
 };
-
-
 
 class vx {
 private:
     set<vp> e;
 
-public:   
-    
-    vp uniqueCandidate() const{
+public:
+
+    vp uniqueCandidate() const {
         vptwice t;
-        
-        for(auto x : e){
+
+        for (auto x : e) {
             t.add(x);
         }
         return t.unique();
     }
-    
-    vp vars() const{
+
+    vp vars() const {
         vptwice t;
-        
-        for(auto x : e){
+
+        for (auto x : e) {
             t.add(x);
         }
-        return t.vars();        
+        return t.vars();
     }
-    
-    vp singleBogoss() const{
-        vp un=uniqueCandidate();
-        for( auto x : e){
-        
-            if(x.count()>1) return vp();
-            
-            
-            if(!(x&un).isTrue()){
+
+    vp singleBogoss() const {
+        vp un = uniqueCandidate();
+        for (auto x : e) {
+
+            if (x.count() > 1) return vp();
+
+
+            if (!(x & un).isTrue()) {
                 return x;
             }
-        
+
         }
         return vp();
     }
-    
+
     bool operator<(const vx& ot) const {
-        auto mev=vars();
-        auto hev=ot.vars();
-        
-        if(mev <hev) return true;
-        if(hev < mev) return false;
-        
-        
+        auto mev = vars();
+        auto hev = ot.vars();
+
+        if (mev < hev) return true;
+        if (hev < mev) return false;
+
+
         if (isFalse() && !ot.isFalse()) return true;
         if (isFalse() && ot.isFalse()) return false;
         if (!isFalse() && ot.isFalse()) return false;
 
         if (e.size() < ot.e.size()) return true;
         if (e.size() > ot.e.size()) return false;
-        
-        auto me=e.begin();
-        auto he=ot.e.begin();
 
-        while(me!=e.end()) {
+        auto me = e.begin();
+        auto he = ot.e.begin();
+
+        while (me != e.end()) {
             bool inf1 = ((*me) < (*he));
             bool inf2 = ((*he) < (*me));
-            if(inf1) return true;
-            if(inf2) return false;
+            if (inf1) return true;
+            if (inf2) return false;
             ++me;
             ++he;
         }
         return false;
-    }     
+    }
 
     void add(const vp& ot) {
 
@@ -234,7 +233,7 @@ public:
         return e.empty();
     }
 
-    string str()  const{
+    string str() const {
         ostringstream sout;
 
         bool t = false;
@@ -251,13 +250,47 @@ public:
     }
 };
 
+//class eqLine {
+//    vx l;
+//    bool dirty = true;
+//    bool bog = false;
+//
+//public:
+//
+//    bool operator<(const eqLine& ot) const {
+//        return l < ot.l;
+//    }
+//
+//    string str() const {
+//        ostringstream sout;
+//
+//        sout << (dirty ? " DIRT " : "") << (bog ? "BOGOSSED " : "") << l.str();
+//
+//
+//        return sout.str();
+//    }
+//
+//    eqLine(vx lp) : l(lp) {
+//    }
+//
+//    vp singleBogoss() const {
+//        return l.singleBogoss();
+//    }
+//    
+//    vp uniqueCandidate() const {
+//        return l.uniqueCandidate();
+//    }
+//};
+
 class equation {
 private:
     int sz;
 
-    
-public :
-    set<vx> e;
+
+public:
+    set<vx> dirty;
+    set<vx> clean;
+    set<vx> bogossed;
 
 private:
 
@@ -274,47 +307,59 @@ private:
             y++;
         }
 
-        if(b) res.add(vp());
+        if (b) res.add(vp());
 
         return res;
 
     }
 
+
+
 public:
 
-    equation(const equation& ot) {
-        sz = ot.sz;
-        e = ot.e;
+    equation() {
     }
 
     equation(vector<bool> in) : sz(in.size()) {
-        for(int i=0;i<sz;i++){
-            e.insert(diag(i,in[i]));
+        for (int i = 0; i < sz; i++) {
+            dirty.insert(diag(i, in[i]));
         }
     }
-    
+
     string str() const {
         ostringstream sout;
 
-        for(auto x : e){
+        sout << "DIRTY" << endl;
+        for (auto x : dirty) {
             sout << x.str() << endl;
         }
+        sout << "CLEAN" << endl;
+        for (auto x : clean) {
+            sout << x.str() << endl;
+        }    
+        
+        sout << "BOGOSSED" << endl;
+        for (auto x : bogossed) {
+            sout << x.str() << endl;
+        }    
+        
+        sout << " --- end equation --- " << endl;
 
 
         return sout.str();
-    }    
-    
+    }
+
     string debugUnique() const {
         ostringstream sout;
 
-        for(auto x : e){
-            vp s=x.singleBogoss();
+        for (auto x : dirty) {
+            vp s = x.singleBogoss();
             sout << x.uniqueCandidate().str() << " BOGOSS " << s.str() << endl;
         }
 
 
         return sout.str();
-    }        
+    }
 
 };
 

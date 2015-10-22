@@ -150,7 +150,7 @@ class vx {
 private:
     set<vp> e;
 
-public:
+public:   
     
     vp uniqueCandidate() const{
         vptwice t;
@@ -174,6 +174,26 @@ public:
         }
         
     }
+    
+    bool operator<(const vx& ot) const {
+        if (isFalse() && !ot.isFalse()) return true;
+        if (isFalse() && ot.isFalse()) return false;
+        if (!isFalse() && ot.isFalse()) return false;
+
+        if (e.size() < ot.e.size()) return true;
+        if (e.size() > ot.e.size()) return false;
+        
+        auto me=e.begin();
+        auto he=ot.e.begin();
+
+        while(me!=e.end()) {
+            bool inf = (*me) < (*he);
+            if(inf) return true;
+            ++me;
+            ++he;
+        }
+        return false;
+    }     
 
     void add(const vp& ot) {
 
@@ -212,7 +232,7 @@ private:
 
     
 public :
-    vector<vx> e;
+    set<vx> e;
 
 private:
 
@@ -244,15 +264,15 @@ public:
 
     equation(vector<bool> in) : sz(in.size()) {
         for(int i=0;i<sz;i++){
-            e.push_back(diag(i,in[i]));
+            e.insert(diag(i,in[i]));
         }
     }
     
     string str() const {
         ostringstream sout;
 
-        for(int i=0;i<sz;i++){
-            sout << e[i].str() << endl;
+        for(auto x : e){
+            sout << x.str() << endl;
         }
 
 
@@ -262,9 +282,9 @@ public:
     string debugUnique() const {
         ostringstream sout;
 
-        for(int i=0;i<sz;i++){
-            vp s=e[i].singleBogoss();
-            sout << e[i].uniqueCandidate().str() << " BOGOSS " << s.str() << endl;
+        for(auto x : e){
+            vp s=x.singleBogoss();
+            sout << x.uniqueCandidate().str() << " BOGOSS " << s.str() << endl;
         }
 
 

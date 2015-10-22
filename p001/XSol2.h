@@ -36,7 +36,7 @@ public:
 
     vp(const vp& ot) {
         e = ot.e;
-    }
+    } 
 
     vp(const bitset<512>& ot) {
         e = ot;
@@ -53,10 +53,18 @@ public:
     bool isTrue()const noexcept {
         return e.none();
     }
+    
+    int count()const {
+        return e.count();
+    }
 
     void operator|=(const vp& other)noexcept {
         e |= other.e;
     }
+    
+    void operator&=(const vp& other)noexcept {
+        e &= other.e;
+    }    
 
     vp operator|(const vp& other)noexcept {
         auto x = vp(*this);
@@ -64,6 +72,13 @@ public:
 
         return x;
     }
+    
+    vp operator&(const vp& other)noexcept {
+        auto x = vp(*this);
+        x &= other;
+
+        return x;
+    }    
 
     bool operator<(const vp& ot) const {
         if (isTrue() && !ot.isTrue()) return true;
@@ -129,6 +144,8 @@ public :
     
 };
 
+
+
 class vx {
 private:
     set<vp> e;
@@ -142,6 +159,20 @@ public:
             t.add(x);
         }
         return t.unique();
+    }
+    
+    vp singleBogoss() const{
+        vp un=uniqueCandidate();
+        for( auto x : e){
+        
+            if(x.count()>1) return vp();
+            
+            if(!(x&un).isTrue()){
+                return x;
+            }
+        
+        }
+        
     }
 
     void add(const vp& ot) {
@@ -158,7 +189,7 @@ public:
         return e.empty();
     }
 
-    string str() const {
+    string str()  const{
         ostringstream sout;
 
         bool t = false;
@@ -232,7 +263,8 @@ public:
         ostringstream sout;
 
         for(int i=0;i<sz;i++){
-            sout << e[i].uniqueCandidate().str() << endl;
+            vp s=e[i].singleBogoss();
+            sout << e[i].uniqueCandidate().str() << " BOGOSS " << s.str() << endl;
         }
 
 

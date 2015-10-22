@@ -322,9 +322,9 @@ public:
             //cout << "satisfiable = " << unsat << endl;
 
             if (unsat){ 
-              cout << "sat REJECTED" << endl << str() << endl;
+           //   cout << "sat REJECTED" << endl << str() << endl;
 
-             cout << "-----++++ bound var REJECTED " << endl << strbound() << endl;                
+         //    cout << "-----++++ bound var REJECTED " << endl << strbound() << endl;                
                 return;
             
             }
@@ -447,7 +447,7 @@ public:
         auto a = xorExpr();
         a.t = force;
         
-        cout << "forceAt " << i << "  " << (force?"true":"false") << endl;
+     //   cout << "forceAt " << i << "  " << (force?"true":"false") << endl;
 
         substitute(i, a);
     }

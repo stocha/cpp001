@@ -47,11 +47,11 @@ void test2() {
 
     f = bitField(8);
     f.set(0, 0);
-    f.set(1, 0);
-    f.set(2, 1);
+    f.set(1, 1);
+    f.set(2, 0);
     f.set(3, 1);
     f.set(4, 1);
-    f.set(5, 0);
+    f.set(5, 1);
     f.set(6, 1);
     f.set(7, 0);
 
@@ -146,7 +146,7 @@ void testCompImplxo() {
     compareImpl imp(&xoInv, &seqSym);
     //compareImpl imp(&seqSym, &seqSym);
     //compareImpl imp(&xoInv, &xoInv);
-    imp.compareThem(nbBit, 30);
+    imp.compareThem(nbBit, 40);
 }
 
 void NinXorSolv::test() {

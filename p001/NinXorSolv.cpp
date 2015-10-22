@@ -50,9 +50,9 @@ void test2() {
     f.set(1, 0);
     f.set(2, 1);
     f.set(3, 1);
-    f.set(4, 0);
-    f.set(5, 1);
-    f.set(6, 0);
+    f.set(4, 1);
+    f.set(5, 0);
+    f.set(6, 1);
     f.set(7, 0);
 
 

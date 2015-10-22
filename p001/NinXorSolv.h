@@ -30,15 +30,10 @@ public:
         if(e.size() < ot.e.size()) return true;
         if(e.size() > ot.e.size()) return false;
         
-        if(e[0] < ot.e[0]) return true;
-        if(e[0]> ot.e[0]) return false;
-        
-        int l=e.size()-1;
-        
-        if(e[l] < ot.e[l]) return true;
-        if(e[l]> ot.e[l]) return false;        
-        
-        
+        for(int l=0;l<e.size();l++){
+            if(e[l] < ot.e[l]) return true;
+            if(e[l]> ot.e[l]) return false;              
+        }                        
         return false;
     }    
     
@@ -252,7 +247,7 @@ public:
         
         if(e.size()<2) return;
         
-        //cerr << " triming " << str() << endl;
+        cerr << " triming " << str() << endl;
         
         //int c=0;
         
@@ -326,7 +321,13 @@ public:
             // cout << "-----++++ bound var deduced " << endl << strbound() << endl;
             //cout << "satisfiable = " << unsat << endl;
 
-            if (unsat) return;
+            if (unsat){ 
+              cout << "sat REJECTED" << endl << str() << endl;
+
+             cout << "-----++++ bound var REJECTED " << endl << strbound() << endl;                
+                return;
+            
+            }
 
             int n = unbound();
 
@@ -445,6 +446,8 @@ public:
         }
         auto a = xorExpr();
         a.t = force;
+        
+        cout << "forceAt " << i << "  " << (force?"true":"false") << endl;
 
         substitute(i, a);
     }

@@ -21,6 +21,27 @@ public:
 
 public:
     
+    bool operator < (const prodExpr& ot) const
+    {
+        if(e.empty()&&ot.e.empty()) return false;
+        if(e.empty()&& !ot.e.empty()) return true;
+        if(!e.empty()&& ot.e.empty()) return false;
+        
+        if(e.size() < ot.e.size()) return true;
+        if(e.size() > ot.e.size()) return false;
+        
+        if(e[0] < ot.e[0]) return true;
+        if(e[0]> ot.e[0]) return false;
+        
+        int l=e.size()-1;
+        
+        if(e[l] < ot.e[l]) return true;
+        if(e[l]> ot.e[l]) return false;        
+        
+        
+        return false;
+    }    
+    
     prodExpr(){
     }
 
@@ -36,6 +57,8 @@ public:
     void uniqueonly() {
         sort(e.begin(), e.end());
         e.erase(unique(e.begin(), e.end()), e.end());
+        
+        sort(e.begin(),e.end());
 
         // cout << "after unique " << str() << endl;
     }
@@ -99,7 +122,6 @@ public:
         t = it;
 
     }
-
 
 
     vector<prodExpr> e;
@@ -218,9 +240,34 @@ public:
 
         }
 
-
+        trimXors();
 
         return r | specProd.size() > 0;
+    }
+    
+    void trimXors(){
+        sort(e.begin(),e.end());
+        
+        
+        
+        if(e.size()<2) return;
+        
+        //cerr << " triming " << str() << endl;
+        
+        //int c=0;
+        
+        for(int i=e.size()-2;i>=0;i--){
+            if(!(e[i]<e[i+1])){
+                e.erase(e.begin()+i+1);
+                e.erase(e.begin()+i);
+                i--;
+                //c++;
+            }
+        }
+        
+        //if(c&1) t=(t!=true);
+        
+        //cerr << " after t " << str() << endl;
     }
 
     string str() {
@@ -423,8 +470,8 @@ public:
     void deduce() {
         bool something = false;
 
-        //cout << " from " << endl << str();
-        //cout << " from var " << strbound() << endl;
+        cout << " from " << endl << str();
+        cout << " from var " << strbound() << endl;
 
         do {
             something = false;
@@ -442,10 +489,10 @@ public:
                 }
             }
 
-          //  cout << " deducing " << endl << str();
-          //  cout << " deduc var " << strbound() << endl;
+            cout << " deducing " << endl << str();
+            cout << " deduc var " << strbound() << endl;
         } while (something);
-        //cout << "------ end deduce -----------" << endl;
+        cout << "------ end deduce -----------" << endl;
     }
 
 

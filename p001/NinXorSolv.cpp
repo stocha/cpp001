@@ -77,10 +77,10 @@ void xsolt01() {
     f.randomize();
     f.randomize();
     f.randomize();
-    f.set(3, 0);
 
    // f = bitField(8);
-   // f.set(0, 0);
+    f.set(0, 1);
+    f.set(sz-1, 0);
 //    f.set(1, 1);
 //    f.set(2, 0);
 //    f.set(3, 1);

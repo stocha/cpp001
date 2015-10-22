@@ -142,6 +142,12 @@ public :
         return vp(cf);
     }
     
+    vp vars(){
+        bitset<512> cf=c;
+        cf|=a;
+        return vp(cf);        
+    }
+    
 };
 
 
@@ -161,21 +167,38 @@ public:
         return t.unique();
     }
     
+    vp vars() const{
+        vptwice t;
+        
+        for(auto x : e){
+            t.add(x);
+        }
+        return t.vars();        
+    }
+    
     vp singleBogoss() const{
         vp un=uniqueCandidate();
         for( auto x : e){
         
             if(x.count()>1) return vp();
             
+            
             if(!(x&un).isTrue()){
                 return x;
             }
         
         }
-        
+        return vp();
     }
     
     bool operator<(const vx& ot) const {
+        auto mev=vars();
+        auto hev=ot.vars();
+        
+        if(mev <hev) return true;
+        if(hev < mev) return false;
+        
+        
         if (isFalse() && !ot.isFalse()) return true;
         if (isFalse() && ot.isFalse()) return false;
         if (!isFalse() && ot.isFalse()) return false;
@@ -187,8 +210,10 @@ public:
         auto he=ot.e.begin();
 
         while(me!=e.end()) {
-            bool inf = (*me) < (*he);
-            if(inf) return true;
+            bool inf1 = ((*me) < (*he));
+            bool inf2 = ((*he) < (*me));
+            if(inf1) return true;
+            if(inf2) return false;
             ++me;
             ++he;
         }

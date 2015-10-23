@@ -34,10 +34,10 @@ public:
         e.set(i, true);
         e.set(j, true);
     }
-    
-    vp(int i){
+
+    vp(int i) {
         e.reset();
-        e.set(i,true);
+        e.set(i, true);
     }
 
     vp(const vp& ot) {
@@ -46,6 +46,14 @@ public:
 
     vp(const bitset<512>& ot) {
         e = ot;
+    }
+
+    bool contains(const vp& ot) const {
+        bitset<512> x = ot.e;
+        x &= e;
+        x ^= ot.e;
+
+        return x.none();
     }
 
     bool operator[](size_t pos) const noexcept {
@@ -70,6 +78,10 @@ public:
 
     void operator&=(const vp& other)noexcept {
         e &= other.e;
+    }
+
+    void operator^=(const vp& other)noexcept {
+        e ^= other.e;
     }
 
     vp operator|(const vp& other)noexcept {
@@ -162,18 +174,53 @@ private:
     set<vp> e;
 
 public:
-    
-    vx(){
+
+    vx() {
     }
-    
-    vx(vp a){
+
+    vx(vp a) {
         e.insert(a);
     }
-    
-    vx(vp x, vp y){
+
+    vx(vp x, vp y) {
         e.insert(x);
         e.insert(y);
-    }    
+    }
+
+    vx applySub(const vp& bog, const vx& src) const {
+        vx res;
+
+        bool fal = src.isFalse();
+        
+        cout << " applying sub " << bog.str() << " <-> " << src.str() << " to " << str() << endl;
+
+        for (auto cc : e) {
+            if (!cc.contains(bog)) {
+                cout << " no " << bog.str() << " in " << cc.str() << endl;
+                
+                res.e.insert(cc);
+            } else {
+                if (fal) {
+                    // droped
+                } else {
+                    cout << " moding " << cc.str() << endl;
+                    for (auto s : src.e) {
+                        vp x(s);
+                        x |= cc;
+                        
+                        x ^= bog;
+                        res.e.insert(x);
+                        cout << " inserting " << x.str() << endl;
+                    }
+                }
+
+
+            }
+        }
+        cout << " resuylt " << res.str() << endl;
+         return res;
+
+    }
 
     vp uniqueCandidate() const {
         vptwice t;
@@ -310,6 +357,8 @@ public:
     set<vx> clean;
     set<vx> bogossed;
 
+    set<vx> process;
+
 private:
 
     vx diag(int i, bool b) {
@@ -379,43 +428,70 @@ public:
         return sout.str();
     }
 
-    bool brush() {
+    void doApplySubstitution(const vp& bog, vx eq) {
+        process.insert(dirty.begin(), dirty.end());
+        process.insert(clean.begin(), clean.end());
 
-        for (auto x : dirty) {
+        dirty.clear();
+        clean.clear();
 
-            auto b = x.singleBogoss();
+        eq.add(bog);
 
-            if (b.isTrue()) {
-                dirty.erase(x);
-                clean.insert(x);
-                
-                return true;
-            } else {
+        while (!process.empty()) {
+            auto in = *process.begin();
 
-                dirty.erase(x);
-                bogossed.insert(x);
-                
-                return true;
-            }
+            process.erase(process.begin());
+
+            auto appli = in.applySub(bog, eq);
+
+            //cout << " applicate substi " << bog.str() << " " << eq.str() << endl;
+            //cout << " result in " << appli.str() << endl;
+
+            dirty.insert(appli);
+
         }
 
-        return false;
+    }
+
+    bool brush() {
+
+        if (dirty.empty()) return false;
+
+        auto x = *dirty.begin();
+
+        // Isolated variable
+        auto b = x.singleBogoss();
+        if (!b.isTrue()) {
+            dirty.erase(x);
+            bogossed.insert(x);
+
+            doApplySubstitution(b, x);
+
+            return true;
+        };
+
+
+        dirty.erase(x);
+        clean.insert(x);
+        return true;
+        cerr << "INVARIANT BROKEN BRUSH END OF FILE " << endl;
+        exit(1);
     }
 
     vp findFree() {
         for (auto x : clean) {
             if (x.isFalse()) continue;
             auto v = x.vars();
-          //  cerr << "vars " << v.str() << endl;
-            
-            if(v.isTrue() ) continue;
-            
+            //  cerr << "vars " << v.str() << endl;
+
+            if (v.isTrue()) continue;
+
             for (int i = 0; i < 512; i++) {
                 if (v[i]) {
                     return vp(i);
-                }else{
-            //        cerr << i << " is " << v[i] << endl;
-                
+                } else {
+                    //        cerr << i << " is " << v[i] << endl;
+
                 }
             }
         }
@@ -425,14 +501,14 @@ public:
     equation derive(bool phase) {
         equation res = *this;
 
-        auto v=findFree();
+        auto v = findFree();
 
-        if(!v.isTrue()){
-            if(phase)
-                res.dirty.insert(vx(vp(),v));
+        if (!v.isTrue()) {
+            if (phase)
+                res.dirty.insert(vx(vp(), v));
             else
                 res.dirty.insert(vx(v));
-        }else{
+        } else {
             cerr << "nothing found" << endl;
         }
 
@@ -463,28 +539,28 @@ public:
 
         }
 
-        
+
         equation next1 = eq.derive(true);
         equation next0 = eq.derive(false);
         cout << "next T " << endl;
         cout << next1.str();
-        
+
         cout << "next F " << endl;
-        cout << next0.str();    
-        
+        cout << next0.str();
+
         while (next0.brush()) {
 
             cout << "broching false " << endl;
             cout << next0.str();
 
-        }      
-        
+        }
+
         while (next1.brush()) {
 
             cout << "broching true " << endl;
             cout << next1.str();
 
-        }               
+        }
 
     }
 

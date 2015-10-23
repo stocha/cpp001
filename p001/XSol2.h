@@ -187,6 +187,30 @@ public:
         e.insert(y);
     }
 
+public:
+
+    long nbProd() {
+        long res = 0;
+
+        for (auto v : e) {
+            res += 1;
+        }
+
+        return res;
+
+    }
+
+    long nbVars() {
+        long res = 0;
+
+        for (auto v : e) {
+            res += v.count();
+        }
+
+        return res;
+
+    }
+
     vx applySub(const vp& bog, const vx& src) const {
         vx res;
 
@@ -321,38 +345,6 @@ public:
     }
 };
 
-//class eqLine {
-//    vx l;
-//    bool dirty = true;
-//    bool bog = false;
-//
-//public:
-//
-//    bool operator<(const eqLine& ot) const {
-//        return l < ot.l;
-//    }
-//
-//    string str() const {
-//        ostringstream sout;
-//
-//        sout << (dirty ? " DIRT " : "") << (bog ? "BOGOSSED " : "") << l.str();
-//
-//
-//        return sout.str();
-//    }
-//
-//    eqLine(vx lp) : l(lp) {
-//    }
-//
-//    vp singleBogoss() const {
-//        return l.singleBogoss();
-//    }
-//    
-//    vp uniqueCandidate() const {
-//        return l.uniqueCandidate();
-//    }
-//};
-
 class equation {
 private:
 
@@ -395,6 +387,31 @@ public:
         for (int i = 0; i < in.size(); i++) {
             dirty.insert(diag(i, in[i], in.size()));
         }
+    }
+
+    long getNbProd() {
+        long res;
+        for (auto x : dirty) {
+            res += x.nbProd();
+        }
+
+        for (auto x : clean) {
+            res += x.nbProd();
+        }
+
+        return res;
+    }
+
+    long getNbVars() {
+        long res;
+        for (auto x : dirty) {
+            res += x.nbVars();
+        }
+        for (auto x : clean) {
+            res += x.nbVars();
+        }
+
+        return res;
     }
 
     string str() const {
@@ -573,6 +590,8 @@ public:
 
     }
 
+    const bool stataff = false;
+
     vector<equation> match;
     vector<vector<bool>> sat;
 
@@ -594,12 +613,17 @@ public:
             countBrushing++;
             //  cout << "broching " << endl;
             // cout << eq.str();
+            if (stataff && countBrushing % 100 == 0) {
+                cout << " brushing " << countBrushing << endl;
+                cout << " nb prod " << eq.getNbProd() << endl;
+                cout << " nb vars " << eq.getNbVars() << endl;
+            }
 
         }
 
         clock_t end = clock();
-        double time = ((double) (end - start))* 1000.0 / CLOCKS_PER_SEC ;
-        if(time>brushtime) brushtime=time;
+        double time = ((double) (end - start))* 1000.0 / CLOCKS_PER_SEC;
+        if (time > brushtime) brushtime = time;
 
         if (!eq.clean.empty()) {
 
@@ -623,6 +647,8 @@ public:
     }
 
     vector<vector<bool>> dosolve() {
+
+
         match.clear();
         countBranching = 0;
 
@@ -638,7 +664,7 @@ public:
         clock_t start = clock();
         recsolve(0, eq);
         clock_t end = clock();
-        double time = ((double) (end - start))* 1000.0 / CLOCKS_PER_SEC ;
+        double time = ((double) (end - start))* 1000.0 / CLOCKS_PER_SEC;
 
         // cout << " result " << endl;
         for (auto x : match) {
@@ -646,16 +672,18 @@ public:
             // cout << x.str() << endl;
 
         }
-        cout << " nb End graph " << match.size() << endl;
 
-        
-        cout << "Tot time " << time << endl;        
-        cout << " number_branch " << countBranching << " max depth " << maxdepth << endl;
-        cout << " number_brosse " << countBrushing << endl;
-        cout << " brush time " << brushtime << endl;
+        if (stataff) {
+            cout << " nb End graph " << match.size() << endl;
 
-        cout << " brush time borne " << brushtime*countBrushing/1000.0 << endl;
-        
+
+            cout << "Tot time " << time << endl;
+            cout << " number_branch " << countBranching << " max depth " << maxdepth << endl;
+            cout << " number_brosse " << countBrushing << endl;
+            cout << " brush time " << brushtime << endl;
+
+            cout << " brush time borne " << brushtime * countBrushing / 1000.0 << endl;
+        }
         return sat;
     }
 

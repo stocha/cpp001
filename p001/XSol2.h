@@ -204,14 +204,14 @@ public:
                     // cout << " droping " << cc.str() << endl;
                     // droped
                 } else {
-                  //    cout << " moding " << cc.str() << endl;
+                    //    cout << " moding " << cc.str() << endl;
                     for (auto s : src.e) {
                         vp x(s);
                         x |= cc;
 
                         x ^= bog;
                         res.add(x);
-                       //    cout << " inserting " << x.str() << endl;
+                        //    cout << " inserting " << x.str() << endl;
                     }
                 }
 
@@ -448,8 +448,8 @@ public:
 
             auto appli = in.applySub(bog, eq);
 
-            cout << " substi " << bog.str() << " <-> " << eq.str() << " on " << in.str() << endl;
-            cout << " result in " << appli.str() << endl;
+            //cout << " substi " << bog.str() << " <-> " << eq.str() << " on " << in.str() << endl;
+            //cout << " result in " << appli.str() << endl;
 
             dirty.insert(appli);
 
@@ -539,19 +539,21 @@ public:
         bogossed.clear();
 
         while (brush()) {
+            cout << " extracting " << endl << str() << endl;
+
         }
 
         //cout << " extracted " << endl << str() << endl;
-        
-        vector<bool> res;        
-        for(auto x : bogossed){
+
+        vector<bool> res;
+        for (auto x : bogossed) {
             auto b = x.singleBogoss();
-            
+
             x.add(b);
-            bool t= !x.isFalse();
-            
+            bool t = !x.isFalse();
+
             res.push_back(t);
-        
+
         }
 
 
@@ -574,58 +576,86 @@ public:
     vector<equation> match;
     vector<vector<bool>> sat;
 
-    void recsolve(equation eq) {
-        
-        cout << " STEPPING " << endl;
-        cout << eq.str() << endl;
-        
-        while (eq.brush()) {
+    long countBranching = 0;
+    long maxdepth = 0;
+    long countBrushing = 0;
+    double brushtime = 0;
 
-            cout << "broching " << endl;
-            cout << eq.str();
+    void recsolve(int depth, equation eq) {
+
+        // cout << " STEPPING " << endl;
+        //cout << eq.str() << endl;
+
+        if (depth > maxdepth) maxdepth = depth;
+
+        clock_t start = clock();
+
+        while (eq.brush()) {
+            countBrushing++;
+            //  cout << "broching " << endl;
+            // cout << eq.str();
 
         }
 
-        if (!eq.clean.empty()) {
-            recsolve(eq.derive(false));
-            recsolve(eq.derive(true));
+        clock_t end = clock();
+        double time = ((double) (end - start))* 1000.0 / CLOCKS_PER_SEC ;
+        if(time>brushtime) brushtime=time;
 
-        }else{
+        if (!eq.clean.empty()) {
+
+            countBranching++;
+            recsolve(depth + 1, eq.derive(false));
+            recsolve(depth + 1, eq.derive(true));
+
+        } else {
             if (eq.bogossed.size() > 1) {
-                 cout <<  " PUSHING  RESULT " << endl;
-                
-                sat.push_back(eq.extract());
+                //    cout <<  " PUSHING  RESULT " << endl;
+
+                // sat.push_back(eq.extract());
                 match.push_back(eq);
                 return;
-            }else{
-                cout << " rejecting <<<<< " << endl;
-                cout << eq.str() << endl;
-                
+            } else {
+                //  cout << " rejecting <<<<< " << endl;
+                // cout << eq.str() << endl;
+
             }
         }
     }
 
     vector<vector<bool>> dosolve() {
         match.clear();
+        countBranching = 0;
 
         equation eq(in);
 
-       // cout << eq.str();
+        // cout << eq.str();
         while (eq.brush()) {
 
             //cout << "broching " << endl;
             //cout << eq.str();
 
         }
+        clock_t start = clock();
+        recsolve(0, eq);
+        clock_t end = clock();
+        double time = ((double) (end - start))* 1000.0 / CLOCKS_PER_SEC ;
 
-        recsolve(eq);
+        // cout << " result " << endl;
+        for (auto x : match) {
+            // cout << "----------" << endl;
+            // cout << x.str() << endl;
 
-       // cout << " result " << endl;
-        for(auto x : match){
-            cout << "----------" << endl;
-            cout << x.str() << endl;
-        
         }
+        cout << " nb End graph " << match.size() << endl;
+
+        
+        cout << "Tot time " << time << endl;        
+        cout << " number_branch " << countBranching << " max depth " << maxdepth << endl;
+        cout << " number_brosse " << countBrushing << endl;
+        cout << " brush time " << brushtime << endl;
+
+        cout << " brush time borne " << brushtime*countBrushing/1000.0 << endl;
+        
         return sat;
     }
 

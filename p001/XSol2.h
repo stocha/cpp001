@@ -82,8 +82,8 @@ public:
     void andNotIn(const vp& other)noexcept {
         set<int> res;
         
-        for(auto x: other.e){
-            if(e.find(x)==e.end()){
+        for(auto x: e){
+            if(other.e.find(x)==other.e.end()){
                 res.insert(x);
             }
         }
@@ -175,14 +175,15 @@ public:
     }
 
     void add(const vp it) {
-        vp cf = a;
-        cf &= it;
+        c = a&it;
         a |= it;
 
 
     }
 
     vp unique() {
+      //  cout << "vptwice unique a " << a.str() << " c " << c.str() << endl; 
+        
         vp cf=a;
         cf.andNotIn(c);
         return cf;
@@ -309,6 +310,9 @@ public:
 
     vp singleBogoss() const {
         vp un = uniqueCandidate();
+        
+       // cout << "singlebog un candidate " << un.str() << endl;
+        
         for (auto x : e) {
 
             if (x.count() > 1) return vp();
@@ -427,7 +431,7 @@ public:
     }
 
     long getNbProd() {
-        long res;
+        long res=0;
         for (auto x : dirty) {
             res += x.nbProd();
         }
@@ -440,7 +444,7 @@ public:
     }
 
     long getNbVars() {
-        long res;
+        long res=0;
         for (auto x : dirty) {
             res += x.nbVars();
         }
@@ -556,7 +560,7 @@ public:
         // Isolated variable
         auto b = x.singleBogoss();
 
-
+      //  cout << " brush single extract " << b.str() << endl; 
 
         if (!b.isTrue()) {
             dirty.erase(x);
@@ -600,7 +604,9 @@ public:
             else
                 res.dirty.insert(vx(v));
         } else {
-            cerr << "nothing found" << endl;
+            cerr << "nothing found equation derive" << endl;
+            cerr << str() << endl;
+            exit(0);
         }
 
 
@@ -637,7 +643,7 @@ public:
 
     }
 
-    const bool stataff = false;
+    const bool stataff = true;
 
     vector<equation> match;
     vector<vector<bool>> sat;
@@ -682,9 +688,11 @@ public:
     }
 
     void recsolve(int depth, equation eq) {
+        
+       // // // if(depth > 4) exit(0);
 
-        // cout << " STEPPING " << endl;
-        //cout << eq.str() << endl;
+       //  cout << " STEPPING " << endl;
+       // cout << eq.str() << endl;
 
         if (depth > maxdepth) maxdepth = depth;
 
@@ -692,12 +700,15 @@ public:
 
         while (eq.brush()) {
             countBrushing++;
-            //  cout << "broching " << endl;
-            // cout << eq.str();
-            if (stataff && countBrushing % 100 == 0) {
+
+            if (stataff && countBrushing % 1 == 0) {
+       //       cout << "broching recsolve " << endl;
+       //      cout << eq.str();                
+                
                 cout << " brushing " << countBrushing << endl;
                 cout << " nb prod " << eq.getNbProd() << endl;
                 cout << " nb vars " << eq.getNbVars() << endl;
+                cout << " curr depth " << depth << " max " << maxdepth << endl;
             }
 
         }
@@ -742,10 +753,14 @@ public:
             //cout << eq.str();
 
         }
+        
+                
         clock_t start = clock();
         recsolve(0, eq);
         clock_t end = clock();
         double time = ((double) (end - start))* 1000.0 / CLOCKS_PER_SEC;
+        
+
 
         // cout << " result " << endl;
         for (auto x : match) {

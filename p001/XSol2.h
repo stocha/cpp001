@@ -20,68 +20,91 @@ using namespace std;
 
 class vp {
 public:
-    bitset<512> e;
+    set<int> e;
 
 
 public:
 
     vp() {
-        e.reset();
+       
     }
 
     vp(int i, int j) {
-        e.reset();
-        e.set(i, true);
-        e.set(j, true);
+        e.insert(i);
+        e.insert(j);
     }
 
-    vp(int i) {
-        e.reset();
-        e.set(i, true);
+    vp(int i) {       
+        e.insert(i);
     }
 
     vp(const vp& ot) {
         e = ot.e;
     }
 
-    vp(const bitset<512>& ot) {
+    vp(const set<int>& ot) {
         e = ot;
     }
 
     bool contains(const vp& ot) const {
-        bitset<512> x = ot.e;
-        x &= e;
-        x ^= ot.e;
+        for( auto x : ot.e){
+            if(e.find(x)==e.end()) return false;
+        }
 
-        return x.none();
-    }
-
-    bool operator[](size_t pos) const noexcept {
-        return e[pos];
-    }
-
-    void set(size_t pos, bool val)noexcept {
-        e.set(pos, val);
+        return true;
     }
 
     bool isTrue()const noexcept {
-        return e.none();
+        return e.empty();
     }
 
     int count()const {
-        return e.count();
+        return e.size();
     }
 
     void operator|=(const vp& other)noexcept {
-        e |= other.e;
+        for(auto x : other.e){
+            e.insert(x);
+        }
     }
 
     void operator&=(const vp& other)noexcept {
-        e &= other.e;
+        set<int> res;
+        
+        for(auto x: other.e){
+            if(e.find(x)!=e.end()){
+                res.insert(x);
+            }
+        }
+        e=res;
     }
+    
+    void andNotIn(const vp& other)noexcept {
+        set<int> res;
+        
+        for(auto x: other.e){
+            if(e.find(x)==e.end()){
+                res.insert(x);
+            }
+        }
+        e=res;
+    }    
 
     void operator^=(const vp& other)noexcept {
-        e ^= other.e;
+        set<int> res;
+        
+        for(auto x: other.e){
+            if(e.find(x)==e.end()){
+                res.insert(x);
+            }
+        }
+        for(auto x: e){
+            if(other.e.find(x)==other.e.end()){
+                res.insert(x);
+            }
+        }        
+        
+        e=res;        
     }
 
     vp operator|(const vp& other)noexcept {
@@ -103,11 +126,19 @@ public:
         if (isTrue() && ot.isTrue()) return false;
         if (!isTrue() && ot.isTrue()) return false;
 
-        if (e.count() < ot.e.count()) return true;
-        if (e.count() > ot.e.count()) return false;
+        if (e.size() < ot.e.size()) return true;
+        if (e.size() > ot.e.size()) return false;
 
-        for (int i = 0; i < e.size(); ++i) {
-            if (e[i] ^ ot.e[i]) return e[i];
+        auto me = e.begin();
+        auto he = ot.e.begin();
+
+        while (me != e.end()) {
+            bool inf1 = ((*me) < (*he));
+            bool inf2 = ((*he) < (*me));
+            if (inf1) return true;
+            if (inf2) return false;
+            ++me;
+            ++he;
         }
         return false;
     }
@@ -116,10 +147,10 @@ public:
         std::ostringstream sout;
 
         bool t = false;
-        for (int i = 0; i < e.size(); i++) {
-            if (e[i] && t) sout << "." << i;
-            else if (e[i]) {
-                sout << i;
+        for (auto x : e) {
+            if (t) sout << "." << x;
+            else  {
+                sout << x;
                 t = true;
             }
 
@@ -135,36 +166,32 @@ public:
 };
 
 class vptwice {
-    bitset<512> a;
-    bitset<512> c;
+    vp a;
+    vp c;
 
 public:
 
     vptwice() {
-        a.reset();
-        c.reset();
     }
 
     void add(const vp it) {
-        bitset<512> cf = a;
-        cf &= it.e;
-        a ^= it.e;
+        vp cf = a;
+        cf &= it;
+        a |= it;
 
-        c |= cf;
 
     }
 
     vp unique() {
-        bitset<512> cf = c;
-        cf.flip();
-        cf &= a;
-        return vp(cf);
+        vp cf=a;
+        cf.andNotIn(c);
+        return cf;
     }
 
     vp vars() {
-        bitset<512> cf = c;
+        vp cf = c;
         cf |= a;
-        return vp(cf);
+        return cf;
     }
 
 };
@@ -554,15 +581,10 @@ public:
             //  cerr << "vars " << v.str() << endl;
 
             if (v.isTrue()) continue;
-
-            for (int i = 0; i < 512; i++) {
-                if (v[i]) {
-                    return vp(i);
-                } else {
-                    //        cerr << i << " is " << v[i] << endl;
-
-                }
-            }
+            
+            
+            return vp(*(v.e.begin()));
+           
         }
         return vp();
     }

@@ -291,7 +291,7 @@ void oldTest() {
 
 void testCompImplxo() {
    // int nbBit = 512;
-     int nbBit = 36;
+     int nbBit = 18;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();
@@ -309,8 +309,8 @@ void testCompImplxo() {
     //compareImpl imp(&xoInv, &seqSym);
     //compareImpl imp(&seqSym, &seqSym);
    // compareImpl imp(&xoInv, &xoInv);
-    //compareImpl imp(&solinv, &seqSym);
-     compareImpl imp(&solinv, &solinv);
+    compareImpl imp(&solinv, &seqSym);
+   //  compareImpl imp(&solinv, &solinv);
     imp.compareThem(nbBit, 30);
 }
 

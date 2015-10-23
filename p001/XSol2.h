@@ -667,7 +667,8 @@ public:
 
     }
 
-    const bool stataff = false;
+    const bool stataff = true;
+    const int statbrushingshowfreq = 1000;
 
     vector<equation> match;
     vector<vector<bool>> sat;
@@ -727,9 +728,9 @@ public:
         while (eq.brush()) {
             countBrushing++;
 
-            if (stataff && countBrushing % 1 == 0) {
-              cout << "broching recsolve " << endl;
-             cout << eq.str();                
+            if (stataff && countBrushing % statbrushingshowfreq == 1) {
+            //  cout << "broching recsolve " << endl;
+            // cout << eq.str();                
                 
                 cout << " brushing " << countBrushing << endl;
                 cout << " nb prod " << eq.getNbProd() << endl;
@@ -774,12 +775,12 @@ public:
 
      //   cout << "DO SOLVE " << endl;
      //    cout << eq.str();
-        while (eq.brush()) {
+       // while (eq.brush()) {
 
             //cout << "broching " << endl;
             //cout << eq.str();
 
-        }
+        //}
         
                 
         clock_t start = clock();

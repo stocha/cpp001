@@ -77,10 +77,23 @@ void xsolt02() {
     f.randomize();
     f.randomize();
     f.randomize();
-
-   // f = bitField(8);
+    
+    
     f.set(0, 1);
-    f.set(sz-1, 0);   
+    f.set(sz-1, 0);    
+
+
+    f = bitField(8);
+    f.set(0, 0);
+    f.set(1, 0);
+    f.set(2, 1);
+    f.set(3, 0);
+    f.set(4, 0);
+    f.set(5, 0);
+    f.set(6, 0);
+    f.set(7, 0);    
+    
+   
     
     cout << f.str() << endl;
     
@@ -148,12 +161,12 @@ void test2() {
 
     f = bitField(8);
     f.set(0, 0);
-    f.set(1, 1);
-    f.set(2, 0);
-    f.set(3, 1);
-    f.set(4, 1);
-    f.set(5, 1);
-    f.set(6, 1);
+    f.set(1, 0);
+    f.set(2, 1);
+    f.set(3, 0);
+    f.set(4, 0);
+    f.set(5, 0);
+    f.set(6, 0);
     f.set(7, 0);
 
 
@@ -174,6 +187,8 @@ void test2() {
     for (auto b : invr) {
         cout << b.str() << endl;
     }
+    
+    cout << " end result " << "------------";
 
 }
 
@@ -231,7 +246,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 32;
+    int nbBit = 8;
 
     SoluSimp ss(nbBit);
     ss.debug_coef();
@@ -253,7 +268,7 @@ void testCompImplxo() {
 void NinXorSolv::test() {
     //oldTest();
     //testCompImplxo();
-    //test2();
+    test2();
 
    // xsolt00();
     // xsolt01();

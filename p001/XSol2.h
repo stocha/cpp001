@@ -355,8 +355,6 @@ public:
 
 class equation {
 private:
-    int sz;
-
 
 public:
     set<vx> dirty;
@@ -367,7 +365,7 @@ public:
 
 private:
 
-    vx diag(int i, bool b) {
+    vx diag(int i, bool b, int sz) {
         vx res;
 
         int half = sz / 2;
@@ -393,9 +391,9 @@ public:
     equation() {
     }
 
-    equation(vector<bool> in) : sz(in.size()) {
-        for (int i = 0; i < sz; i++) {
-            dirty.insert(diag(i, in[i]));
+    equation(vector<bool> in) {
+        for (int i = 0; i < in.size(); i++) {
+            dirty.insert(diag(i, in[i], in.size()));
         }
     }
 
@@ -464,23 +462,23 @@ public:
         if (dirty.empty()) return false;
 
         auto x = *dirty.begin();
-        
-        if(x.isFalse()){
+
+        if (x.isFalse()) {
             dirty.erase(x);
             return true;
-        }        
-        
+        }
+
         if (x.isunsat()) {
             bogossed.clear();
             bogossed.insert(x);
             return false;
-        }        
+        }
 
         // Isolated variable
         auto b = x.singleBogoss();
-        
 
-        
+
+
         if (!b.isTrue()) {
             dirty.erase(x);
             bogossed.insert(x);
@@ -536,7 +534,21 @@ public:
         return res;
     }
 
-};
+    vector<bool> extract() {
+        dirty.insert(bogossed.begin(), bogossed.end());
+        bogossed.clear();
+
+        while (brush()) {
+        }
+
+        //cout << " extracted " << endl << str() << endl;
+
+        vector<bool> res;
+
+        return res;
+    }
+
+}; // equation
 
 class XSol2 {
     vector<bool> in;
@@ -547,25 +559,34 @@ public:
 
 
     }
-    
-    equation recsolve(equation eq) const{
+
+    vector<equation> match;
+
+    void recsolve(equation eq) {
+        
         while (eq.brush()) {
 
             //cout << "broching " << endl;
-            cout << eq.str();
+            //cout << eq.str();
 
-        }        
-        
-        if(eq.clean.empty()) return eq; else{
-            auto eqF=recsolve(eq.derive(false));
-            auto eqT=recsolve(eq.derive(true));
-            
-            if(eqF.bogossed.size()==1) return eqT; else return eqF;
-            
+        }
+
+        if (!eq.clean.empty()) {
+            recsolve(eq.derive(false));
+            recsolve(eq.derive(true));
+
+        }else{
+            if (eq.bogossed.size() > 1) {
+                eq.extract();
+                match.push_back(eq);
+                return;
+            }
         }
     }
 
     void dosolve() {
+        match.clear();
+
         equation eq(in);
 
         cout << eq.str();
@@ -576,10 +597,14 @@ public:
 
         }
 
-        equation res=recsolve(eq);
+        recsolve(eq);
+
+        cout << " result " << endl;
+        for(auto x : match){
+            cout << "----------" << endl;
+            cout << x.str() << endl;
         
-         cout << " result " << endl;
-         cout << res.str();
+        }
 
     }
 

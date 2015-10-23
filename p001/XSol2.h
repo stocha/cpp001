@@ -172,17 +172,19 @@ class vptwice {
 public:
 
     vptwice() {
+      // cout << "create vptwice " << endl; 
+        
     }
 
     void add(const vp it) {
-        c = a&it;
+        c |= a&it;
         a |= it;
 
-
+       // cout << " add " << it.str() << " curr a " << a.str() << " c " << c.str() << endl;
     }
 
     vp unique() {
-      //  cout << "vptwice unique a " << a.str() << " c " << c.str() << endl; 
+       // cout << "vptwice unique a " << a.str() << " c " << c.str() << endl; 
         
         vp cf=a;
         cf.andNotIn(c);
@@ -294,6 +296,8 @@ public:
     }
 
     bool isunsat() const {
+      //  cout << "is unsat " << (e.size()) << "   " << (*e.begin()).isTrue() << endl;
+        
         return (e.size() == 1 && (*e.begin()).isTrue());
 
     }
@@ -311,7 +315,7 @@ public:
     vp singleBogoss() const {
         vp un = uniqueCandidate();
         
-       // cout << "singlebog un candidate " << un.str() << endl;
+     //   cout << "singlebog un candidate " << un.str() << endl;
         
         for (auto x : e) {
 
@@ -519,6 +523,19 @@ public:
         if (dirty.empty()) return false;
 
         auto x = *dirty.begin();
+        
+        if (x.isunsat()) {
+
+            
+            bogossed.clear();
+            dirty.clear();
+            clean.clear();
+            bogossed.insert(x);
+            
+          //  cout << " UNSAT DETECTED " << endl;
+          //  cout << str() << endl;            
+            return false;
+        }        
 
         if (x.isFalse()) {
             dirty.erase(x);
@@ -552,8 +569,15 @@ public:
         }
 
         if (x.isunsat()) {
+
+            
             bogossed.clear();
+            dirty.clear();
+            clean.clear();
             bogossed.insert(x);
+            
+          //  cout << " UNSAT DETECTED " << endl;
+          //  cout << str() << endl;            
             return false;
         }
 
@@ -643,7 +667,7 @@ public:
 
     }
 
-    const bool stataff = true;
+    const bool stataff = false;
 
     vector<equation> match;
     vector<vector<bool>> sat;
@@ -659,7 +683,9 @@ public:
 
         while (eq.brushExtract()) {
 
-
+                 //   cout <<  " BRUSHING   RESULT " << endl;
+                    
+                 //   cout << eq.str() << endl;
         }
 
 
@@ -702,8 +728,8 @@ public:
             countBrushing++;
 
             if (stataff && countBrushing % 1 == 0) {
-       //       cout << "broching recsolve " << endl;
-       //      cout << eq.str();                
+              cout << "broching recsolve " << endl;
+             cout << eq.str();                
                 
                 cout << " brushing " << countBrushing << endl;
                 cout << " nb prod " << eq.getNbProd() << endl;
@@ -746,7 +772,8 @@ public:
 
         equation eq(in);
 
-        // cout << eq.str();
+     //   cout << "DO SOLVE " << endl;
+     //    cout << eq.str();
         while (eq.brush()) {
 
             //cout << "broching " << endl;

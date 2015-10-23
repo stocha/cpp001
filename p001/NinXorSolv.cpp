@@ -27,7 +27,7 @@ bitField vtobf(vector<bool> v) {
 
 
 
-class xorInvert : public inverterInterface {
+class  xsol2invert: public inverterInterface {
 
     struct myclass001 {
 
@@ -59,7 +59,7 @@ public:
     }
 };
 
-class xsol2invert : public inverterInterface {
+class xorInvert : public inverterInterface {
 
     struct myclass001 {
 
@@ -290,7 +290,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 48;
+    int nbBit = 8;
 
     SoluSimp ss(nbBit);
     ss.debug_coef();
@@ -308,8 +308,8 @@ void testCompImplxo() {
     //compareImpl imp(&xoInv, &seqSym);
     //compareImpl imp(&seqSym, &seqSym);
    // compareImpl imp(&xoInv, &xoInv);
-    //compareImpl imp(&solinv, &seqSym);
-     compareImpl imp(&solinv, &solinv);
+    compareImpl imp(&solinv, &seqSym);
+    // compareImpl imp(&solinv, &solinv);
     imp.compareThem(nbBit, 30);
 }
 

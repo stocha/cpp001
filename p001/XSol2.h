@@ -198,20 +198,20 @@ public:
             if (!cc.contains(bog)) {
                 //  cout << " no " << bog.str() << " in " << cc.str() << endl;
 
-                res.e.insert(cc);
+                res.add(cc);
             } else {
                 if (fal) {
                     // cout << " droping " << cc.str() << endl;
                     // droped
                 } else {
-                    //  cout << " moding " << cc.str() << endl;
+                  //    cout << " moding " << cc.str() << endl;
                     for (auto s : src.e) {
                         vp x(s);
                         x |= cc;
 
                         x ^= bog;
-                        res.e.insert(x);
-                        //   cout << " inserting " << x.str() << endl;
+                        res.add(x);
+                       //    cout << " inserting " << x.str() << endl;
                     }
                 }
 
@@ -448,8 +448,8 @@ public:
 
             auto appli = in.applySub(bog, eq);
 
-            //cout << " applicate substi " << bog.str() << " " << eq.str() << endl;
-            //cout << " result in " << appli.str() << endl;
+            cout << " substi " << bog.str() << " <-> " << eq.str() << " on " << in.str() << endl;
+            cout << " result in " << appli.str() << endl;
 
             dirty.insert(appli);
 
@@ -576,10 +576,13 @@ public:
 
     void recsolve(equation eq) {
         
+        cout << " STEPPING " << endl;
+        cout << eq.str() << endl;
+        
         while (eq.brush()) {
 
-            //cout << "broching " << endl;
-            //cout << eq.str();
+            cout << "broching " << endl;
+            cout << eq.str();
 
         }
 
@@ -589,9 +592,15 @@ public:
 
         }else{
             if (eq.bogossed.size() > 1) {
+                 cout <<  " PUSHING  RESULT " << endl;
+                
                 sat.push_back(eq.extract());
                 match.push_back(eq);
                 return;
+            }else{
+                cout << " rejecting <<<<< " << endl;
+                cout << eq.str() << endl;
+                
             }
         }
     }
@@ -601,7 +610,7 @@ public:
 
         equation eq(in);
 
-        cout << eq.str();
+       // cout << eq.str();
         while (eq.brush()) {
 
             //cout << "broching " << endl;
@@ -611,7 +620,7 @@ public:
 
         recsolve(eq);
 
-        cout << " result " << endl;
+       // cout << " result " << endl;
         for(auto x : match){
             cout << "----------" << endl;
             cout << x.str() << endl;

@@ -9,7 +9,57 @@
 
 #include "XSol2.h"
 
+vector<bool> bftov(bitField bf) {
+    vector<bool> res;
+    for (int i = 0; i < bf.size(); i++) {
+        res.push_back(bf[i]);
+    }
+    return res;
+}
+
+bitField vtobf(vector<bool> v) {
+    bitField res(v.size());
+    for (int i = 0; i < v.size(); i++) {
+        res.set(i,v[i]);
+    }
+    return res;
+}
+
+
+
 class xorInvert : public inverterInterface {
+
+    struct myclass001 {
+
+        bool operator()(bitField a, bitField b) {
+            for (int i = 0; i < a.size(); i++) {
+                int ind = a.size() - i - 1;
+                if (a[ind] < b[ind]) return true;
+                else if (a[ind] > b[ind]) return false;
+            }
+            return true;
+        }
+    } compareBits;
+public:
+
+    vector<bitField> invert(bitField in) {
+        XSol2 sol=XSol2(bftov(in));
+
+
+        auto pres = sol.dosolve();
+        
+        vector<bitField> res;
+        
+        for(int i=0;i<pres.size();i++){
+            res.push_back(vtobf(pres[i]));
+        }
+
+        sort(res.begin(), res.end(), compareBits);
+        return res;
+    }
+};
+
+class xsol2invert : public inverterInterface {
 
     struct myclass001 {
 
@@ -35,13 +85,7 @@ public:
     }
 };
 
-vector<bool> bftov(bitField bf) {
-    vector<bool> res;
-    for (int i = 0; i < bf.size(); i++) {
-        res.push_back(bf[i]);
-    }
-    return res;
-}
+
 
 void xsolt00() {
     auto x = vx();
@@ -246,7 +290,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 8;
+    int nbBit = 48;
 
     SoluSimp ss(nbBit);
     ss.debug_coef();
@@ -255,24 +299,28 @@ void testCompImplxo() {
     seqInvert seqInv;
     seqInvertSimetric seqSym;
     xorInvert xoInv;
+    
+     xsol2invert solinv;
     //compareImpl imp(&refInv,&seqInv);   
     //compareImpl imp(&refInv,&refInv);
     // compareImpl imp(&seqInv,&seqInv); 
     //compareImpl imp(&seqInv, &seqSym);
     //compareImpl imp(&xoInv, &seqSym);
     //compareImpl imp(&seqSym, &seqSym);
-    compareImpl imp(&xoInv, &xoInv);
+   // compareImpl imp(&xoInv, &xoInv);
+    //compareImpl imp(&solinv, &seqSym);
+     compareImpl imp(&solinv, &solinv);
     imp.compareThem(nbBit, 30);
 }
 
 void NinXorSolv::test() {
     //oldTest();
-    //testCompImplxo();
-    test2();
+    testCompImplxo();
+    //test2();
 
    // xsolt00();
     // xsolt01();
-    xsolt02();
+    //xsolt02();
 }
 
 

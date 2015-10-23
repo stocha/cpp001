@@ -542,8 +542,19 @@ public:
         }
 
         //cout << " extracted " << endl << str() << endl;
+        
+        vector<bool> res;        
+        for(auto x : bogossed){
+            auto b = x.singleBogoss();
+            
+            x.add(b);
+            bool t= !x.isFalse();
+            
+            res.push_back(t);
+        
+        }
 
-        vector<bool> res;
+
 
         return res;
     }
@@ -561,6 +572,7 @@ public:
     }
 
     vector<equation> match;
+    vector<vector<bool>> sat;
 
     void recsolve(equation eq) {
         
@@ -577,14 +589,14 @@ public:
 
         }else{
             if (eq.bogossed.size() > 1) {
-                eq.extract();
+                sat.push_back(eq.extract());
                 match.push_back(eq);
                 return;
             }
         }
     }
 
-    void dosolve() {
+    vector<vector<bool>> dosolve() {
         match.clear();
 
         equation eq(in);
@@ -605,7 +617,7 @@ public:
             cout << x.str() << endl;
         
         }
-
+        return sat;
     }
 
 

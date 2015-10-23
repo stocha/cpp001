@@ -291,7 +291,7 @@ void oldTest() {
 
 void testCompImplxo() {
    // int nbBit = 512;
-     int nbBit = 16;
+     int nbBit = 36;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();

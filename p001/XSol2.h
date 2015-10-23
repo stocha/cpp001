@@ -270,6 +270,16 @@ public:
 
     }
 
+    vp isolatedBogoss() const {
+        if (e.size() > 2) return vp();
+
+        if (e.size() == 2 && !(*e.begin()).isTrue() ) return vp();
+
+        if (e.size() == 2) return (*(++e.begin()));
+
+        return (*e.begin());
+    }
+
     vp singleBogoss() const {
         vp un = uniqueCandidate();
         for (auto x : e) {
@@ -474,6 +484,31 @@ public:
 
     }
 
+    bool brushExtract() {
+        if (dirty.empty()) return false;
+
+        auto x = *dirty.begin();
+
+        if (x.isFalse()) {
+            dirty.erase(x);
+            return true;
+        }
+
+        auto b = x.isolatedBogoss();
+        if (!b.isTrue()) {
+            dirty.erase(x);
+            bogossed.insert(x);
+
+            doApplySubstitution(b, x);
+
+            return true;
+        };
+        dirty.erase(x);
+        clean.insert(x);
+
+        return true;
+    }
+
     bool brush() {
 
         if (dirty.empty()) return false;
@@ -509,8 +544,7 @@ public:
         dirty.erase(x);
         clean.insert(x);
         return true;
-        cerr << "INVARIANT BROKEN BRUSH END OF FILE " << endl;
-        exit(1);
+
     }
 
     vp findFree() {
@@ -552,15 +586,6 @@ public:
     }
 
     vector<bool> extract() {
-        dirty.insert(bogossed.begin(), bogossed.end());
-        bogossed.clear();
-
-        while (brush()) {
-            cout << " extracting " << endl << str() << endl;
-
-        }
-
-        //cout << " extracted " << endl << str() << endl;
 
         vector<bool> res;
         for (auto x : bogossed) {
@@ -595,10 +620,44 @@ public:
     vector<equation> match;
     vector<vector<bool>> sat;
 
+    vector<equation> finalized;
+
     long countBranching = 0;
     long maxdepth = 0;
     long countBrushing = 0;
     double brushtime = 0;
+
+    void recfinalize(equation eq) {
+
+        while (eq.brushExtract()) {
+
+
+        }
+
+
+
+
+        if (!eq.clean.empty()) {
+
+            recfinalize(eq.derive(false));
+            recfinalize(eq.derive(true));
+
+        } else {
+            if (eq.bogossed.size() > 1) {
+                  //  cout <<  " PUSHING  FINALISED RESULT " << endl;
+                    
+                  //  cout << eq.str() << endl;
+
+                sat.push_back(eq.extract());
+                finalized.push_back(eq);
+                return;
+            } else {
+                //  cout << " rejecting <<<<< " << endl;
+                // cout << eq.str() << endl;
+
+            }
+        }
+    }
 
     void recsolve(int depth, equation eq) {
 
@@ -668,8 +727,14 @@ public:
 
         // cout << " result " << endl;
         for (auto x : match) {
-            // cout << "----------" << endl;
-            // cout << x.str() << endl;
+             //cout << "----------" << endl;
+             //cout << x.str() << endl;
+            
+            x.dirty.insert(x.bogossed.begin(),x.bogossed.end());
+            x.dirty.insert(x.clean.begin(),x.clean.end());
+            x.bogossed.clear();
+            x.clean.clear();
+            recfinalize(x);
 
         }
 

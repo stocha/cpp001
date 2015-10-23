@@ -191,34 +191,35 @@ public:
         vx res;
 
         bool fal = src.isFalse();
-        
-        cout << " applying sub " << bog.str() << " <-> " << src.str() << " to " << str() << endl;
+
+        //  cout << " applying sub " << bog.str() << " <-> " << src.str() << " to " << str() << endl;
 
         for (auto cc : e) {
             if (!cc.contains(bog)) {
-                cout << " no " << bog.str() << " in " << cc.str() << endl;
-                
+                //  cout << " no " << bog.str() << " in " << cc.str() << endl;
+
                 res.e.insert(cc);
             } else {
                 if (fal) {
+                    // cout << " droping " << cc.str() << endl;
                     // droped
                 } else {
-                    cout << " moding " << cc.str() << endl;
+                    //  cout << " moding " << cc.str() << endl;
                     for (auto s : src.e) {
                         vp x(s);
                         x |= cc;
-                        
+
                         x ^= bog;
                         res.e.insert(x);
-                        cout << " inserting " << x.str() << endl;
+                        //   cout << " inserting " << x.str() << endl;
                     }
                 }
 
 
             }
         }
-        cout << " resuylt " << res.str() << endl;
-         return res;
+        //  cout << " resuylt " << res.str() << endl;
+        return res;
 
     }
 
@@ -238,6 +239,11 @@ public:
             t.add(x);
         }
         return t.vars();
+    }
+
+    bool isunsat() const {
+        return (e.size() == 1 && (*e.begin()).isTrue());
+
     }
 
     vp singleBogoss() const {
@@ -458,9 +464,23 @@ public:
         if (dirty.empty()) return false;
 
         auto x = *dirty.begin();
+        
+        if(x.isFalse()){
+            dirty.erase(x);
+            return true;
+        }        
+        
+        if (x.isunsat()) {
+            bogossed.clear();
+            bogossed.insert(x);
+            return false;
+        }        
 
         // Isolated variable
         auto b = x.singleBogoss();
+        
+
+        
         if (!b.isTrue()) {
             dirty.erase(x);
             bogossed.insert(x);
@@ -527,6 +547,23 @@ public:
 
 
     }
+    
+    equation recsolve(equation eq) const{
+        while (eq.brush()) {
+
+            //cout << "broching " << endl;
+            cout << eq.str();
+
+        }        
+        
+        if(eq.clean.empty()) return eq; else{
+            auto eqF=recsolve(eq.derive(false));
+            auto eqT=recsolve(eq.derive(true));
+            
+            if(eqF.bogossed.size()==1) return eqT; else return eqF;
+            
+        }
+    }
 
     void dosolve() {
         equation eq(in);
@@ -534,33 +571,15 @@ public:
         cout << eq.str();
         while (eq.brush()) {
 
-            cout << "broching " << endl;
-            cout << eq.str();
+            //cout << "broching " << endl;
+            //cout << eq.str();
 
         }
 
-
-        equation next1 = eq.derive(true);
-        equation next0 = eq.derive(false);
-        cout << "next T " << endl;
-        cout << next1.str();
-
-        cout << "next F " << endl;
-        cout << next0.str();
-
-        while (next0.brush()) {
-
-            cout << "broching false " << endl;
-            cout << next0.str();
-
-        }
-
-        while (next1.brush()) {
-
-            cout << "broching true " << endl;
-            cout << next1.str();
-
-        }
+        equation res=recsolve(eq);
+        
+         cout << " result " << endl;
+         cout << res.str();
 
     }
 

@@ -8,6 +8,7 @@
 #include "NinXorSolv.h"
 
 #include "XSol2.h"
+#include "XSol3.h"
 
 vector<bool> bftov(bitField bf) {
     vector<bool> res;
@@ -314,14 +315,25 @@ void testCompImplxo() {
     imp.compareThem(nbBit, 50);
 }
 
+using namespace xsol3;
+
+void xs3_00(){
+    
+    XSol3 x(32);
+    
+    x.debugParcours();
+}
+
 void NinXorSolv::test() {
     //oldTest();
-    testCompImplxo();
+    //testCompImplxo();
     //test2();
 
    // xsolt00();
    //  xsolt01();
    // xsolt02();
+    
+    xs3_00();
 }
 
 

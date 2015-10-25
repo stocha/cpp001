@@ -27,9 +27,11 @@ namespace xsol3 {
         int vcurrloc = 0;
 
         int cdiagsz = 1;
-        int left = 2;
+        int left = 1;
 
         int phase = 0;
+        
+        int diagind=0;
 
         int sz;
 
@@ -41,6 +43,14 @@ namespace xsol3 {
         
         int remaining() const{
             return left;
+        }
+        
+        int diagnum() const{
+            return diagind;
+        }
+        
+        int ptr() const{
+            return vcurr;
         }
 
         cursor(int size) : sz(size) {
@@ -58,12 +68,13 @@ namespace xsol3 {
                 phase ^= 1;
                 if (phase == 0) {
                     cdiagsz++;
-                    vcurrloc=0;
+                    diagind++;
                 }
-                left = cdiagsz++;
+                vcurrloc=0;
+                left = cdiagsz;
             }
 
-            return vcurr^sz;
+            return vcurr^(sz*sz+sz*2);
         }
 
         bool operator++() {
@@ -74,7 +85,8 @@ namespace xsol3 {
             std::ostringstream sout;
 
             
-            sout << " [ " << cdiagsz << " " << vcurrloc << " ] ";
+           // sout << " [ Dsz " << cdiagsz << " cloc " << vcurrloc << " PH " << phase << " left " << left << " ] ";
+             sout << "(" << diagnum() << "|" <<  vcurrloc  ;
             
             
             return sout.str();
@@ -90,14 +102,33 @@ namespace xsol3 {
         int sz;
 
     private:
-
+        
+        int at(cursor const c ) {
+            return one[c.ptr()];
+        }
     public:
 
         equation(vector<bool> in) : sz(in.size()), one(in.size()), dat(in.size()*(in.size() + 1) + 1) {
             cursor c(sz);
+            
+            do{
+                // cout << c.str() << " | " ;
+                
+                int v=at(c);
+                cout << "[" << ((v<<16) & 0xFFFF) << "." << (v&0xFFFF) << "]" ;
+                if(c.remaining()==0){
+                    cout<< endl;
+                }                
+               
 
-
-
+                
+            }while(++c);
+        }
+        
+        string str(){
+            std::ostringstream sout;
+            
+            return sout.str();
         }
 
     };
@@ -111,17 +142,11 @@ namespace xsol3 {
         
         
 
-        void debugParcours() {
-            cursor c(sz);
+        void debugParcours(vector<bool> in) {
             
-            do{
-                if(!c.remaining()){
-                    cout << endl;
-                }                
-                cout << c.str() << " | " ;
-
-                
-            }while(++c);
+            equation e(in);
+            
+            cout << e.str() << endl;
 
         }        
     private:

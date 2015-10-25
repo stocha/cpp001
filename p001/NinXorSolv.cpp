@@ -319,9 +319,15 @@ using namespace xsol3;
 
 void xs3_00(){
     
-    XSol3 x(32);
+    srand(0xCAFEBABE);
+
+    int sz = 4;
+    bitField f(sz);
+    f.randomize();    
     
-    x.debugParcours();
+    XSol3 x(4);
+    
+    x.debugParcours(bftov(f));
 }
 
 void NinXorSolv::test() {

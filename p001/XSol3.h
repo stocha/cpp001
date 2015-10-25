@@ -36,6 +36,10 @@ namespace xsol3 {
         int sz;
 
     public:
+        
+        int halfdiag() const {
+            return phase;
+        }
 
         int currloc() const {
             return vcurrloc;
@@ -101,7 +105,7 @@ namespace xsol3 {
         coefdiag(int size) : sz(size) {
         }
 
-        int coefL(int at, int num) {
+        int coefR(int at, int num) {
             return (at - num);
         }
 
@@ -109,8 +113,8 @@ namespace xsol3 {
             return sz / 2 - 1 + num - at;
         }
 
-        int coefR(int at, int num) {
-            return num + sz / 2;
+        int coefL(int at, int num) {
+            return num + sz /2;
         }
 
         int coefRsec(int at, int num) {
@@ -147,12 +151,19 @@ namespace xsol3 {
                 int v = at(c);
 
                 if (c.currloc()) {
-                    int x = coef.coefL(c.currloc() - 1, c.diagnum() / 2);
-                    int y = coef.coefR(c.currloc() - 1, c.diagnum() / 2);
+                    int x, y;
+                    if(c.halfdiag()){
+                         x =  coef.coefLsec(c.diagnum(), c.currloc()-1);
+                         y = coef.coefRsec(c.diagnum(), c.currloc()-1);                        
+                    }else{
+                         x =  coef.coefL(c.diagnum(), c.currloc()-1);
+                         y = coef.coefR(c.diagnum(), c.currloc()-1);                        
+                    }
+
                     // coef.coefR(c.currloc(),c.diagnum()/2);
                     //  coef.coefR(c.diagnum()/2, c.currloc());
 
-                    cout << c.str() << " | " << "(" << x << "," << y << ")";
+                    cout << c.str() << " | " << "{" << x << "," << y << "}";
                     setAt(c, x, y);
 
                     if (c.remaining() == 0) {

@@ -245,6 +245,59 @@ namespace xsol3 {
             } while (++c);
             return -1;
         }
+        
+        bool deduction(){
+           cursor c(sz);
+            int tr=0;
+            int other=0;
+            int lastVar=-1;
+            do {
+                
+                
+                if(c.currloc()==0){
+                    tr=0;
+                    other=0;
+                    lastVar=-1;
+                }
+                
+                int v=at(c);
+                if(v!= -1){
+                    if(v==0){
+                        tr++;
+                    }else{
+                        other++;
+                        lastVar=v;
+                    }
+                  //  cout << " " << v << " " << tr << " " << other << " " << lastVar << endl;
+                }
+                     
+                
+                
+                if(c.remaining()==0){                    
+                    if(other==1 && vpx(lastVar)==-1){                    
+                        break;
+                    }
+                }
+
+            } while (++c);    
+            
+            if(other==1 && vpx(lastVar)==-1){
+                bool ff=(tr&1);
+                
+               // cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
+              //  cout << str() << endl;
+                
+                solveOneVar(ff,vpy(lastVar));
+                
+              //  cout << " after " << endl;
+             //   cout << str() << endl;
+          
+                return true;
+                
+                
+            }
+            return false;
+        }
 
         bool solveOneVar(bool dir, int f) {
 
@@ -430,8 +483,8 @@ namespace xsol3 {
         }
 
         void recsolve(int depth, equation& e) {
-            while (e.buble());
-          //  cout << "input for depth " << depth << endl;
+            while (e.buble() || (!e.unsat && e.deduction()));
+           // cout << "input for depth " << depth << endl;
            // cout << e.str() << endl;
 
             if(e.unsat){

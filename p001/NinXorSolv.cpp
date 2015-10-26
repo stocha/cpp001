@@ -325,8 +325,8 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    //int nbBit = 16;
-     int nbBit = 32;
+    int nbBit = 4;
+    // int nbBit = 32;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();
@@ -347,8 +347,8 @@ void testCompImplxo() {
    // compareImpl imp(&xoInv, &xoInv);
     //compareImpl imp(&solinv, &seqSym);
      //compareImpl imp(&solinv, &solinv);
-     //compareImpl imp(&solinv3, &seqSym);
-     compareImpl imp(&solinv3, &solinv3);
+     compareImpl imp(&solinv3, &seqSym);
+     //compareImpl imp(&solinv3, &solinv3);
     imp.compareThem(nbBit, 50);
 }
 
@@ -357,7 +357,7 @@ void xs3_00(){
     
     srand(0xCAFEBABE);
 
-    int sz = 36;
+    int sz = 8;
     
     SoluSimp ss(sz);
    // ss.debug_coef();    

@@ -321,11 +321,16 @@ void xs3_00(){
     
     srand(0xCAFEBABE);
 
-    int sz = 4;
+    int sz = 8;
+    
+    SoluSimp ss(sz);
+    ss.debug_coef();    
+    
+    
     bitField f(sz);
     f.randomize();    
     
-    XSol3 x(4);
+    XSol3 x(sz);
     
     x.debugParcours(bftov(f));
 }

@@ -77,7 +77,7 @@ namespace xsol3 {
                 left = cdiagsz;
             }
 
-            return vcurr^(sz * sz + sz * 2);
+            return vcurr^((sz * sz) /4 + sz );
         }
 
         bool operator++() {
@@ -106,7 +106,7 @@ namespace xsol3 {
         }
 
         int coefR(int at, int num) {
-            return (at - num);
+            return (at - num)+sz/2;
         }
 
         int coefLsec(int at, int num) {
@@ -114,11 +114,11 @@ namespace xsol3 {
         }
 
         int coefL(int at, int num) {
-            return num + sz /2;
+            return num ;
         }
 
         int coefRsec(int at, int num) {
-            return sz / 2 - 1 - num + sz / 2;
+            return sz / 2 - 1 - num +sz/2;
         }
 
     };
@@ -188,7 +188,7 @@ namespace xsol3 {
                 // cout << c.str() << " | " ;
 
                 int v = at(c);
-                sout << "[" << ((v << 16) & 0xFFFF) << "." << (v & 0xFFFF) << "]";
+                sout << "[" << ((v >> 16) & 0xFFFF) << "." << (v & 0xFFFF) << "]";
                 if (c.remaining() == 0) {
                     sout << endl;
                 }

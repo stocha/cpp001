@@ -16,8 +16,16 @@
 using namespace std;
 namespace xsol3 {
 
-    inline int vp(int x, int y) {
+    inline const int vp(const int x,const int y) {
         return (x << 16) | y;
+    }
+    
+    inline const int vpx(const int v){
+        return (v>>16)&0xFFFF;
+    }
+    
+    inline const int vpy(const int v){
+        return (v)&0xFFFF;
     }
 
     class cursor {
@@ -36,7 +44,7 @@ namespace xsol3 {
         int sz;
 
     public:
-        
+
         int halfdiag() const {
             return phase;
         }
@@ -77,7 +85,7 @@ namespace xsol3 {
                 left = cdiagsz;
             }
 
-            return vcurr^((sz * sz) /4 + sz );
+            return vcurr^((sz * sz) / 4 + sz);
         }
 
         bool operator++() {
@@ -106,7 +114,7 @@ namespace xsol3 {
         }
 
         int coefR(int at, int num) {
-            return (at - num)+sz/2;
+            return (at - num)+sz / 2;
         }
 
         int coefLsec(int at, int num) {
@@ -114,11 +122,11 @@ namespace xsol3 {
         }
 
         int coefL(int at, int num) {
-            return num ;
+            return num;
         }
 
         int coefRsec(int at, int num) {
-            return sz / 2 - 1 - num +sz/2;
+            return sz / 2 - 1 - num + sz / 2;
         }
 
     };
@@ -132,32 +140,36 @@ namespace xsol3 {
     private:
 
         int at(cursor const c) {
-            return one[c.ptr()];
+            int v=dat[c.ptr()];            
+           // cout << c.ptr() << "-->" << v;
+            return v;
         }
 
         void setAt(cursor const c, int const x, int const y) {
-            one[c.ptr()] = vp(x, y);
+            dat[c.ptr()] = vp(x, y);
+            
+            
+
+           // cout << c.ptr() << "<--" << vp(x, y);
         }
 
     public:
 
-        equation(vector<bool> in) : sz(in.size()), one(in.size()), dat(in.size()*(in.size() + 1) + 1) {
+        equation(vector<bool> in) : sz(in.size()), one(in.size()), dat((in.size() * in.size()) / 4 + in.size() + 2) {
             cursor c(sz);
             coefdiag coef(sz);
 
             do {
                 // cout << c.str() << " | " ;
 
-                int v = at(c);
-
                 if (c.currloc()) {
                     int x, y;
-                    if(c.halfdiag()){
-                         x =  coef.coefLsec(c.diagnum(), c.currloc()-1);
-                         y = coef.coefRsec(c.diagnum(), c.currloc()-1);                        
-                    }else{
-                         x =  coef.coefL(c.diagnum(), c.currloc()-1);
-                         y = coef.coefR(c.diagnum(), c.currloc()-1);                        
+                    if (c.halfdiag()) {
+                        x = coef.coefLsec(c.diagnum(), c.currloc() - 1);
+                        y = coef.coefRsec(c.diagnum(), c.currloc() - 1);
+                    } else {
+                        x = coef.coefL(c.diagnum(), c.currloc() - 1);
+                        y = coef.coefR(c.diagnum(), c.currloc() - 1);
                     }
 
                     // coef.coefR(c.currloc(),c.diagnum()/2);
@@ -165,6 +177,9 @@ namespace xsol3 {
 
                     cout << c.str() << " | " << "{" << x << "," << y << "}";
                     setAt(c, x, y);
+
+                    int v = at(c);
+                    cout <<"'"<< vpx(v) << "." << vpy(v)<<"'"; 
 
                     if (c.remaining() == 0) {
 
@@ -183,12 +198,17 @@ namespace xsol3 {
             std::ostringstream sout;
             cursor c(sz);
 
-
+           // cout << "dat cap " << dat.capacity() << endl;
+           // cout << "dat siz " << dat.size() << endl;
+            
             do {
                 // cout << c.str() << " | " ;
 
                 int v = at(c);
-                sout << "[" << ((v >> 16) & 0xFFFF) << "." << (v & 0xFFFF) << "]";
+                int x=vpx(v);
+                int y=vpy(v);
+                
+                sout << "[" << x << "." << y << "]";
                 if (c.remaining() == 0) {
                     sout << endl;
                 }

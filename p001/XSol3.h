@@ -23,10 +23,14 @@ namespace xsol3 {
     }
 
     inline const int vpx(const int v) {
+        if (v == -1) return -1;
+
         return ((v >> 16)&0xFFFF) - 1;
     }
 
     inline const int vpy(const int v) {
+        if (v == -1) return -1;
+
         return ((v)&0xFFFF) - 1;
     }
 
@@ -143,6 +147,10 @@ namespace xsol3 {
         vector<int> dat;
 
         int sz;
+        
+        
+    public :
+        bool unsat=false;
 
     private:
 
@@ -183,7 +191,7 @@ namespace xsol3 {
                     // coef.coefR(c.currloc(),c.diagnum()/2);
                     //  coef.coefR(c.diagnum()/2, c.currloc());
 
-                    cout << c.str() << " | " << "{" << x << "," << y << "}";
+                    // cout << c.str() << " | " << "{" << x << "," << y << "}";
                     setAt(c, x, y);
 
                     int v = at(c);
@@ -191,7 +199,7 @@ namespace xsol3 {
 
                     if (c.remaining() == 0) {
 
-                        cout << endl;
+                        //  cout << endl;
                     }
 
                 } else {
@@ -214,71 +222,151 @@ namespace xsol3 {
             } while (++c);
         }
 
-        bool substitute(int oraw, int nraw) {
-            bool res = false;
+        int findOneVar() {
+            cursor c(sz);
+
+            do {
+                if (c.currloc() != 0) {
+                    int v = at(c);
+                    int cy = vpy(v);
+                    
+                 //   cout<< "|" << v << "e" << cy << endl;
+
+                    if (cy >= 0) {
+                   //      cout << "find var " << cy << endl;
+                        return cy;
+                    }
+                }
+
+            } while (++c);
+            return -1;
+        }
+
+        bool solveOneVar(bool dir, int f) {
+
+            if (true) {
+                one[f] = true;
+                substitute(f, -1);
+            } else {
+                falsevar(f);
+            }
+
+
+            return true;
+        }
+
+        void falsevar(int oraw) {
+            cursor c(sz);
+
+            do {
+                int curr = c.ptr();
+                int v = dat[curr];
+                int nv = v;
+
+                int cx = vpx(v);
+                int cy = vpy(v);
+
+                if (cx == oraw) {
+                    nv = -1;
+
+                } else
+                    if (cy == oraw) {
+                    nv = -1;
+                }
+                //          if(c.remaining()==0) cout << endl;
+
+
+                dat[curr] = nv;
+
+            } while (++c);
+
+        }
+
+        void substitute(int oraw, int nraw) {
 
             cursor c(sz);
 
             do {
                 int curr = c.ptr();
                 int v = dat[curr];
-                int nv=v;
+                int nv = v;
 
-                int cx=vpx(v);
-                int cy=vpy(v);
+                int cx = vpx(v);
+                int cy = vpy(v);
 
-                if (cx==oraw) {
-                    nv=vp(nraw,cy);
-                     
+                if (cx == oraw) {
+                    nv = vp(nraw, cy);
+
+                } else
+                    if (cy == oraw) {
+                    nv = vp(cx, nraw);
                 }
-                else               
-                if (cy==oraw) {
-                    nv=vp(cx,nraw);
-                }
-                      //          if(c.remaining()==0) cout << endl;
-                
-                if(v==-1){
-                }else
-                if(vpx(nv)>vpy(nv)){
-                    int x= vpx(nv);
-                    int y= vpy(nv);
-                    nv=vp(y,x);
-                }
-                else
-                if(vpx(nv)==vpy(nv)){
-                    nv=0;
+                //          if(c.remaining()==0) cout << endl;
+
+                if (v == -1) {
+                } else
+                    if (vpx(nv) > vpy(nv)) {
+                    int x = vpx(nv);
+                    int y = vpy(nv);
+                    nv = vp(y, x);
+                } else
+                    if (vpx(nv) == vpy(nv)) {
+                    nv = 0;
                 }
 
                 dat[curr] = nv;
 
             } while (++c);
 
-            return res;
         }
 
         bool buble() {
             bool done = false;
 
             cursor c(sz);
-
+            int tr=0;
+            int other=0;
             do {
-
+                
+                
+                if(c.currloc()==0){
+                    tr=0;
+                    other=0;
+                }
+                
+                int v=at(c);
+                if(v!= -1){
+                    if(v==0){
+                        tr++;
+                    }else{
+                        other++;
+                    }
+                }
+                
+                
                 if (c.currloc()) {
                     int curr = c.ptr();
-                    
-                    if(dat[curr-1]==-1){
-                    }else
-                    if (dat[curr - 1] > dat[curr]) {
+
+                    if (dat[curr - 1] == -1) {
+                    } else
+                        if (dat[curr - 1] > dat[curr]) {
                         done = true;
                         dat[curr - 1] ^= dat[curr];
                         dat[curr] ^= dat[curr - 1];
                         dat[curr - 1] ^= dat[curr];
-                    }else if (dat[curr - 1] == dat[curr]){
-                        dat [curr-1]=nul;
-                        dat[curr]=nul;
-                        done=true;
+                    } else if (dat[curr - 1] == dat[curr]) {
+                        dat [curr - 1] = nul;
+                        dat[curr] = nul;
+                        done = true;
                     }
 
+                }
+                
+                if(c.remaining()==0){
+                    if((tr&1)==1 && other==0){
+                        unsat=true;
+                        return false;
+                    }
                 }
 
             } while (++c);
@@ -332,45 +420,84 @@ namespace xsol3 {
         XSol3(int size) : sz(size) {
         }
 
+        void recsolve(int depth, equation& e) {
+            while (e.buble());
+          //  cout << "input for depth " << depth << endl;
+           // cout << e.str() << endl;
+
+            if(e.unsat){
+             //   cout << "IT IS UNSAT " << endl;
+                return ;
+            }
+
+            int f = e.findOneVar();
+            if (f == -1) {
+                cout << " no var found ending " << " depth " << depth << endl;
+                cout << endl << e.str();
+
+                return;
+            }
+
+            equation next = e;
+            next.falsevar(f);
+            recsolve(depth + 1, next);
+            e.solveOneVar(true, f);
+            recsolve(depth + 1, e);
+
+
+
+
+
+        }
+
+        void solve(vector<bool> in) {
+
+            equation e(in);
+
+            cout << "solving " << endl << e.str() << endl;
+
+            recsolve(0, e);
+        }
+
         void debugParcours(vector<bool> in) {
 
             equation e(in);
 
-            cout << e.str() << endl;
+            //  cout << e.str() << endl;
 
             e.substitute(4, 0);
 
-            cout << "sub 4, 0" << endl << e.str() << endl;
+            // cout << "sub 4, 0" << endl << e.str() << endl;
 
+            while (e.buble()) {
+            }
+            // cout << "bubled" << endl << e.str() << endl;
+
+            e.substitute(2, 5);
+
+            // cout << "sub 2, 5" << endl << e.str() << endl;
+
+            while (e.buble()) {
+            }
+            // cout << "bubled" << endl << e.str() << endl;      
+
+            e.substitute(0, 5);
+            // cout << "sub 0, 5" << endl << e.str() << endl;
+            while (e.buble()) {
+            }
+            // cout << "bubled" << endl << e.str() << endl; 
+
+            e.substitute(3, -1);
+            // cout << "sub 3, -1" << endl << e.str() << endl;
+            while (e.buble()) {
+            }
+            // cout << "bubled" << endl << e.str() << endl;         
+
+            e.substitute(7, -1);
+            // cout << "sub 7, -1" << endl << e.str() << endl;
             while (e.buble()) {
             }
             cout << "bubled" << endl << e.str() << endl;
-            
-            e.substitute(2, 5);
-
-            cout << "sub 2, 5" << endl << e.str() << endl;
-
-            while (e.buble()) {
-            }
-            cout << "bubled" << endl << e.str() << endl;      
-            
-            e.substitute(0, 5);
-            cout << "sub 0, 5" << endl << e.str() << endl;
-            while (e.buble()) {
-            }
-            cout << "bubled" << endl << e.str() << endl; 
-            
-            e.substitute(3, -1);
-            cout << "sub 3, -1" << endl << e.str() << endl;
-            while (e.buble()) {
-            }
-            cout << "bubled" << endl << e.str() << endl;         
-            
-            e.substitute(7, -1);
-            cout << "sub 7, -1" << endl << e.str() << endl;
-            while (e.buble()) {
-            }
-            cout << "bubled" << endl << e.str() << endl;               
 
         }
     private:

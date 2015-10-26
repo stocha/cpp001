@@ -324,17 +324,28 @@ void xs3_00(){
     int sz = 8;
     
     SoluSimp ss(sz);
-    ss.debug_coef();    
+   // ss.debug_coef();    
     
     
     bitField f(sz);
     f.randomize();    
     
+    f = bitField(8);
+    f.set(0, 0);
+    f.set(1, 0);
+    f.set(2, 1);
+    f.set(3, 0);
+    f.set(4, 0);
+    f.set(5, 0);
+    f.set(6, 0);
+    f.set(7, 0);    
+    
     cout << "input " << f.str() << endl;
     
     XSol3 x(sz);
     
-    x.debugParcours(bftov(f));
+    //x.debugParcours(bftov(f));
+    x.solve(bftov(f));
 }
 
 void NinXorSolv::test() {

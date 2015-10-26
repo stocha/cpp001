@@ -169,6 +169,10 @@ namespace xsol3 {
         }
 
     public:
+        
+        vector<bool> getResult() const{
+            return one;
+        }
 
         equation(vector<bool> in) : sz(in.size()), one(in.size()), dat((in.size() * in.size()) / 4 + in.size() + 2) {
             cursor c(sz);
@@ -414,10 +418,15 @@ namespace xsol3 {
 
     class XSol3 {
         int sz;
+        
+        vector<bool> in;
+    public :
+        vector<vector<bool>> solution;
 
     public:
 
-        XSol3(int size) : sz(size) {
+        XSol3(vector<bool> inp) : sz(in.size()) {
+            in=inp;
         }
 
         void recsolve(int depth, equation& e) {
@@ -432,9 +441,10 @@ namespace xsol3 {
 
             int f = e.findOneVar();
             if (f == -1) {
-                cout << " no var found ending " << " depth " << depth << endl;
-                cout << endl << e.str();
-
+                //cout << " no var found ending " << " depth " << depth << endl;
+                //cout << endl << e.str();
+                solution.push_back(e.getResult());
+                
                 return;
             }
 
@@ -450,16 +460,22 @@ namespace xsol3 {
 
         }
 
-        void solve(vector<bool> in) {
+        vector<vector<bool>> solve() {
+            
+            if(in[in.size()-1]) return solution;
 
             equation e(in);
 
-            cout << "solving " << endl << e.str() << endl;
+           // cout << "solving " << endl << e.str() << endl;
 
             recsolve(0, e);
+            
+            return solution;
         }
 
         void debugParcours(vector<bool> in) {
+            
+            
 
             equation e(in);
 

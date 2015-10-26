@@ -15,19 +15,19 @@
 
 using namespace std;
 namespace xsol3 {
-    
-    const int nul=0xFFFFFFFF;
 
-    inline const int vp(const int x,const int y) {
-        return ((x+1) << 16) | (y+1);
+    const int nul = 0xFFFFFFFF;
+
+    inline const int vp(const int x, const int y) {
+        return ((x + 1) << 16) | (y + 1);
     }
-    
-    inline const int vpx(const int v){
-        return ((v>>16)&0xFFFF)-1;
+
+    inline const int vpx(const int v) {
+        return ((v >> 16)&0xFFFF) - 1;
     }
-    
-    inline const int vpy(const int v){
-        return ((v)&0xFFFF)-1;
+
+    inline const int vpy(const int v) {
+        return ((v)&0xFFFF) - 1;
     }
 
     class cursor {
@@ -62,10 +62,10 @@ namespace xsol3 {
         int diagnum() const {
             return diagind;
         }
-        
-        int intbitnum(){
-            if(phase==0) return diagnum();
-            return sz-diagnum() -2;
+
+        int intbitnum() {
+            if (phase == 0) return diagnum();
+            return sz - diagnum() - 2;
         }
 
         int ptr() const {
@@ -147,17 +147,17 @@ namespace xsol3 {
     private:
 
         int at(cursor const c) {
-            int v=dat[c.ptr()];            
-           // cout << c.ptr() << "-->" << v;
+            int v = dat[c.ptr()];
+            // cout << c.ptr() << "-->" << v;
             return v;
         }
 
         void setAt(cursor const c, int const x, int const y) {
             dat[c.ptr()] = vp(x, y);
-            
-            
 
-           // cout << c.ptr() << "<--" << vp(x, y);
+
+
+            // cout << c.ptr() << "<--" << vp(x, y);
         }
 
     public:
@@ -165,6 +165,7 @@ namespace xsol3 {
         equation(vector<bool> in) : sz(in.size()), one(in.size()), dat((in.size() * in.size()) / 4 + in.size() + 2) {
             cursor c(sz);
             coefdiag coef(sz);
+            dat[0] = -1;
 
             do {
                 // cout << c.str() << " | " ;
@@ -193,18 +194,18 @@ namespace xsol3 {
                         cout << endl;
                     }
 
-                }else{
-                    int bit=c.intbitnum();
-                    
-                  //  cout << endl << bit << "<-" << in[bit] << endl;
-                    
-                    if(in[bit])
-                        dat[c.ptr()]=0;
-                    else{
-                       // setAt(c,0x7FFF,0x7FFF);
-                        dat[c.ptr()]=-1;
+                } else {
+                    int bit = c.intbitnum();
+
+                    //  cout << endl << bit << "<-" << in[bit] << endl;
+
+                    if (in[bit])
+                        dat[c.ptr()] = 0;
+                    else {
+                        // setAt(c,0x7FFF,0x7FFF);
+                        dat[c.ptr()] = -1;
                     }
-                
+
                 }
 
 
@@ -213,28 +214,101 @@ namespace xsol3 {
             } while (++c);
         }
 
+        bool substitute(int oraw, int nraw) {
+            bool res = false;
+
+            cursor c(sz);
+
+            do {
+                int curr = c.ptr();
+                int v = dat[curr];
+                int nv=v;
+
+                int cx=vpx(v);
+                int cy=vpy(v);
+
+                if (cx==oraw) {
+                    nv=vp(nraw,cy);
+                     
+                }
+                else               
+                if (cy==oraw) {
+                    nv=vp(cx,nraw);
+                }
+                      //          if(c.remaining()==0) cout << endl;
+                
+                if(v==-1){
+                }else
+                if(vpx(nv)>vpy(nv)){
+                    int x= vpx(nv);
+                    int y= vpy(nv);
+                    nv=vp(y,x);
+                }
+                else
+                if(vpx(nv)==vpy(nv)){
+                    nv=0;
+                }
+
+                dat[curr] = nv;
+
+            } while (++c);
+
+            return res;
+        }
+
+        bool buble() {
+            bool done = false;
+
+            cursor c(sz);
+
+            do {
+
+                if (c.currloc()) {
+                    int curr = c.ptr();
+                    
+                    if(dat[curr-1]==-1){
+                    }else
+                    if (dat[curr - 1] > dat[curr]) {
+                        done = true;
+                        dat[curr - 1] ^= dat[curr];
+                        dat[curr] ^= dat[curr - 1];
+                        dat[curr - 1] ^= dat[curr];
+                    }else if (dat[curr - 1] == dat[curr]){
+                        dat [curr-1]=nul;
+                        dat[curr]=nul;
+                        done=true;
+                    }
+
+                }
+
+            } while (++c);
+
+
+            return done;
+        }
+
         string str() {
             std::ostringstream sout;
             cursor c(sz);
 
-           // cout << "dat cap " << dat.capacity() << endl;
-           // cout << "dat siz " << dat.size() << endl;
-            
-            for(int i=0;i<sz;i++){
+            // cout << "dat cap " << dat.capacity() << endl;
+            // cout << "dat siz " << dat.size() << endl;
+
+            for (int i = 0; i < sz; i++) {
                 sout << one[i] << "|";
             }
             sout << endl;
-            
+
             do {
                 // cout << c.str() << " | " ;
 
                 int v = at(c);
-                int x=vpx(v);
-                int y=vpy(v);
-                
-                if(v==nul) sout << "#";
+                int x = vpx(v);
+                int y = vpy(v);
+
+                if (v == nul) sout << "#";
                 else
-                if(v==0) sout << "T";
+                    if (v == 0) sout << "T";
                 else
                     sout << "[" << x << "." << y << "]";
                 if (c.remaining() == 0) {
@@ -263,6 +337,40 @@ namespace xsol3 {
             equation e(in);
 
             cout << e.str() << endl;
+
+            e.substitute(4, 0);
+
+            cout << "sub 4, 0" << endl << e.str() << endl;
+
+            while (e.buble()) {
+            }
+            cout << "bubled" << endl << e.str() << endl;
+            
+            e.substitute(2, 5);
+
+            cout << "sub 2, 5" << endl << e.str() << endl;
+
+            while (e.buble()) {
+            }
+            cout << "bubled" << endl << e.str() << endl;      
+            
+            e.substitute(0, 5);
+            cout << "sub 0, 5" << endl << e.str() << endl;
+            while (e.buble()) {
+            }
+            cout << "bubled" << endl << e.str() << endl; 
+            
+            e.substitute(3, -1);
+            cout << "sub 3, -1" << endl << e.str() << endl;
+            while (e.buble()) {
+            }
+            cout << "bubled" << endl << e.str() << endl;         
+            
+            e.substitute(7, -1);
+            cout << "sub 7, -1" << endl << e.str() << endl;
+            while (e.buble()) {
+            }
+            cout << "bubled" << endl << e.str() << endl;               
 
         }
     private:

@@ -15,6 +15,8 @@
 
 using namespace std;
 namespace xsol3 {
+    
+    const int nul=0xFFFFFFFF;
 
     inline const int vp(const int x,const int y) {
         return (x << 16) | y;
@@ -59,6 +61,11 @@ namespace xsol3 {
 
         int diagnum() const {
             return diagind;
+        }
+        
+        int intbitnum(){
+            if(phase==0) return diagnum();
+            return sz-diagnum() -2;
         }
 
         int ptr() const {
@@ -179,13 +186,25 @@ namespace xsol3 {
                     setAt(c, x, y);
 
                     int v = at(c);
-                    cout <<"'"<< vpx(v) << "." << vpy(v)<<"'"; 
+                    //cout <<"'"<< vpx(v) << "." << vpy(v)<<"'"; 
 
                     if (c.remaining() == 0) {
 
                         cout << endl;
                     }
 
+                }else{
+                    int bit=c.intbitnum();
+                    
+                  //  cout << endl << bit << "<-" << in[bit] << endl;
+                    
+                    if(in[bit])
+                        dat[c.ptr()]=0;
+                    else{
+                       // setAt(c,0x7FFF,0x7FFF);
+                        dat[c.ptr()]=-1;
+                    }
+                
                 }
 
 
@@ -201,6 +220,11 @@ namespace xsol3 {
            // cout << "dat cap " << dat.capacity() << endl;
            // cout << "dat siz " << dat.size() << endl;
             
+            for(int i=0;i<sz;i++){
+                sout << one[i] << "|";
+            }
+            sout << endl;
+            
             do {
                 // cout << c.str() << " | " ;
 
@@ -208,7 +232,11 @@ namespace xsol3 {
                 int x=vpx(v);
                 int y=vpy(v);
                 
-                sout << "[" << x << "." << y << "]";
+                if(v==nul) sout << "#";
+                else
+                if(v==0) sout << "T";
+                else
+                    sout << "[" << x << "." << y << "]";
                 if (c.remaining() == 0) {
                     sout << endl;
                 }

@@ -330,6 +330,8 @@ void xs3_00(){
     bitField f(sz);
     f.randomize();    
     
+    cout << "input " << f.str() << endl;
+    
     XSol3 x(sz);
     
     x.debugParcours(bftov(f));

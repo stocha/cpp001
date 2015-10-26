@@ -19,15 +19,15 @@ namespace xsol3 {
     const int nul=0xFFFFFFFF;
 
     inline const int vp(const int x,const int y) {
-        return (x << 16) | y;
+        return ((x+1) << 16) | (y+1);
     }
     
     inline const int vpx(const int v){
-        return (v>>16)&0xFFFF;
+        return ((v>>16)&0xFFFF)-1;
     }
     
     inline const int vpy(const int v){
-        return (v)&0xFFFF;
+        return ((v)&0xFFFF)-1;
     }
 
     class cursor {

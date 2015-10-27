@@ -325,8 +325,8 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 4;
-    // int nbBit = 32;
+  //  int nbBit = 18;
+     int nbBit = 36;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();
@@ -347,8 +347,8 @@ void testCompImplxo() {
    // compareImpl imp(&xoInv, &xoInv);
     //compareImpl imp(&solinv, &seqSym);
      //compareImpl imp(&solinv, &solinv);
-     compareImpl imp(&solinv3, &seqSym);
-     //compareImpl imp(&solinv3, &solinv3);
+  //   compareImpl imp(&solinv3, &seqSym);
+     compareImpl imp(&solinv3, &solinv3);
     imp.compareThem(nbBit, 50);
 }
 
@@ -357,7 +357,7 @@ void xs3_00(){
     
     srand(0xCAFEBABE);
 
-    int sz = 4;
+    int sz = 32;
     
     SoluSimp ss(sz);
    // ss.debug_coef();    
@@ -381,7 +381,11 @@ void xs3_00(){
     xsol3::XSol3 x(bftov(f));
     
     //x.debugParcours(bftov(f));
-    x.solve();
+    auto res=x.solve();
+    
+    for(int i=0;i<res.size();i++){
+        cout << vtobf(res[i]).str() << endl;
+    }
 }
 
 void NinXorSolv::test() {

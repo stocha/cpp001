@@ -227,33 +227,34 @@ namespace xsol3 {
             } while (++c);
         }
 
-//        int findOneVar() {
-//            cursor c(sz);
-//
-//            do {
-//                if (c.currloc() != 0) {
-//                    int v = at(c);
-//                    int cy = vpy(v);
-//                    
-//                 //   cout<< "|" << v << "e" << cy << endl;
-//
-//                    if (cy >= 0) {
-//                   //      cout << "find var " << cy << endl;
-//                        return cy;
-//                    }
-//                }
-//
-//            } while (++c);
-//            return -1;
-//        }
-//        
-//        
+        int findOneVar() {
+            cursor c(sz);
+
+            do {
+                if (c.currloc() != 0) {
+                    int v = at(c);
+                    int cy = vpy(v);
+                    
+                 //   cout<< "|" << v << "e" << cy << endl;
+
+                    if (cy >= 0) {
+                   //      cout << "find var " << cy << endl;
+                        return cy;
+                    }
+                }
+
+            } while (++c);
+            return -1;
+        }
+        
+        
         
         bool deduction(){
            cursor c(sz);
             int tr=0;
             int other=0;
             int lastVar=-1;
+            int nextVar=-1;
             do {
                 
                 
@@ -261,6 +262,7 @@ namespace xsol3 {
                     tr=0;
                     other=0;
                     lastVar=-1;
+                    nextVar=-1;
                 }
                 
                 int v=at(c);
@@ -269,6 +271,7 @@ namespace xsol3 {
                         tr++;
                     }else{
                         other++;
+                        nextVar=lastVar;
                         lastVar=v;
                     }
                   //  cout << " " << v << " " << tr << " " << other << " " << lastVar << endl;
@@ -299,11 +302,30 @@ namespace xsol3 {
                 
                 
             }
+            if((tr&1)==0 && other==2 && vpx(lastVar)==-1 && vpx(nextVar)==-1){
+                bool ff=(tr&1);
+                
+             //   cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
+             //   cout << str() << endl;
+                
+                substitute(vpy(nextVar),vpy(lastVar));
+                
+             //  cout << " after " << endl;
+              //  cout << str() << endl;
+          
+                return true;
+                
+                
+            }            
             return false;
         }
         
         int findUnboundVar() {
             cursor c(sz);
+            
+            int f= findOneVar();
+            
+            if(f!=-1) return f;
 
             for(int i=0;i<sz;i++){
                 if(!bound[i]) return i;

@@ -390,7 +390,10 @@ void xs3_00(){
 
 void xs3_real(){
     
-    string is="32\n 000073af 00000000";
+    //string is="32\n 000073af 00000000";
+   // string is="32\n 00000000 000073af";
+    string is="32\n 46508fb7 6677e201";
+    //
   //  string is="16\n 000073af";
     
 //      00000001 000073af

@@ -466,8 +466,8 @@ namespace xsol3 {
 
             return done;
         }
-        
-        string strCurrSolve(){
+
+        string strCurrSolve() {
             std::ostringstream sout;
 
             // cout << "dat cap " << dat.capacity() << endl;
@@ -481,7 +481,7 @@ namespace xsol3 {
                     sout << "(" << one[i] << ")" << "|";
             }
             sout << endl;
-         
+
             return sout.str();
         }
 
@@ -530,37 +530,39 @@ namespace xsol3 {
         int sz;
 
         vector<bool> in;
+
+
     public:
         vector<vector<bool>> solution;
 
     public:
-        
-        vector<string> hexSolution(){
+
+        vector<string> hexSolution() {
             vector<string> res;
-            for(auto inp : solution){
+            for (auto inp : solution) {
                 std::ostringstream sout;
-                
-                unsigned int acc =0;
-                int nbBit=0;
-                bool esp=false;
-                for(int i=0;i<inp.size();i++){
-                    int val=inp[i];
-                    acc|=(val<<nbBit);
+
+                unsigned int acc = 0;
+                int nbBit = 0;
+                bool esp = false;
+                for (int i = 0; i < inp.size(); i++) {
+                    int val = inp[i];
+                    acc |= (val << nbBit);
                     nbBit++;
-                    
-                    if(nbBit==32){
-                        if(esp) sout << " ";
+
+                    if (nbBit == 32) {
+                        if (esp) sout << " ";
                         sout << hex << setw(8) << setfill('0') << acc;
-                        acc=0;
-                        nbBit=0;
-                        
-                        esp=true;
+                        acc = 0;
+                        nbBit = 0;
+
+                        esp = true;
                     }
                 }
-            
+
                 res.push_back(sout.str());
             }
-            sort(res.begin(),res.end());
+            sort(res.begin(), res.end());
             return res;
         }
 
@@ -572,22 +574,22 @@ namespace xsol3 {
 
             vector<bool> input(size * 2);
             unsigned int read;
-            int curr=0;
+            int curr = 0;
 
             for (int i = 0; i < size / 16; i++) { // Read size / 16 integers to a
                 sin >> hex >> read;
-                for(int i=0;i<32;i++){
-                    input[curr+i]=((read >> i)&1);
+                for (int i = 0; i < 32; i++) {
+                    input[curr + i] = ((read >> i)&1);
                 }
-                curr+=32;
+                curr += 32;
             }
-            
+
             in = input;
-            
-            for(int i=0;i<in.size();i++){
-                
-                if(in[i])
-                    cerr <<"X";
+
+            for (int i = 0; i < in.size(); i++) {
+
+                if (in[i])
+                    cerr << "X";
                 else
                     cerr << "-";
             }
@@ -599,12 +601,18 @@ namespace xsol3 {
             in = inp;
         }
 
-        void recsolve(int depth, equation& e) {
+        void recsolve(int depth, equation& e, vector<int> stsol) {
             // cout << "input for depth " << depth << endl;
             // cout << e.str() << endl;
-            
-            if(depth < 6)
-             cout<< "d"  << depth << "--" << e.strCurrSolve() << endl;            
+
+            if (depth < 20) {
+                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+                for (int i = 0; i < stsol.size(); i++) {
+                    cout << stsol[i] << "|";
+                }
+                cout << endl;
+            }
+
 
             while (e.buble() || (!e.unsat && e.deduction()));
 
@@ -626,11 +634,14 @@ namespace xsol3 {
 
             equation next = e;
             next.solveOneVar(false, f);
+            stsol.push_back(-f);
             // cout << "depth " << depth << " exploring " << f << " to false " << endl;
-            recsolve(depth + 1, next);
+            recsolve(depth + 1, next,stsol);
             e.solveOneVar(true, f);
+            stsol.pop_back();
+            stsol.push_back(f);
             //  cout << "depth " << depth << " setting " << f << " to true " << endl;
-            recsolve(depth + 1, e);
+            recsolve(depth + 1, e,stsol);
 
 
 
@@ -639,6 +650,8 @@ namespace xsol3 {
         }
 
         vector<vector<bool>> solve() {
+            
+            vector<int> st;
 
             if (in[in.size() - 1]) return solution;
 
@@ -646,7 +659,7 @@ namespace xsol3 {
 
             // cout << "solving " << endl << e.str() << endl;
 
-            recsolve(0, e);
+            recsolve(0, e,st);
 
             return solution;
         }

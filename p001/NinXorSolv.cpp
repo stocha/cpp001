@@ -357,7 +357,7 @@ void xs3_00(){
     
     srand(0xCAFEBABE);
 
-    int sz = 8;
+    int sz = 4;
     
     SoluSimp ss(sz);
    // ss.debug_coef();    
@@ -369,7 +369,7 @@ void xs3_00(){
     //f = bitField(8);
     f.set(0, 0);
     f.set(1, 0);
-    f.set(2, 1);
+    f.set(2, 0);
     f.set(3, 0);
     f.set(4, 0);
     f.set(5, 0);
@@ -393,7 +393,7 @@ void NinXorSolv::test() {
    //  xsolt01();
    // xsolt02();
     
-    //xs3_00();
+   // xs3_00();
 }
 
 

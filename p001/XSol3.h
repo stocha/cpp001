@@ -144,6 +144,7 @@ namespace xsol3 {
 
     class equation {
         vector<bool> one;
+        vector<bool> bound;
         vector<int> dat;
 
         int sz;
@@ -174,7 +175,7 @@ namespace xsol3 {
             return one;
         }
 
-        equation(vector<bool> in) : sz(in.size()), one(in.size()), dat((in.size() * in.size()) / 4 + in.size() + 2) {
+        equation(vector<bool> in) : sz(in.size()), one(in.size()),bound(in.size()), dat((in.size() * in.size()) / 4 + in.size() + 2) {
             cursor c(sz);
             coefdiag coef(sz);
             dat[0] = -1;
@@ -226,25 +227,27 @@ namespace xsol3 {
             } while (++c);
         }
 
-        int findOneVar() {
-            cursor c(sz);
-
-            do {
-                if (c.currloc() != 0) {
-                    int v = at(c);
-                    int cy = vpy(v);
-                    
-                 //   cout<< "|" << v << "e" << cy << endl;
-
-                    if (cy >= 0) {
-                   //      cout << "find var " << cy << endl;
-                        return cy;
-                    }
-                }
-
-            } while (++c);
-            return -1;
-        }
+//        int findOneVar() {
+//            cursor c(sz);
+//
+//            do {
+//                if (c.currloc() != 0) {
+//                    int v = at(c);
+//                    int cy = vpy(v);
+//                    
+//                 //   cout<< "|" << v << "e" << cy << endl;
+//
+//                    if (cy >= 0) {
+//                   //      cout << "find var " << cy << endl;
+//                        return cy;
+//                    }
+//                }
+//
+//            } while (++c);
+//            return -1;
+//        }
+//        
+//        
         
         bool deduction(){
            cursor c(sz);
@@ -284,13 +287,13 @@ namespace xsol3 {
             if(other==1 && vpx(lastVar)==-1){
                 bool ff=(tr&1);
                 
-               // cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
-              //  cout << str() << endl;
+             //   cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
+             //   cout << str() << endl;
                 
                 solveOneVar(ff,vpy(lastVar));
                 
-              //  cout << " after " << endl;
-             //   cout << str() << endl;
+             //  cout << " after " << endl;
+              //  cout << str() << endl;
           
                 return true;
                 
@@ -298,10 +301,20 @@ namespace xsol3 {
             }
             return false;
         }
+        
+        int findUnboundVar() {
+            cursor c(sz);
+
+            for(int i=0;i<sz;i++){
+                if(!bound[i]) return i;
+            }
+            
+            return -1;
+        }        
 
         bool solveOneVar(bool dir, int f) {
-
-            if (true) {
+            bound[f]=true;
+            if (dir) {
                 one[f] = true;
                 substitute(f, -1);
             } else {
@@ -439,8 +452,12 @@ namespace xsol3 {
             // cout << "dat cap " << dat.capacity() << endl;
             // cout << "dat siz " << dat.size() << endl;
 
-            for (int i = 0; i < sz; i++) {
-                sout << one[i] << "|";
+            for (int i = sz-1;i >=0; i--) {
+                
+                if(bound[i])
+                    sout << one[i] << "|";
+                else
+                    sout << "("<< one[i] <<")" << "|";
             }
             sout << endl;
 
@@ -483,16 +500,19 @@ namespace xsol3 {
         }
 
         void recsolve(int depth, equation& e) {
-            while (e.buble() || (!e.unsat && e.deduction()));
            // cout << "input for depth " << depth << endl;
-           // cout << e.str() << endl;
+           // cout << e.str() << endl;            
+            
+            while (e.buble() || (!e.unsat && e.deduction()));
+
 
             if(e.unsat){
-             //   cout << "IT IS UNSAT " << endl;
+           //     cout << "IT IS UNSAT " << endl;
                 return ;
             }
 
-            int f = e.findOneVar();
+            //int f = e.findOneVar();
+            int f = e.findUnboundVar();
             if (f == -1) {
                 //cout << " no var found ending " << " depth " << depth << endl;
                 //cout << endl << e.str();
@@ -502,9 +522,11 @@ namespace xsol3 {
             }
 
             equation next = e;
-            next.falsevar(f);
+            next.solveOneVar(false,f);
+           // cout << "depth " << depth << " exploring " << f << " to false " << endl;
             recsolve(depth + 1, next);
             e.solveOneVar(true, f);
+          //  cout << "depth " << depth << " setting " << f << " to true " << endl;
             recsolve(depth + 1, e);
 
 

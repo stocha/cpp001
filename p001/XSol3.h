@@ -12,6 +12,8 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
+#include <algorithm>
 
 using namespace std;
 namespace xsol3 {
@@ -148,10 +150,10 @@ namespace xsol3 {
         vector<int> dat;
 
         int sz;
-        
-        
-    public :
-        bool unsat=false;
+
+
+    public:
+        bool unsat = false;
 
     private:
 
@@ -170,12 +172,12 @@ namespace xsol3 {
         }
 
     public:
-        
-        vector<bool> getResult() const{
+
+        vector<bool> getResult() const {
             return one;
         }
 
-        equation(vector<bool> in) : sz(in.size()), one(in.size()),bound(in.size()), dat((in.size() * in.size()) / 4 + in.size() + 2) {
+        equation(vector<bool> in) : sz(in.size()), one(in.size()), bound(in.size()), dat((in.size() * in.size()) / 4 + in.size() + 2) {
             cursor c(sz);
             coefdiag coef(sz);
             dat[0] = -1;
@@ -234,11 +236,11 @@ namespace xsol3 {
                 if (c.currloc() != 0) {
                     int v = at(c);
                     int cy = vpy(v);
-                    
-                 //   cout<< "|" << v << "e" << cy << endl;
+
+                    //   cout<< "|" << v << "e" << cy << endl;
 
                     if (cy >= 0) {
-                   //      cout << "find var " << cy << endl;
+                        //      cout << "find var " << cy << endl;
                         return cy;
                     }
                 }
@@ -246,96 +248,94 @@ namespace xsol3 {
             } while (++c);
             return -1;
         }
-        
-        
-        
-        bool deduction(){
-           cursor c(sz);
-            int tr=0;
-            int other=0;
-            int lastVar=-1;
-            int nextVar=-1;
+
+        bool deduction() {
+            cursor c(sz);
+            int tr = 0;
+            int other = 0;
+            int lastVar = -1;
+            int nextVar = -1;
             do {
-                
-                
-                if(c.currloc()==0){
-                    tr=0;
-                    other=0;
-                    lastVar=-1;
-                    nextVar=-1;
+
+
+                if (c.currloc() == 0) {
+                    tr = 0;
+                    other = 0;
+                    lastVar = -1;
+                    nextVar = -1;
                 }
-                
-                int v=at(c);
-                if(v!= -1){
-                    if(v==0){
+
+                int v = at(c);
+                if (v != -1) {
+                    if (v == 0) {
                         tr++;
-                    }else{
+                    } else {
                         other++;
-                        nextVar=lastVar;
-                        lastVar=v;
+                        nextVar = lastVar;
+                        lastVar = v;
                     }
-                  //  cout << " " << v << " " << tr << " " << other << " " << lastVar << endl;
+                    //  cout << " " << v << " " << tr << " " << other << " " << lastVar << endl;
                 }
-                     
-                
-                
-                if(c.remaining()==0){                    
-                    if(other==1 && vpx(lastVar)==-1){                    
+
+
+
+                if (c.remaining() == 0) {
+                    if (other == 1 && vpx(lastVar) == -1) {
                         break;
                     }
                 }
 
-            } while (++c);    
-            
-            if(other==1 && vpx(lastVar)==-1){
-                bool ff=(tr&1);
-                
-             //   cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
-             //   cout << str() << endl;
-                
-                solveOneVar(ff,vpy(lastVar));
-                
-             //  cout << " after " << endl;
-              //  cout << str() << endl;
-          
+            } while (++c);
+
+            if (other == 1 && vpx(lastVar) == -1) {
+                bool ff = (tr & 1);
+
+                //   cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
+                //   cout << str() << endl;
+
+                solveOneVar(ff, vpy(lastVar));
+
+                //  cout << " after " << endl;
+                //  cout << str() << endl;
+
                 return true;
-                
-                
+
+
             }
-            if((tr&1)==0 && other==2 && vpx(lastVar)==-1 && vpx(nextVar)==-1){
-                bool ff=(tr&1);
-                
-             //   cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
-             //   cout << str() << endl;
-                
-                substitute(vpy(nextVar),vpy(lastVar));
-                
-             //  cout << " after " << endl;
-              //  cout << str() << endl;
-          
+            if ((tr & 1) == 0 && other == 2 && vpx(lastVar) == -1 && vpx(nextVar) == -1) {
+                bool ff = (tr & 1);
+
+                //   cout << " found " << vpy(lastVar) << " as " << ff << " at " << c.diagnum() << " " <<c.halfdiag()  << endl ;
+                //   cout << str() << endl;
+
+                substitute(vpy(nextVar), vpy(lastVar));
+
+                //  cout << " after " << endl;
+                //  cout << str() << endl;
+
                 return true;
-                
-                
-            }            
+
+
+            }
             return false;
         }
-        
+
         int findUnboundVar() {
             cursor c(sz);
-            
-            int f= findOneVar();
-            
-            if(f!=-1) return f;
 
-            for(int i=0;i<sz;i++){
-                if(!bound[i]) return i;
+            int f = findOneVar();
+
+            if (f != -1) return f;
+
+            for (int i = 0; i < sz; i++) {
+                if (!bound[i]) return i;
             }
-            
+
             return -1;
-        }        
+        }
 
         bool solveOneVar(bool dir, int f) {
-            bound[f]=true;
+            bound[f] = true;
             if (dir) {
                 one[f] = true;
                 substitute(f, -1);
@@ -416,26 +416,26 @@ namespace xsol3 {
             bool done = false;
 
             cursor c(sz);
-            int tr=0;
-            int other=0;
+            int tr = 0;
+            int other = 0;
             do {
-                
-                
-                if(c.currloc()==0){
-                    tr=0;
-                    other=0;
+
+
+                if (c.currloc() == 0) {
+                    tr = 0;
+                    other = 0;
                 }
-                
-                int v=at(c);
-                if(v!= -1){
-                    if(v==0){
+
+                int v = at(c);
+                if (v != -1) {
+                    if (v == 0) {
                         tr++;
-                    }else{
+                    } else {
                         other++;
                     }
                 }
-                
-                
+
+
                 if (c.currloc()) {
                     int curr = c.ptr();
 
@@ -453,10 +453,10 @@ namespace xsol3 {
                     }
 
                 }
-                
-                if(c.remaining()==0){
-                    if((tr&1)==1 && other==0){
-                        unsat=true;
+
+                if (c.remaining() == 0) {
+                    if ((tr & 1) == 1 && other == 0) {
+                        unsat = true;
                         return false;
                     }
                 }
@@ -466,6 +466,24 @@ namespace xsol3 {
 
             return done;
         }
+        
+        string strCurrSolve(){
+            std::ostringstream sout;
+
+            // cout << "dat cap " << dat.capacity() << endl;
+            // cout << "dat siz " << dat.size() << endl;
+
+            for (int i = sz - 1; i >= 0; i--) {
+
+                if (bound[i])
+                    sout << one[i] << "|";
+                else
+                    sout << "(" << one[i] << ")" << "|";
+            }
+            sout << endl;
+         
+            return sout.str();
+        }
 
         string str() {
             std::ostringstream sout;
@@ -474,12 +492,12 @@ namespace xsol3 {
             // cout << "dat cap " << dat.capacity() << endl;
             // cout << "dat siz " << dat.size() << endl;
 
-            for (int i = sz-1;i >=0; i--) {
-                
-                if(bound[i])
+            for (int i = sz - 1; i >= 0; i--) {
+
+                if (bound[i])
                     sout << one[i] << "|";
                 else
-                    sout << "("<< one[i] <<")" << "|";
+                    sout << "(" << one[i] << ")" << "|";
             }
             sout << endl;
 
@@ -510,27 +528,90 @@ namespace xsol3 {
 
     class XSol3 {
         int sz;
-        
+
         vector<bool> in;
-    public :
+    public:
         vector<vector<bool>> solution;
 
     public:
+        
+        vector<string> hexSolution(){
+            vector<string> res;
+            for(auto inp : solution){
+                std::ostringstream sout;
+                
+                unsigned int acc =0;
+                int nbBit=0;
+                bool esp=false;
+                for(int i=0;i<inp.size();i++){
+                    int val=inp[i];
+                    acc|=(val<<nbBit);
+                    nbBit++;
+                    
+                    if(nbBit==32){
+                        if(esp) sout << " ";
+                        sout << hex << setw(8) << setfill('0') << acc;
+                        acc=0;
+                        nbBit=0;
+                        
+                        esp=true;
+                    }
+                }
+            
+                res.push_back(sout.str());
+            }
+            sort(res.begin(),res.end());
+            return res;
+        }
+
+        XSol3(string is) {
+
+            int size;
+            std::istringstream sin(is);
+            sin >> size;
+
+            vector<bool> input(size * 2);
+            unsigned int read;
+            int curr=0;
+
+            for (int i = 0; i < size / 16; i++) { // Read size / 16 integers to a
+                sin >> hex >> read;
+                for(int i=0;i<32;i++){
+                    input[curr+i]=((read >> i)&1);
+                }
+                curr+=32;
+            }
+            
+            in = input;
+            
+            for(int i=0;i<in.size();i++){
+                
+                if(in[i])
+                    cerr <<"X";
+                else
+                    cerr << "-";
+            }
+            cerr << endl;
+
+        }
 
         XSol3(vector<bool> inp) : sz(in.size()) {
-            in=inp;
+            in = inp;
         }
 
         void recsolve(int depth, equation& e) {
-           // cout << "input for depth " << depth << endl;
-           // cout << e.str() << endl;            
+            // cout << "input for depth " << depth << endl;
+            // cout << e.str() << endl;
             
+            if(depth < 6)
+             cout<< "d"  << depth << "--" << e.strCurrSolve() << endl;            
+
             while (e.buble() || (!e.unsat && e.deduction()));
 
 
-            if(e.unsat){
-           //     cout << "IT IS UNSAT " << endl;
-                return ;
+            if (e.unsat) {
+                //     cout << "IT IS UNSAT " << endl;
+                return;
             }
 
             //int f = e.findOneVar();
@@ -539,16 +620,16 @@ namespace xsol3 {
                 //cout << " no var found ending " << " depth " << depth << endl;
                 //cout << endl << e.str();
                 solution.push_back(e.getResult());
-                
+
                 return;
             }
 
             equation next = e;
-            next.solveOneVar(false,f);
-           // cout << "depth " << depth << " exploring " << f << " to false " << endl;
+            next.solveOneVar(false, f);
+            // cout << "depth " << depth << " exploring " << f << " to false " << endl;
             recsolve(depth + 1, next);
             e.solveOneVar(true, f);
-          //  cout << "depth " << depth << " setting " << f << " to true " << endl;
+            //  cout << "depth " << depth << " setting " << f << " to true " << endl;
             recsolve(depth + 1, e);
 
 
@@ -558,21 +639,21 @@ namespace xsol3 {
         }
 
         vector<vector<bool>> solve() {
-            
-            if(in[in.size()-1]) return solution;
+
+            if (in[in.size() - 1]) return solution;
 
             equation e(in);
 
-           // cout << "solving " << endl << e.str() << endl;
+            // cout << "solving " << endl << e.str() << endl;
 
             recsolve(0, e);
-            
+
             return solution;
         }
 
         void debugParcours(vector<bool> in) {
-            
-            
+
+
 
             equation e(in);
 

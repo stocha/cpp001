@@ -388,9 +388,35 @@ void xs3_00(){
     }
 }
 
+void xs3_real(){
+    
+    string is="32\n 000073af 00000000";
+  //  string is="16\n 000073af";
+    
+//      00000001 000073af
+//      00000083 000000e5
+//      000000e5 00000083
+//      000073af 00000001
+    
+    xsol3::XSol3 x(is);
+    
+    //x.debugParcours(bftov(f));
+    auto res=x.solve();
+    
+    
+    for(int i=0;i<res.size();i++){
+        cout << vtobf(res[i]).str() << endl;
+    }
+    
+    auto hexsol=x.hexSolution();
+    for(int i=0;i<res.size();i++){
+        cout << hexsol[i] << endl;
+    }    
+}
+
 void NinXorSolv::test() {
     //oldTest();
-    testCompImplxo();
+    //testCompImplxo();
     //test2();
 
    // xsolt00();
@@ -398,6 +424,8 @@ void NinXorSolv::test() {
    // xsolt02();
     
    // xs3_00();
+    
+    xs3_real();
 }
 
 

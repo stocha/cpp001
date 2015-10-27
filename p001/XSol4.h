@@ -47,7 +47,7 @@ namespace xsol4 {
             return it.size();
         }
 
-        short min() {
+        unsigned short min() {
             if (size() <= 0) {
                 cerr << "no var in term" << endl;
                 exit(1);
@@ -55,13 +55,48 @@ namespace xsol4 {
         }
 
         bool replace(short oldv, short newv) {
+            bool res = false;
+
             for (int i = 0; i < it.size(); i++) {
                 if (it[i] == oldv) {
                     it[i] = newv;
+                    res = true;
                 }
             }
-            sort(it.begin(), it.end());
-            unique(it.begin(), it.end());
+
+            if (res) {
+                sort(it.begin(), it.end());
+                unique(it.begin(), it.end());
+            }
+
+            return res;
+        }
+
+        bool contains(short oldv) {
+            for (int i = it.size() - 1; i >= 0; i--) {
+                if (it[i] == oldv) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool toTrue(short oldv) {
+            bool res = false;
+
+            for (int i = it.size() - 1; i >= 0; i--) {
+                if (it[i] == oldv) {
+                    it.erase(it.begin() + i);
+                    res = true;
+                }
+            }
+
+            if (res) {
+                sort(it.begin(), it.end());
+                unique(it.begin(), it.end());
+            }
+
+            return res;
         }
 
         bool isTrue() {
@@ -79,7 +114,7 @@ namespace xsol4 {
                 sout << "(";
                 for (auto x : it) {
                     if (has) sout << ".";
-                    sout << hex << setw(3) << x;
+                    sout << hex << setw(1) << x;
                     has = true;
                 }
                 sout << ")";
@@ -130,12 +165,69 @@ namespace xsol4 {
 
     class line {
         vector<term> l;
+
+    private:
+
+        void unique() {
+
+            if (l.size() < 2) return;
+            int a = l.size()-1;
+            int b = l.size()-2;
+
+            while(b>=0){
+                if(l[a]==l[b]){
+
+                    
+                    l.erase(l.begin()+a);
+                    l.erase(l.begin()+b);
+                    
+                    a-=2;
+                    b-=2;                    
+                }else{
+                    --a;
+                    --b;
+                }
+            }
+        }
     public:
+
+        bool empty() {
+            return l.empty();
+        }
+
+        void forceBit(short it, bool v) {
+            bool done = false;
+            if (v) {
+                for (int i = l.size() - 1; i >= 0; i--) {
+                    done |= l[i].toTrue(it);
+                }
+            } else {
+                for (int i = l.size() - 1; i >= 0; i--) {
+                    if (l[i].contains(it)) {
+                        l.erase(l.begin() + i);
+                    }
+                }
+            }
+            if (done) {
+                sortMelt();
+            }
+
+
+        }
+        
+        void sortMelt(){
+                sort(l.begin(), l.end());
+                unique();            
+        }
+
+        bool checkUnsat() {
+            if (l.size() != 1) return false;
+            if (l[0].isTrue()) return true;
+        }
 
         void add(term t) {
             l.push_back(t);
-            sort(l.begin(), l.end());
-            unique(l.begin(), l.end());
+            sortMelt();
         }
 
         string str() {
@@ -164,13 +256,54 @@ namespace xsol4 {
 
         vector<line> lines;
 
+        bool unsat = false;
+
+
+
     public:
 
+        bool getUnsat() {
+            return unsat;
+        }
+
+        vector<bool> getResult() const {
+            return bits;
+        }
+
+        short findUnbound() {
+            for (int i = 0; i < bits.size(); i++) {
+                if (!bound[i]) return i;
+            }
+
+            return -1;
+        }
+
+        void forceBit(short it, bool v) {
+            if (bound[it]) {
+                cerr << "forceBit error alredy bound" << endl;
+                exit(1);
+            }
+
+            bound[it] = true;
+            bits[it] = v;
+
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                lines[i].forceBit(it, v);
+                //cout << "forcing "<< it << " at " << v << " on " << x.str() << endl;
+                unsat |= lines[i].checkUnsat();
+                if (lines[i].empty()) {
+                    lines.erase(lines.begin() + i);
+                }
+            }
+        }
+
         equation(vector<bool> in) : bits(in.size()), bound(in.size()) {
+           // cout << "building equation";
+
             lines.reserve(bits.size()*2);
 
-            for(int i=0;i<in.size();i++){
-                lines.push_back(diag(i,in[i],in.size()));
+            for (int i = 0; i < in.size(); i++) {
+                lines.push_back(diag(i, in[i], in.size()));
             }
 
 
@@ -203,8 +336,6 @@ namespace xsol4 {
             std::ostringstream sout;
 
 
-            bool has = false;
-
             for (int i = 0; i < bits.size(); i++) {
                 if (i % 8 == 0) sout << " ";
                 if (bound[i]) sout << "|";
@@ -212,11 +343,11 @@ namespace xsol4 {
                 sout << (bits[i] ? "#" : "-");
             }
 
-            sout << "";
+
+
             for (auto x : lines) {
-                if (has) sout << endl;
+                sout << endl;
                 sout << x.str();
-                has = true;
             }
 
             return sout.str();
@@ -262,9 +393,57 @@ namespace xsol4 {
             return res;
         }
 
+        void recsolve(int depth, equation& e, vector<int> stsol) {
+            // cout << "input for depth " << depth << endl;
+            // cout << e.str() << endl;
+
+//            if (depth < 20) {
+//                cout << "d" << depth << "--" << e.str() << endl;
+//                for (int i = 0; i < stsol.size(); i++) {
+//                    cout << stsol[i] << "|";
+//                }
+//                cout << endl;
+//            }
+
+
+            // while (e.buble() || (!e.unsat && e.deduction()));
+
+
+            if (e.getUnsat()) {
+                //     cout << "IT IS UNSAT " << endl;
+                return;
+            }
+
+            //int f = e.findOneVar();
+            int f = e.findUnbound();
+            if (f == -1) {
+                //cout << " no var found ending " << " depth " << depth << endl;
+                //cout << endl << e.str();
+                solution.push_back(e.getResult());
+
+                return;
+            }
+
+            equation next = e;
+            next.forceBit(f, false);
+            stsol.push_back(-f);
+            // cout << "depth " << depth << " exploring " << f << " to false " << endl;
+            recsolve(depth + 1, next, stsol);
+            e.forceBit(f, true);
+            stsol.pop_back();
+            stsol.push_back(f);
+            //  cout << "depth " << depth << " setting " << f << " to true " << endl;
+            recsolve(depth + 1, e, stsol);
+
+
+
+
+
+        }
+
     public:
-        
-        vector<vector<bool>> result(){
+
+        vector<vector<bool>> result() {
             return solution;
         }
 
@@ -276,13 +455,11 @@ namespace xsol4 {
 
             equation e(in);
 
-             cout << "solving " << endl << e.str() << endl;
+           // cout << "solving " << endl << e.str() << endl;
 
-           // recsolve(0, e, st);
+            recsolve(0, e, st);
 
         }
-        
-        
 
         XSol4(string is) {
 
@@ -315,9 +492,9 @@ namespace xsol4 {
 
         }
 
-        XSol4(vector<bool> inp)  {
+        XSol4(const vector<bool>& inp) {
             in = inp;
-        }        
+        }
 
     private:
 

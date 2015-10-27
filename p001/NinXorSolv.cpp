@@ -95,6 +95,39 @@ public:
     }
 };
 
+class  xsol4invert: public inverterInterface {
+
+    struct myclass001 {
+
+        bool operator()(bitField a, bitField b) {
+            for (int i = 0; i < a.size(); i++) {
+                int ind = a.size() - i - 1;
+                if (a[ind] < b[ind]) return true;
+                else if (a[ind] > b[ind]) return false;
+            }
+            return true;
+        }
+    } compareBits;
+public:
+
+    vector<bitField> invert(bitField in) {
+        xsol4::XSol4 sol=xsol4::XSol4(bftov(in));
+
+
+        sol.solve();
+        auto pres = sol.result();
+        
+        vector<bitField> res;
+        
+        for(int i=0;i<pres.size();i++){
+            res.push_back(vtobf(pres[i]));
+        }
+
+        sort(res.begin(), res.end(), compareBits);
+        return res;
+    }
+};
+
 class xorInvert : public inverterInterface {
 
     struct myclass001 {
@@ -326,8 +359,8 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-  //  int nbBit = 18;
-     int nbBit = 36;
+    int nbBit = 16;
+   //  int nbBit = 36;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();
@@ -339,6 +372,7 @@ void testCompImplxo() {
     
      xsol2invert solinv;
      xsol3invert solinv3;
+     xsol4invert solinv4;
     //compareImpl imp(&refInv,&seqInv);   
     //compareImpl imp(&refInv,&refInv);
     // compareImpl imp(&seqInv,&seqInv); 
@@ -349,7 +383,8 @@ void testCompImplxo() {
     //compareImpl imp(&solinv, &seqSym);
      //compareImpl imp(&solinv, &solinv);
   //   compareImpl imp(&solinv3, &seqSym);
-     compareImpl imp(&solinv3, &solinv3);
+     //compareImpl imp(&solinv3, &solinv3);
+     compareImpl imp(&solinv4, &seqSym);
     imp.compareThem(nbBit, 50);
 }
 
@@ -393,10 +428,10 @@ void xs4_00(){
     
     srand(0xCAFEBABE);
 
-    int sz = 8;
+    int sz = 4;
     
     SoluSimp ss(sz);
-    ss.debug_coef();    
+   // ss.debug_coef();    
     
     
     bitField f(sz);
@@ -405,12 +440,14 @@ void xs4_00(){
     //f = bitField(8);
     f.set(0, 0);
     f.set(1, 0);
-    f.set(2, 0);
+    f.set(2, 1);
     f.set(3, 0);
     f.set(4, 0);
     f.set(5, 0);
     f.set(6, 0);
     f.set(7, 0);    
+    
+    f.set(sz-1,0);
     
     cout << "input " << f.str() << endl;
     
@@ -457,7 +494,7 @@ void xs3_real(){
 
 void NinXorSolv::test() {
     //oldTest();
-    //testCompImplxo();
+    testCompImplxo();
     //test2();
 
    // xsolt00();
@@ -467,7 +504,7 @@ void NinXorSolv::test() {
     //xs3_00();    
    // xs3_real();
     
-     xs4_00();
+    // xs4_00();
 }
 
 

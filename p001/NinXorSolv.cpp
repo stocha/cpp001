@@ -9,6 +9,7 @@
 
 #include "XSol2.h"
 #include "XSol3.h"
+#include "XSol4.h"
 
 vector<bool> bftov(bitField bf) {
     vector<bool> res;
@@ -388,6 +389,43 @@ void xs3_00(){
     }
 }
 
+void xs4_00(){
+    
+    srand(0xCAFEBABE);
+
+    int sz = 8;
+    
+    SoluSimp ss(sz);
+    ss.debug_coef();    
+    
+    
+    bitField f(sz);
+    f.randomize();    
+    
+    //f = bitField(8);
+    f.set(0, 0);
+    f.set(1, 0);
+    f.set(2, 0);
+    f.set(3, 0);
+    f.set(4, 0);
+    f.set(5, 0);
+    f.set(6, 0);
+    f.set(7, 0);    
+    
+    cout << "input " << f.str() << endl;
+    
+    xsol4::XSol4 x(bftov(f));
+    
+    //x.debugParcours(bftov(f));
+    x.solve();
+    
+    auto res=x.result();
+    
+    for(int i=0;i<res.size();i++){
+        cout << vtobf(res[i]).str() << endl;
+    }
+}
+
 void xs3_real(){
     
     //string is="32\n 000073af 00000000";
@@ -426,9 +464,10 @@ void NinXorSolv::test() {
    //  xsolt01();
    // xsolt02();
     
-   // xs3_00();
+    //xs3_00();    
+   // xs3_real();
     
-    xs3_real();
+     xs4_00();
 }
 
 

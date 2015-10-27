@@ -359,8 +359,8 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 16;
-   //  int nbBit = 36;
+   // int nbBit = 16;
+     int nbBit = 36;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();
@@ -384,7 +384,8 @@ void testCompImplxo() {
      //compareImpl imp(&solinv, &solinv);
   //   compareImpl imp(&solinv3, &seqSym);
      //compareImpl imp(&solinv3, &solinv3);
-     compareImpl imp(&solinv4, &seqSym);
+    /// compareImpl imp(&solinv4, &seqSym);
+      compareImpl imp(&solinv4, &solinv4);
     imp.compareThem(nbBit, 50);
 }
 
@@ -465,9 +466,9 @@ void xs4_00(){
 
 void xs3_real(){
     
-    //string is="32\n 000073af 00000000";
+    string is="32\n 000073af 00000000";
    // string is="32\n 00000000 000073af";
-    string is="32\n 46508fb7 6677e201";
+   // string is="32\n 46508fb7 6677e201";
     //
   //  string is="16\n 000073af";
     
@@ -492,9 +493,40 @@ void xs3_real(){
     }    
 }
 
+
+void xs4_real(){
+    
+    string is="32\n 000073af 00000000";
+   // string is="32\n 00000000 000073af";
+   // string is="32\n 46508fb7 6677e201";
+    //
+  //  string is="16\n 000073af";
+    
+//      00000001 000073af
+//      00000083 000000e5
+//      000000e5 00000083
+//      000073af 00000001
+    
+    xsol4::XSol4 x(is);
+    
+    //x.debugParcours(bftov(f));
+    x.solve();
+    auto res=x.result();
+    
+    
+    for(int i=0;i<res.size();i++){
+        cout << vtobf(res[i]).str() << endl;
+    }
+    
+    auto hexsol=x.hexSolution();
+    for(int i=0;i<res.size();i++){
+        cout << hexsol[i] << endl;
+    }    
+}
+
 void NinXorSolv::test() {
     //oldTest();
-    testCompImplxo();
+   // testCompImplxo();
     //test2();
 
    // xsolt00();
@@ -502,9 +534,10 @@ void NinXorSolv::test() {
    // xsolt02();
     
     //xs3_00();    
-   // xs3_real();
+    //xs3_real();
     
-    // xs4_00();
+     //xs4_real();    
+     xs4_00();
 }
 
 

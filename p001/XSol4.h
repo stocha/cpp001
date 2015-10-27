@@ -20,7 +20,7 @@ using namespace std;
 namespace xsol4 {
 
     class term {
-    protected:
+    public:
         vector<short> it;
 
     public:
@@ -47,11 +47,12 @@ namespace xsol4 {
             return it.size();
         }
 
-        unsigned short min() {
+        short min() {
             if (size() <= 0) {
                 cerr << "no var in term" << endl;
                 exit(1);
             };
+            return it[0];
         }
 
         bool replace(short oldv, short newv) {
@@ -171,19 +172,19 @@ namespace xsol4 {
         void unique() {
 
             if (l.size() < 2) return;
-            int a = l.size()-1;
-            int b = l.size()-2;
+            int a = l.size() - 1;
+            int b = l.size() - 2;
 
-            while(b>=0){
-                if(l[a]==l[b]){
+            while (b >= 0) {
+                if (l[a] == l[b]) {
 
-                    
-                    l.erase(l.begin()+a);
-                    l.erase(l.begin()+b);
-                    
-                    a-=2;
-                    b-=2;                    
-                }else{
+
+                    l.erase(l.begin() + a);
+                    l.erase(l.begin() + b);
+
+                    a -= 2;
+                    b -= 2;
+                } else {
                     --a;
                     --b;
                 }
@@ -193,6 +194,29 @@ namespace xsol4 {
 
         bool empty() {
             return l.empty();
+        }
+
+        int size() {
+            return l.size();
+        }
+
+        bool hasTrue() {
+            return l.size() > 0 && l[0].isTrue();
+        }
+
+        term lastPoly() {
+
+            return l[l.size() - 1];
+        }
+
+        short firstSingleVar() {
+            for (auto x : l) {
+                if (x.size() == 1) {
+                    return x.min();
+                }
+            }
+
+            return -1;
         }
 
         void forceBit(short it, bool v) {
@@ -214,10 +238,10 @@ namespace xsol4 {
 
 
         }
-        
-        void sortMelt(){
-                sort(l.begin(), l.end());
-                unique();            
+
+        void sortMelt() {
+            sort(l.begin(), l.end());
+            unique();
         }
 
         bool checkUnsat() {
@@ -290,15 +314,59 @@ namespace xsol4 {
             for (int i = lines.size() - 1; i >= 0; i--) {
                 lines[i].forceBit(it, v);
                 //cout << "forcing "<< it << " at " << v << " on " << x.str() << endl;
-                unsat |= lines[i].checkUnsat();
+            }
+        }
+
+        void trimEmpty() {
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                //cout << "forcing "<< it << " at " << v << " on " << x.str() << endl;                
                 if (lines[i].empty()) {
                     lines.erase(lines.begin() + i);
+                }
+                unsat |= lines[i].checkUnsat();
+                if(unsat){
+                  //  cout << "unsat line found !! " << lines[i].str() << endl;
+                    return;
                 }
             }
         }
 
+        bool basicDeduction() {
+
+         //   cout << "basic deduction apply " << endl;
+
+            bool found = false;
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if (lines[i].size() == 2 && lines[i].hasTrue()) {
+
+                    term t = lines[i].lastPoly();
+
+               //     cout << "basic simple true " << lines[i].str() << endl;
+
+                    for (short s : t.it) {
+                        forceBit(s, true);
+                        found = true;
+                    }
+
+                    lines.erase(lines.begin() + i);
+                } else if (lines[i].size() == 1 && !lines[i].hasTrue()) {
+
+                    short s = lines[i].firstSingleVar();
+                    if (s != -1) {
+                 //       cout << "basic simple false " << lines[i].str() << endl;
+                        forceBit(s, false);
+                        found = true;
+
+                        lines.erase(lines.begin() + i);
+                    }
+                }
+            }
+
+            return found;
+        }
+
         equation(vector<bool> in) : bits(in.size()), bound(in.size()) {
-           // cout << "building equation";
+            // cout << "building equation";
 
             lines.reserve(bits.size()*2);
 
@@ -332,6 +400,24 @@ namespace xsol4 {
         }
     public:
 
+       string strCurrSolve() {
+            std::ostringstream sout;
+
+            // cout << "dat cap " << dat.capacity() << endl;
+            // cout << "dat siz " << dat.size() << endl;
+            int sz= bits.size();
+            for (int i = sz - 1; i >= 0; i--) {
+
+                if (bound[i])
+                    sout << bits[i] << "|";
+                else
+                    sout << "(" << bits[i] << ")" << "|";
+            }
+            sout << endl;
+
+            return sout.str();
+        }        
+        
         string str() {
             std::ostringstream sout;
 
@@ -392,25 +478,37 @@ namespace xsol4 {
             sort(res.begin(), res.end());
             return res;
         }
+        
+        
 
         void recsolve(int depth, equation& e, vector<int> stsol) {
-            // cout << "input for depth " << depth << endl;
-            // cout << e.str() << endl;
+        //    cout << "input for depth " << depth << endl;
+          //  cout << e.str() << endl;
 
-//            if (depth < 20) {
-//                cout << "d" << depth << "--" << e.str() << endl;
-//                for (int i = 0; i < stsol.size(); i++) {
-//                    cout << stsol[i] << "|";
-//                }
-//                cout << endl;
-//            }
+                        if (depth < 3) {
+                            cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+                            for (int i = 0; i < stsol.size(); i++) {
+                                cout << stsol[i] << "|";
+                            }
+                            cout << endl;
+                        }
 
 
             // while (e.buble() || (!e.unsat && e.deduction()));
 
+            bool stop = true;
+            do {
+                stop |= e.basicDeduction();
+                e.trimEmpty();
+
+            } while (!stop);
+            
+         //   cout << " deducted " << depth << endl;
+         //   cout << e.str() << endl;            
+
 
             if (e.getUnsat()) {
-                //     cout << "IT IS UNSAT " << endl;
+                   //  cout << "IT IS UNSAT " << endl;
                 return;
             }
 
@@ -455,7 +553,7 @@ namespace xsol4 {
 
             equation e(in);
 
-           // cout << "solving " << endl << e.str() << endl;
+            // cout << "solving " << endl << e.str() << endl;
 
             recsolve(0, e, st);
 

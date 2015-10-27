@@ -27,6 +27,12 @@ namespace xsol4 {
 
         term() {
         }
+        
+        void countVars(vector<int>& coun){
+            for(auto x : it){
+                coun[x]++;
+            }
+        }
 
         term(short x, short y) {
             it.push_back(x);
@@ -167,8 +173,14 @@ namespace xsol4 {
     class line {
         vector<term> l;
 
-    private:
 
+    public : 
+        void countVars(vector<int>& coun){
+            for(auto x : l){
+                x.countVars(coun);
+            }
+        }
+    private:
         void unique() {
 
             if (l.size() < 2) return;
@@ -295,11 +307,27 @@ namespace xsol4 {
         }
 
         short findUnbound() {
-            for (int i = 0; i < bits.size(); i++) {
-                if (!bound[i]) return i;
+            vector<int> coun(bits.size());
+            
+            for(auto x : lines){
+                x.countVars(coun);
             }
+            
+            short it=-1;
+            int max=0;
+            for(int i=0;i<coun.size();i++){
+                if( coun[i] > max && !bound[i]){
+                    max=coun[i];
+                    it=i;
+                }
+                
+            }
+            
+           // for (int i = 0; i < bits.size(); i++) {
+             //   if (!bound[i]) return i;
+           // }
 
-            return -1;
+            return it;
         }
 
         void forceBit(short it, bool v) {

@@ -46,7 +46,7 @@ namespace xsol4 {
         }
 
         void makeUnique() {
-           // cout << " before unique " << str() << endl;
+            // cout << " before unique " << str() << endl;
             sort(it.begin(), it.end());
 
 
@@ -70,7 +70,7 @@ namespace xsol4 {
             }
 
             // if(it.size()==2 && it[0]==it[1]){cerr << "impossible " << str() << endl; exit(1);}
-          //   cout << " after unique " << str() << endl;
+            //   cout << " after unique " << str() << endl;
         }
 
         int size() const {
@@ -128,11 +128,11 @@ namespace xsol4 {
             return res;
         }
 
-        bool isTrue() {
+        bool isTrue() const {
             return size() == 0;
         }
 
-        string str() {
+        string str() const {
             std::ostringstream sout;
 
             if (isTrue()) {
@@ -200,6 +200,28 @@ namespace xsol4 {
 
 
     public:
+
+        line fusion(const line& li) {
+            line res;
+
+
+            for (const term& srct : l) {
+
+                //  cout << " term " << srct.str() << endl;
+                for (const term& o : li.l) {
+                    term x = srct;
+                    for (short t : o.it) {
+                        x.add(t);
+                    }
+                    x.makeUnique();
+                    res.add(x);
+
+                }
+                // cout << " become " << res.str() << endl;
+            }
+            res.sortMelt();
+            return res;
+        }
 
         void countVars(vector<int>& coun) {
             for (auto x : l) {
@@ -272,7 +294,7 @@ namespace xsol4 {
                 x.toTrue(v);
                 hascont = true;
                 for (const term & e : expr.l) {
-                    term tt=x;
+                    term tt = x;
                     for (auto t : e.it) {
                         tt.add(t);
                     }
@@ -283,10 +305,10 @@ namespace xsol4 {
             }
 
             if (hascont) {
-               // cout<< "res befro metl "<< endl  << res.str() << endl;
+                // cout<< "res befro metl "<< endl  << res.str() << endl;
                 res.sortMelt();
-                  // cout << "substitute " << v << " <> " << expr.str() << " in " << str() << endl;
-                  // cout << res.str() << endl;
+                // cout << "substitute " << v << " <> " << expr.str() << " in " << str() << endl;
+                // cout << res.str() << endl;
                 return res;
             } else {
                 line ot;
@@ -377,8 +399,10 @@ namespace xsol4 {
         vector<bool> bits;
         vector<bool> bound;
 
+    public:
         vector<line> lines;
 
+    private:
         bool unsat = false;
 
 
@@ -561,6 +585,11 @@ namespace xsol4 {
 
 
         }
+        
+        equation(int sz, const line& xli) : bits(sz), bound(sz){
+            lines.push_back(xli);
+            
+        }
     private:
 
         line diag(int i, bool b, int sz) {
@@ -665,16 +694,16 @@ namespace xsol4 {
         }
 
         void recsolve(int depth, equation& e, vector<int> stsol) {
-           // cout << "input for depth " << depth << endl;
-           // cout << e.str() << endl;
+            //  cout << "input for depth " << depth << endl;
+            // cout << e.str() << endl;
 
-            //                        if (depth < 3) {
-            //                            cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-            //                            for (int i = 0; i < stsol.size(); i++) {
-            //                                cout << stsol[i] << "|";
-            //                            }
-            //                            cout << endl;
-            //                        }
+            //                                    if (depth < 18) {
+            //                                        cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+            //                                        for (int i = 0; i < stsol.size(); i++) {
+            //                                            cout << stsol[i] << "|";
+            //                                        }
+            //                                        cout << endl;
+            //                                    }
 
 
             // while (e.buble() || (!e.unsat && e.deduction()));
@@ -684,8 +713,8 @@ namespace xsol4 {
                 loop = false;
 
                 while (e.basicDeduction()) {
-               //     cout << " deducted base " << depth << endl;
-                //    cout << e.str() << endl;
+                    //cout << " deducted base " << depth << endl;
+                    //cout << e.str() << endl;
 
                 };
                 e.trimEmpty();
@@ -693,8 +722,8 @@ namespace xsol4 {
                 loop |= e.substitutionDeduction();
 
                 if (loop) {
-                  //  cout << " deductedsub " << depth << endl;
-                   // cout << e.str() << endl;
+                    //cout << " deductedsub " << depth << endl;
+                    //cout << e.str() << endl;
 
                     e.trimEmpty();
                 }
@@ -714,7 +743,7 @@ namespace xsol4 {
             //int f = e.findOneVar();
             int f = e.findUnbound();
             if (f == -1) {
-               // cout << " no var found ending " << " depth " << depth << endl;
+                // cout << " no var found ending " << " depth " << depth << endl;
                 //cout << endl << e.str() << endl;
                 solution.push_back(e.getResult());
 
@@ -756,6 +785,18 @@ namespace xsol4 {
 
             recsolve(0, e, st);
 
+        }
+
+        void solveeq(int sz,const line& eq) {
+            vector<int> st;
+            
+            
+            
+            equation e(sz,eq) ;
+
+            // cout << "solving " << endl << e.str() << endl;
+
+            recsolve(0, e, st);
         }
 
         XSol4(string is) {

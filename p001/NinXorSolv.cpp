@@ -22,14 +22,12 @@ vector<bool> bftov(bitField bf) {
 bitField vtobf(vector<bool> v) {
     bitField res(v.size());
     for (int i = 0; i < v.size(); i++) {
-        res.set(i,v[i]);
+        res.set(i, v[i]);
     }
     return res;
 }
 
-
-
-class  xsol2invert: public inverterInterface {
+class xsol2invert : public inverterInterface {
 
     struct myclass001 {
 
@@ -45,14 +43,14 @@ class  xsol2invert: public inverterInterface {
 public:
 
     vector<bitField> invert(bitField in) {
-        XSol2 sol=XSol2(bftov(in));
+        XSol2 sol = XSol2(bftov(in));
 
 
         auto pres = sol.dosolve();
-        
+
         vector<bitField> res;
-        
-        for(int i=0;i<pres.size();i++){
+
+        for (int i = 0; i < pres.size(); i++) {
             res.push_back(vtobf(pres[i]));
         }
 
@@ -61,9 +59,7 @@ public:
     }
 };
 
-
-
-class  xsol3invert: public inverterInterface {
+class xsol3invert : public inverterInterface {
 
     struct myclass001 {
 
@@ -79,14 +75,14 @@ class  xsol3invert: public inverterInterface {
 public:
 
     vector<bitField> invert(bitField in) {
-        xsol3::XSol3 sol=xsol3::XSol3(bftov(in));
+        xsol3::XSol3 sol = xsol3::XSol3(bftov(in));
 
 
         auto pres = sol.solve();
-        
+
         vector<bitField> res;
-        
-        for(int i=0;i<pres.size();i++){
+
+        for (int i = 0; i < pres.size(); i++) {
             res.push_back(vtobf(pres[i]));
         }
 
@@ -95,7 +91,7 @@ public:
     }
 };
 
-class  xsol4invert: public inverterInterface {
+class xsol4invert : public inverterInterface {
 
     struct myclass001 {
 
@@ -111,15 +107,64 @@ class  xsol4invert: public inverterInterface {
 public:
 
     vector<bitField> invert(bitField in) {
-        xsol4::XSol4 sol=xsol4::XSol4(bftov(in));
+        xsol4::XSol4 sol = xsol4::XSol4(bftov(in));
 
 
         sol.solve();
         auto pres = sol.result();
-        
+
         vector<bitField> res;
-        
-        for(int i=0;i<pres.size();i++){
+
+        for (int i = 0; i < pres.size(); i++) {
+            res.push_back(vtobf(pres[i]));
+        }
+
+        sort(res.begin(), res.end(), compareBits);
+        return res;
+    }
+};
+
+class xsol4invertDistrib : public inverterInterface {
+
+    struct myclass001 {
+
+        bool operator()(bitField a, bitField b) {
+            for (int i = 0; i < a.size(); i++) {
+                int ind = a.size() - i - 1;
+                if (a[ind] < b[ind]) return true;
+                else if (a[ind] > b[ind]) return false;
+            }
+            return true;
+        }
+    } compareBits;
+public:
+
+    vector<bitField> invert(bitField in) {
+        xsol4::XSol4 sol = xsol4::XSol4(bftov(in));
+        xsol4::equation eq(bftov(in));
+
+        xsol4::line ll;
+        xsol4::term tr;
+        ll.add(tr);
+
+        cout << " --------- " << endl;
+        for (auto x : eq.lines) {
+            x.add(tr);
+            ll = ll.fusion(x);
+
+            // cout << " multiply " << x.str() << endl;
+
+            // cout << ll.str() << endl;
+        }
+
+        ll.add(tr);
+
+        sol.solveeq(in.size(), ll);
+        auto pres = sol.result();
+
+        vector<bitField> res;
+
+        for (int i = 0; i < pres.size(); i++) {
             res.push_back(vtobf(pres[i]));
         }
 
@@ -153,8 +198,6 @@ public:
         return res;
     }
 };
-
-
 
 void xsolt00() {
     auto x = vx();
@@ -190,10 +233,10 @@ void xsolt02() {
     f.randomize();
     f.randomize();
     f.randomize();
-    
-    
+
+
     f.set(0, 1);
-    f.set(sz-1, 0);    
+    f.set(sz - 1, 0);
 
 
     f = bitField(8);
@@ -204,14 +247,14 @@ void xsolt02() {
     f.set(4, 0);
     f.set(5, 0);
     f.set(6, 0);
-    f.set(7, 0);    
-    
-   
-    
+    f.set(7, 0);
+
+
+
     cout << f.str() << endl;
-    
-    auto x= XSol2(bftov(f)) ;
-    
+
+    auto x = XSol2(bftov(f));
+
     x.dosolve();
 }
 
@@ -226,16 +269,16 @@ void xsolt01() {
     f.randomize();
     f.randomize();
 
-   // f = bitField(8);
+    // f = bitField(8);
     f.set(0, 1);
-    f.set(sz-1, 0);
-//    f.set(1, 1);
-//    f.set(2, 0);
-//    f.set(3, 1);
-//    f.set(4, 1);
-//    f.set(5, 1);
-//    f.set(6, 1);
-//    f.set(7, 0);
+    f.set(sz - 1, 0);
+    //    f.set(1, 1);
+    //    f.set(2, 0);
+    //    f.set(3, 1);
+    //    f.set(4, 1);
+    //    f.set(5, 1);
+    //    f.set(6, 1);
+    //    f.set(7, 0);
 
 
     //0010.1100
@@ -244,7 +287,7 @@ void xsolt01() {
     equation a(bftov(f));
 
     cout << a.str() << endl;
-    
+
     cout << a.debugUnique() << endl;
 
 
@@ -300,7 +343,7 @@ void test2() {
     for (auto b : invr) {
         cout << b.str() << endl;
     }
-    
+
     cout << " end result " << "------------";
 
 }
@@ -359,8 +402,8 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 4;
-    // int nbBit = 36;
+    int nbBit = 12;
+   // int nbBit = 8;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();
@@ -369,40 +412,42 @@ void testCompImplxo() {
     seqInvert seqInv;
     seqInvertSimetric seqSym;
     xorInvert xoInv;
-    
-     xsol2invert solinv;
-     xsol3invert solinv3;
-     xsol4invert solinv4;
+
+    xsol2invert solinv;
+    xsol3invert solinv3;
+    xsol4invert solinv4; 
+    xsol4invertDistrib solinv4beta;
     //compareImpl imp(&refInv,&seqInv);   
     //compareImpl imp(&refInv,&refInv);
     // compareImpl imp(&seqInv,&seqInv); 
     //compareImpl imp(&seqInv, &seqSym);
     //compareImpl imp(&xoInv, &seqSym);
     //compareImpl imp(&seqSym, &seqSym);
-   // compareImpl imp(&xoInv, &xoInv);
+    // compareImpl imp(&xoInv, &xoInv);
     //compareImpl imp(&solinv, &seqSym);
-     //compareImpl imp(&solinv, &solinv);
-  //   compareImpl imp(&solinv3, &seqSym);
-     //compareImpl imp(&solinv3, &solinv3);
-     compareImpl imp(&solinv4, &seqSym);
-   //   compareImpl imp(&solinv4, &solinv4);
+    //compareImpl imp(&solinv, &solinv);
+    //   compareImpl imp(&solinv3, &seqSym);
+    //compareImpl imp(&solinv3, &solinv3);
+    //  compareImpl imp(&solinv4, &seqSym);
+   // compareImpl imp(&solinv4, &solinv4);
+    compareImpl imp(&solinv4beta, &seqSym);
+  //    compareImpl imp(&solinv4beta, &solinv4beta);
     imp.compareThem(nbBit, 50);
 }
 
+void xs3_00() {
 
-void xs3_00(){
-    
     srand(0xCAFEBABE);
 
     int sz = 32;
-    
+
     SoluSimp ss(sz);
-   // ss.debug_coef();    
-    
-    
+    // ss.debug_coef();    
+
+
     bitField f(sz);
-    f.randomize();    
-    
+    f.randomize();
+
     //f = bitField(8);
     f.set(0, 0);
     f.set(1, 0);
@@ -411,117 +456,164 @@ void xs3_00(){
     f.set(4, 0);
     f.set(5, 0);
     f.set(6, 0);
-    f.set(7, 0);    
-    
+    f.set(7, 0);
+
     cout << "input " << f.str() << endl;
-    
+
     xsol3::XSol3 x(bftov(f));
-    
+
     //x.debugParcours(bftov(f));
-    auto res=x.solve();
-    
-    for(int i=0;i<res.size();i++){
+    auto res = x.solve();
+
+    for (int i = 0; i < res.size(); i++) {
         cout << vtobf(res[i]).str() << endl;
     }
 }
 
-void xs4_00(){
-    
+void xs4_00_beta() {
     srand(0xCAFEBABE);
 
-    int sz = 6;
-    
+    int sz = 8;
+
     SoluSimp ss(sz);
-   // ss.debug_coef();    
-    
-    
+    // ss.debug_coef();    
+
+
     bitField f(sz);
-    f.randomize();    
-    
+    f.randomize();
+    f.randomize();
+
+    f.set(sz - 1, 0);
+    cout << "input " << f.str() << endl;
+
+    xsol4::equation eq(bftov(f));
+    // cout << eq.str() << endl;
+
+    xsol4::line ll;
+    xsol4::term tr;
+    ll.add(tr);
+
+    cout << " --------- " << endl;
+    for (auto x : eq.lines) {
+        x.add(tr);
+        ll = ll.fusion(x);
+
+        // cout << " multiply " << x.str() << endl;
+
+        // cout << ll.str() << endl;
+    }
+
+    ll.add(tr);
+
+    cout << ll.str() << endl;
+
+    xsol4::XSol4 x(bftov(f));
+    x.solveeq(sz, ll);
+
+    auto res = x.result();
+
+    for (int i = 0; i < res.size(); i++) {
+        cout << vtobf(res[i]).str() << endl;
+    }
+
+}
+
+void xs4_00() {
+
+    srand(0xCAFEBABE);
+
+    int sz = 10;
+
+    SoluSimp ss(sz);
+    // ss.debug_coef();    
+
+
+    bitField f(sz);
+    f.randomize();
+
     //f = bitField(8);
-    f.set(0, 0);
+    f.set(0, 1);
     f.set(1, 0);
     f.set(2, 1);
     f.set(3, 0);
     f.set(4, 0);
     f.set(5, 0);
     f.set(6, 0);
-    f.set(7, 0);    
-    
-    f.set(sz-1,0);
-    
+    f.set(7, 0);
+
+    f.set(sz - 1, 0);
+
     cout << "input " << f.str() << endl;
-    
+
     xsol4::XSol4 x(bftov(f));
-    
+
     //x.debugParcours(bftov(f));
     x.solve();
-    
-    auto res=x.result();
-    
-    for(int i=0;i<res.size();i++){
+
+    auto res = x.result();
+
+    for (int i = 0; i < res.size(); i++) {
         cout << vtobf(res[i]).str() << endl;
     }
 }
 
-void xs3_real(){
-    
-    string is="32\n 000073af 00000000";
-   // string is="32\n 00000000 000073af";
-   // string is="32\n 46508fb7 6677e201";
+void xs3_real() {
+
+    string is = "32\n 000073af 00000000";
+    // string is="32\n 00000000 000073af";
+    // string is="32\n 46508fb7 6677e201";
     //
-  //  string is="16\n 000073af";
-    
-//      00000001 000073af
-//      00000083 000000e5
-//      000000e5 00000083
-//      000073af 00000001
-    
+    //  string is="16\n 000073af";
+
+    //      00000001 000073af
+    //      00000083 000000e5
+    //      000000e5 00000083
+    //      000073af 00000001
+
     xsol3::XSol3 x(is);
-    
+
     //x.debugParcours(bftov(f));
-    auto res=x.solve();
-    
-    
-    for(int i=0;i<res.size();i++){
+    auto res = x.solve();
+
+
+    for (int i = 0; i < res.size(); i++) {
         cout << vtobf(res[i]).str() << endl;
     }
-    
-    auto hexsol=x.hexSolution();
-    for(int i=0;i<res.size();i++){
+
+    auto hexsol = x.hexSolution();
+    for (int i = 0; i < res.size(); i++) {
         cout << hexsol[i] << endl;
-    }    
+    }
 }
 
+void xs4_real() {
 
-void xs4_real(){
-    
-    string is="32\n 000073af 00000000";
-   // string is="32\n 00000000 000073af";
-   // string is="32\n 46508fb7 6677e201";
+    string is = "32\n 000073af 00000000";
+    // string is="32\n 00000000 000073af";
+    // string is="32\n 46508fb7 6677e201";
     //
-  //  string is="16\n 000073af";
-    
-//      00000001 000073af
-//      00000083 000000e5
-//      000000e5 00000083
-//      000073af 00000001
-    
+    //  string is="16\n 000073af";
+
+    //      00000001 000073af
+    //      00000083 000000e5
+    //      000000e5 00000083
+    //      000073af 00000001
+
     xsol4::XSol4 x(is);
-    
+
     //x.debugParcours(bftov(f));
     x.solve();
-    auto res=x.result();
-    
-    
-    for(int i=0;i<res.size();i++){
+    auto res = x.result();
+
+
+    for (int i = 0; i < res.size(); i++) {
         cout << vtobf(res[i]).str() << endl;
     }
-    
-    auto hexsol=x.hexSolution();
-    for(int i=0;i<res.size();i++){
+
+    auto hexsol = x.hexSolution();
+    for (int i = 0; i < res.size(); i++) {
         cout << hexsol[i] << endl;
-    }    
+    }
 }
 
 void NinXorSolv::test() {
@@ -529,30 +621,32 @@ void NinXorSolv::test() {
     testCompImplxo();
     //test2();
 
-   // xsolt00();
-   //  xsolt01();
-   // xsolt02();
-    
+    // xsolt00();
+    //  xsolt01();
+    // xsolt02();
+
     //xs3_00();    
     //xs3_real();
-    
-     //xs4_real();    
+
+    //  xs4_real();    
     // xs4_00();
-    
-    
-//    vector<short> it;
-//    it.push_back(14);
-//    it.push_back(14);
-//    
-//    sort(it.begin(),it.end());
-//    unique(it.begin(),it.end());
-//    
-//    cout << it.size();
-//    
-//    for(int i=0;i<it.size();i++){
-//        cout << it[i] << " ";
-//    }
-    
+
+  //  xs4_00_beta();
+
+
+    //    vector<short> it;
+    //    it.push_back(14);
+    //    it.push_back(14);
+    //    
+    //    sort(it.begin(),it.end());
+    //    unique(it.begin(),it.end());
+    //    
+    //    cout << it.size();
+    //    
+    //    for(int i=0;i<it.size();i++){
+    //        cout << it[i] << " ";
+    //    }
+
 }
 
 

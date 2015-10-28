@@ -38,22 +38,45 @@ namespace xsol4 {
             it.push_back(x);
             it.push_back(y);
 
-            sort(it.begin(), it.end());
-            unique(it.begin(), it.end());
+            makeUnique();
         }
 
         void add(short v) {
             it.push_back(v);
+        }
+        
+        void makeUnique(){         
             sort(it.begin(), it.end());
-            unique(it.begin(), it.end());
+            
 
+            if (it.size() < 2) return;
+            int a = it.size() - 1;
+            int b = it.size() - 2;
+
+            while (b >= 0) {
+                if (it[a] == it[b]) {
+
+
+                    it.erase(it.begin() + a);
+                    it.erase(it.begin() + b);
+
+                    a -= 2;
+                    b -= 2;
+                } else {
+                    --a;
+                    --b;
+                }
+            }            
+            
+           // if(it.size()==2 && it[0]==it[1]){cerr << "impossible " << str() << endl; exit(1);}
+           // cout << " after unique " << str() << endl;
         }
 
-        int size() {
+        int size() const{
             return it.size();
         }
 
-        short min() {
+        short min() const {
             if (size() <= 0) {
                 cerr << "no var in term" << endl;
                 exit(1);
@@ -72,8 +95,7 @@ namespace xsol4 {
             }
 
             if (res) {
-                sort(it.begin(), it.end());
-                unique(it.begin(), it.end());
+                makeUnique();
             }
 
             return res;
@@ -99,8 +121,7 @@ namespace xsol4 {
             }
 
             if (res) {
-                sort(it.begin(), it.end());
-                unique(it.begin(), it.end());
+                makeUnique();
             }
 
             return res;
@@ -226,7 +247,7 @@ namespace xsol4 {
         }
 
         short firstSingleVar() {
-            for (auto x : l) {
+            for (const term& x : l) {
                 if (x.size() == 1) {
                     return x.min();
                 }
@@ -238,9 +259,29 @@ namespace xsol4 {
         line substitute(const short v,const line& expr){
             line res;
             
-             cout << "substitute " << v << " <> " << expr.str() << " on " << str() << endl;
+             
+            bool hascont=false;
+             for(auto x : l){
+                 if(!x.contains(v)) { res.add(x); continue; };
+                 x.toTrue(v);
+                 hascont=true;
+                 for(const term & e : expr.l){
+                     for(auto t: e.it){
+                         x.add(t);
+                     }
+                     
+                 }
+                 x.makeUnique();
+                 res.add(x);
+             }
             
-            return res;
+            if(hascont){
+                res.sortMelt();
+             //   cout << "substitute " << v << " <> " << expr.str() << " in " << str() << endl;
+             //   cout << res.str() << endl;
+                return res;
+            }
+            else {line ot; return ot;}
         }
         
         short uniqueSingleVar(vector<int>& coun) {
@@ -301,12 +342,13 @@ namespace xsol4 {
         
         }
 
-        string str() {
+        string str() const{
             std::ostringstream sout;
 
 
             bool has = false;
 
+            if(locked) sout << "<LOCK>" ;
             sout << "[";
             for (auto x : l) {
                 if (has) sout << "+";
@@ -395,7 +437,10 @@ namespace xsol4 {
         }
         
         void applySubstitution(const short v, const line& l){
-            vector<int> torem(bits.size());
+            vector<int> torem;
+            vector<line> toadd;
+            
+       //     cout << "applying subst " << endl << str() << endl;
             
             int currsz=lines.size();
             for(int i=0;i<currsz;i++){
@@ -404,15 +449,26 @@ namespace xsol4 {
                 
                 auto nline=x.substitute(v,l);
                 if(nline.size()!=0){
+                   // cout << " future rem " << i << endl;
                     torem.push_back(i);
-                    lines.push_back(x);
+                    toadd.push_back(nline);
                 }
             }
+         //   cout << " before erased old lines "<< endl << str() << endl;
+            
             
             for(int  i=torem.size()-1;i>=0;i--){
-                lines.erase(torem[i]);
+                int itrm=torem[i];
+                
+           //     cout << "erasing " << itrm << " " << lines[itrm].str() << endl;
+                lines.erase(lines.begin()+itrm);
+            }
+           // cout << " erased old lines "<< endl << str() << endl;
+            for(const line& l : toadd){
+                lines.push_back(l);
             }
             
+            trimEmpty();
         }
         
         bool substitutionDeduction(){
@@ -433,6 +489,8 @@ namespace xsol4 {
                     
                    // cout << "keeping :  " << f << " <> " << model.str() << endl;
                     applySubstitution(f,model);
+                    
+                 //   cout << "after sub "<< endl << str() << endl;
                     return true;
                     
                 }
@@ -595,7 +653,7 @@ namespace xsol4 {
 
         void recsolve(int depth, equation& e, vector<int> stsol) {
         //    cout << "input for depth " << depth << endl;
-          //  cout << e.str() << endl;
+        //    cout << e.str() << endl;
 
 //                        if (depth < 3) {
 //                            cout << "d" << depth << "--" << e.strCurrSolve() << endl;

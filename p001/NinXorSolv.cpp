@@ -538,6 +538,21 @@ void NinXorSolv::test() {
     
      //xs4_real();    
     // xs4_00();
+    
+    
+//    vector<short> it;
+//    it.push_back(14);
+//    it.push_back(14);
+//    
+//    sort(it.begin(),it.end());
+//    unique(it.begin(),it.end());
+//    
+//    cout << it.size();
+//    
+//    for(int i=0;i<it.size();i++){
+//        cout << it[i] << " ";
+//    }
+    
 }
 
 

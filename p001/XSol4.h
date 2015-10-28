@@ -774,17 +774,11 @@ namespace xsol4 {
         }
 
         void solve() {
-
             vector<int> st;
-
             if (in[in.size() - 1]) return;
-
             equation e(in);
-
             // cout << "solving " << endl << e.str() << endl;
-
             recsolve(0, e, st);
-
         }
 
         void solveeq(int sz,const line& eq) {

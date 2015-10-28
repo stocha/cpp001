@@ -10,6 +10,7 @@
 #include "XSol2.h"
 #include "XSol3.h"
 #include "XSol4.h"
+#include "XSol5.h"
 
 vector<bool> bftov(bitField bf) {
     vector<bool> res;
@@ -156,6 +157,7 @@ public:
 
             // cout << ll.str() << endl;
         }
+        cout << ll.str() << endl;
 
         ll.add(tr);
 
@@ -402,7 +404,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 12;
+    int nbBit = 32;
    // int nbBit = 8;
 
     SoluSimp ss(nbBit);
@@ -557,6 +559,46 @@ void xs4_00() {
     }
 }
 
+
+void xs5_00() {
+
+    srand(0xCAFEBABE);
+
+    int sz = 8;
+
+    SoluSimp ss(sz);
+    // ss.debug_coef();    
+
+
+    bitField f(sz);
+    f.randomize();
+
+    //f = bitField(8);
+    f.set(0, 1);
+    f.set(1, 0);
+    f.set(2, 1);
+    f.set(3, 0);
+    f.set(4, 0);
+    f.set(5, 0);
+    f.set(6, 0);
+    f.set(7, 0);
+
+    f.set(sz - 1, 0);
+
+    cout << "input " << f.str() << endl;
+
+    xsol5::XSol5 x(bftov(f));
+
+    //x.debugParcours(bftov(f));
+    //x.solve();
+
+    //auto res = x.result();
+//
+//    for (int i = 0; i < res.size(); i++) {
+//        cout << vtobf(res[i]).str() << endl;
+//    }
+}
+
 void xs3_real() {
 
     string is = "32\n 000073af 00000000";
@@ -630,22 +672,11 @@ void NinXorSolv::test() {
 
     //  xs4_real();    
     // xs4_00();
+     
+      xs5_00();
 
   //  xs4_00_beta();
 
-
-    //    vector<short> it;
-    //    it.push_back(14);
-    //    it.push_back(14);
-    //    
-    //    sort(it.begin(),it.end());
-    //    unique(it.begin(),it.end());
-    //    
-    //    cout << it.size();
-    //    
-    //    for(int i=0;i<it.size();i++){
-    //        cout << it[i] << " ";
-    //    }
 
 }
 

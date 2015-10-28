@@ -27,9 +27,9 @@ namespace xsol4 {
 
         term() {
         }
-        
-        void countVars(vector<int>& coun){
-            for(auto x : it){
+
+        void countVars(vector<int>& coun) {
+            for (auto x : it) {
                 coun[x]++;
             }
         }
@@ -44,10 +44,11 @@ namespace xsol4 {
         void add(short v) {
             it.push_back(v);
         }
-        
-        void makeUnique(){         
+
+        void makeUnique() {
+           // cout << " before unique " << str() << endl;
             sort(it.begin(), it.end());
-            
+
 
             if (it.size() < 2) return;
             int a = it.size() - 1;
@@ -57,22 +58,22 @@ namespace xsol4 {
                 if (it[a] == it[b]) {
 
 
-                    it.erase(it.begin() + a);
+                    //it.erase(it.begin() + a);
                     it.erase(it.begin() + b);
 
-                    a -= 2;
-                    b -= 2;
+                    a -= 1;
+                    b -= 1;
                 } else {
                     --a;
                     --b;
                 }
-            }            
-            
-           // if(it.size()==2 && it[0]==it[1]){cerr << "impossible " << str() << endl; exit(1);}
-           // cout << " after unique " << str() << endl;
+            }
+
+            // if(it.size()==2 && it[0]==it[1]){cerr << "impossible " << str() << endl; exit(1);}
+          //   cout << " after unique " << str() << endl;
         }
 
-        int size() const{
+        int size() const {
             return it.size();
         }
 
@@ -193,19 +194,21 @@ namespace xsol4 {
 
     class line {
         vector<term> l;
-        
-    public :
-        bool locked=false;
+
+    public:
+        bool locked = false;
 
 
-    public : 
-        void countVars(vector<int>& coun){
-            for(auto x : l){
+    public:
+
+        void countVars(vector<int>& coun) {
+            for (auto x : l) {
                 x.countVars(coun);
             }
         }
-       
+
     private:
+
         void unique() {
 
             if (l.size() < 2) return;
@@ -255,48 +258,55 @@ namespace xsol4 {
 
             return -1;
         }
-        
-        line substitute(const short v,const line& expr){
+
+        line substitute(const short v, const line& expr) {
             line res;
-            
-             
-            bool hascont=false;
-             for(auto x : l){
-                 if(!x.contains(v)) { res.add(x); continue; };
-                 x.toTrue(v);
-                 hascont=true;
-                 for(const term & e : expr.l){
-                     for(auto t: e.it){
-                         x.add(t);
-                     }
-                     
-                 }
-                 x.makeUnique();
-                 res.add(x);
-             }
-            
-            if(hascont){
-                res.sortMelt();
-             //   cout << "substitute " << v << " <> " << expr.str() << " in " << str() << endl;
-             //   cout << res.str() << endl;
-                return res;
+
+
+            bool hascont = false;
+            for (auto x : l) {
+                if (!x.contains(v)) {
+                    res.add(x);
+                    continue;
+                };
+                x.toTrue(v);
+                hascont = true;
+                for (const term & e : expr.l) {
+                    term tt=x;
+                    for (auto t : e.it) {
+                        tt.add(t);
+                    }
+                    tt.makeUnique();
+                    res.add(tt);
+                }
+
             }
-            else {line ot; return ot;}
+
+            if (hascont) {
+               // cout<< "res befro metl "<< endl  << res.str() << endl;
+                res.sortMelt();
+                  // cout << "substitute " << v << " <> " << expr.str() << " in " << str() << endl;
+                  // cout << res.str() << endl;
+                return res;
+            } else {
+                line ot;
+                return ot;
+            }
         }
-        
+
         short uniqueSingleVar(vector<int>& coun) {
-            bool counted=false;
+            bool counted = false;
             for (auto x : l) {
                 if (x.size() == 1) {
-                    if(!counted){
+                    if (!counted) {
                         countVars(coun);
                     }
-                    if(coun[x.min()]==1) return x.min();
+                    if (coun[x.min()] == 1) return x.min();
                 }
             }
 
             return -1;
-        }        
+        }
 
         void forceBit(short it, bool v) {
             bool done = false;
@@ -332,23 +342,23 @@ namespace xsol4 {
             l.push_back(t);
             sortMelt();
         }
-        
-        void remove(short t){
-            for(int i=0;i<l.size();i++){
-                if(l[i].size()==1 && l[i].min()==t){
-                    l.erase(l.begin()+i);
+
+        void remove(short t) {
+            for (int i = 0; i < l.size(); i++) {
+                if (l[i].size() == 1 && l[i].min() == t) {
+                    l.erase(l.begin() + i);
                 }
             }
-        
+
         }
 
-        string str() const{
+        string str() const {
             std::ostringstream sout;
 
 
             bool has = false;
 
-            if(locked) sout << "<LOCK>" ;
+            if (locked) sout << "<LOCK>";
             sout << "[";
             for (auto x : l) {
                 if (has) sout << "+";
@@ -385,24 +395,25 @@ namespace xsol4 {
 
         short findUnbound() {
             vector<int> coun(bits.size());
-            
-            for(auto x : lines){
+
+            for (auto x : lines) {
                 x.countVars(coun);
             }
-            
-            short it=-1;
-            int max=0;
-            for(int i=0;i<coun.size();i++){
-                if( coun[i] > max && !bound[i]){
-                    max=coun[i];
-                    it=i;
+
+            short it = -1;
+            int max = 0;
+            for (int i = 0; i < coun.size(); i++) {
+                if (coun[i] > max && !bound[i]) {
+                    max = coun[i];
+                    it = i;
                 }
-                
+
             }
-            
-           // for (int i = 0; i < bits.size(); i++) {
-             //   if (!bound[i]) return i;
-           // }
+
+            if (it == -1)
+                for (int i = 0; i < bits.size(); i++) {
+                    if (!bound[i]) return i;
+                }
 
             return it;
         }
@@ -429,81 +440,85 @@ namespace xsol4 {
                     lines.erase(lines.begin() + i);
                 }
                 unsat |= lines[i].checkUnsat();
-                if(unsat){
-                  //  cout << "unsat line found !! " << lines[i].str() << endl;
+                if (unsat) {
+                    //  cout << "unsat line found !! " << lines[i].str() << endl;
                     return;
                 }
             }
         }
-        
-        void applySubstitution(const short v, const line& l){
+
+        void applySubstitution(const short v, const line& l) {
             vector<int> torem;
             vector<line> toadd;
-            
-       //     cout << "applying subst " << endl << str() << endl;
-            
-            int currsz=lines.size();
-            for(int i=0;i<currsz;i++){
+
+            //     cout << "applying subst " << endl << str() << endl;
+
+            int currsz = lines.size();
+            for (int i = 0; i < currsz; i++) {
                 line& x = lines[i];
-                if(x.locked) continue;
-                
-                auto nline=x.substitute(v,l);
-                if(nline.size()!=0){
-                   // cout << " future rem " << i << endl;
+                if (x.locked) continue;
+
+                auto nline = x.substitute(v, l);
+                if (nline.size() != 0) {
+                    // cout << " future rem " << i << endl;
                     torem.push_back(i);
                     toadd.push_back(nline);
                 }
             }
-         //   cout << " before erased old lines "<< endl << str() << endl;
-            
-            
-            for(int  i=torem.size()-1;i>=0;i--){
-                int itrm=torem[i];
-                
-           //     cout << "erasing " << itrm << " " << lines[itrm].str() << endl;
-                lines.erase(lines.begin()+itrm);
+            //   cout << " before erased old lines "<< endl << str() << endl;
+
+
+            for (int i = torem.size() - 1; i >= 0; i--) {
+                int itrm = torem[i];
+
+                //     cout << "erasing " << itrm << " " << lines[itrm].str() << endl;
+                lines.erase(lines.begin() + itrm);
             }
-           // cout << " erased old lines "<< endl << str() << endl;
-            for(const line& l : toadd){
+            // cout << " erased old lines "<< endl << str() << endl;
+            for (const line& l : toadd) {
                 lines.push_back(l);
             }
-            
+
             trimEmpty();
         }
-        
-        bool substitutionDeduction(){
+
+        bool substitutionDeduction() {
             bool found = false;
             vector<int> coun(bits.size());
             for (int i = lines.size() - 1; i >= 0; i--) {
-                if(lines[i].locked) continue;
-                short f=lines[i].uniqueSingleVar(coun);
-                
-                if(f!=-1){
-                    found=true;
-                    line model=lines[i];
-                    lines[i].locked=true;
-                    
-                   // cout << "subst found " << f << " <> " << model.str() << endl;
-                    
+                if (lines[i].locked) continue;
+                short f = lines[i].uniqueSingleVar(coun);
+
+                if (f != -1) {
+
+                    line model = lines[i];
                     model.remove(f);
-                    
-                   // cout << "keeping :  " << f << " <> " << model.str() << endl;
-                    applySubstitution(f,model);
-                    
-                 //   cout << "after sub "<< endl << str() << endl;
+
+
+                    found = true;
+                    lines[i].locked = true;
+
+                    // cout << "subst found " << f << " <> " << model.str() << endl;
+
+
+
+                    // cout << "keeping :  " << f << " <> " << model.str() << endl;
+                    applySubstitution(f, model);
+
+                    //   cout << "after sub "<< endl << str() << endl;
                     return true;
-                    
+
                 }
-                
-                
-                
+
+
+
             }
             return found;
         }
 
         bool basicDeduction() {
 
-         //   cout << "basic deduction apply " << endl;
+            //   cout << "basic deduction apply " << endl;
 
             bool found = false;
             for (int i = lines.size() - 1; i >= 0; i--) {
@@ -511,7 +526,7 @@ namespace xsol4 {
 
                     term t = lines[i].lastPoly();
 
-               //     cout << "basic simple true " << lines[i].str() << endl;
+                    //     cout << "basic simple true " << lines[i].str() << endl;
 
                     for (short s : t.it) {
                         forceBit(s, true);
@@ -523,7 +538,7 @@ namespace xsol4 {
 
                     short s = lines[i].firstSingleVar();
                     if (s != -1) {
-                 //       cout << "basic simple false " << lines[i].str() << endl;
+                        //       cout << "basic simple false " << lines[i].str() << endl;
                         forceBit(s, false);
                         found = true;
 
@@ -570,12 +585,12 @@ namespace xsol4 {
         }
     public:
 
-       string strCurrSolve() {
+        string strCurrSolve() {
             std::ostringstream sout;
 
             // cout << "dat cap " << dat.capacity() << endl;
             // cout << "dat siz " << dat.size() << endl;
-            int sz= bits.size();
+            int sz = bits.size();
             for (int i = sz - 1; i >= 0; i--) {
 
                 if (bound[i])
@@ -586,8 +601,8 @@ namespace xsol4 {
             sout << endl;
 
             return sout.str();
-        }        
-        
+        }
+
         string str() {
             std::ostringstream sout;
 
@@ -648,48 +663,59 @@ namespace xsol4 {
             sort(res.begin(), res.end());
             return res;
         }
-        
-        
 
         void recsolve(int depth, equation& e, vector<int> stsol) {
-        //    cout << "input for depth " << depth << endl;
-        //    cout << e.str() << endl;
+           // cout << "input for depth " << depth << endl;
+           // cout << e.str() << endl;
 
-//                        if (depth < 3) {
-//                            cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-//                            for (int i = 0; i < stsol.size(); i++) {
-//                                cout << stsol[i] << "|";
-//                            }
-//                            cout << endl;
-//                        }
+            //                        if (depth < 3) {
+            //                            cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+            //                            for (int i = 0; i < stsol.size(); i++) {
+            //                                cout << stsol[i] << "|";
+            //                            }
+            //                            cout << endl;
+            //                        }
 
 
             // while (e.buble() || (!e.unsat && e.deduction()));
 
-            bool stop = true;
+            bool loop = false;
             do {
-                stop |= e.basicDeduction();
-                e.trimEmpty();
-                
-                stop |= e.substitutionDeduction();
-                
+                loop = false;
 
-            } while (!stop);
-            
-         //   cout << " deducted " << depth << endl;
-         //   cout << e.str() << endl;            
+                while (e.basicDeduction()) {
+               //     cout << " deducted base " << depth << endl;
+                //    cout << e.str() << endl;
+
+                };
+                e.trimEmpty();
+
+                loop |= e.substitutionDeduction();
+
+                if (loop) {
+                  //  cout << " deductedsub " << depth << endl;
+                   // cout << e.str() << endl;
+
+                    e.trimEmpty();
+                }
+
+
+            } while (loop);
+
+
+
 
 
             if (e.getUnsat()) {
-                   //  cout << "IT IS UNSAT " << endl;
+                //  cout << "IT IS UNSAT " << endl;
                 return;
             }
 
             //int f = e.findOneVar();
             int f = e.findUnbound();
             if (f == -1) {
-                //cout << " no var found ending " << " depth " << depth << endl;
-                //cout << endl << e.str();
+               // cout << " no var found ending " << " depth " << depth << endl;
+                //cout << endl << e.str() << endl;
                 solution.push_back(e.getResult());
 
                 return;

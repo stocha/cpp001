@@ -359,7 +359,7 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 16;
+    int nbBit = 4;
     // int nbBit = 36;
 
     SoluSimp ss(nbBit);
@@ -429,7 +429,7 @@ void xs4_00(){
     
     srand(0xCAFEBABE);
 
-    int sz = 4;
+    int sz = 6;
     
     SoluSimp ss(sz);
    // ss.debug_coef();    

@@ -172,6 +172,9 @@ namespace xsol4 {
 
     class line {
         vector<term> l;
+        
+    public :
+        bool locked=false;
 
 
     public : 
@@ -180,6 +183,7 @@ namespace xsol4 {
                 x.countVars(coun);
             }
         }
+       
     private:
         void unique() {
 
@@ -230,6 +234,28 @@ namespace xsol4 {
 
             return -1;
         }
+        
+        line substitute(const short v,const line& expr){
+            line res;
+            
+             cout << "substitute " << v << " <> " << expr.str() << " on " << str() << endl;
+            
+            return res;
+        }
+        
+        short uniqueSingleVar(vector<int>& coun) {
+            bool counted=false;
+            for (auto x : l) {
+                if (x.size() == 1) {
+                    if(!counted){
+                        countVars(coun);
+                    }
+                    if(coun[x.min()]==1) return x.min();
+                }
+            }
+
+            return -1;
+        }        
 
         void forceBit(short it, bool v) {
             bool done = false;
@@ -264,6 +290,15 @@ namespace xsol4 {
         void add(term t) {
             l.push_back(t);
             sortMelt();
+        }
+        
+        void remove(short t){
+            for(int i=0;i<l.size();i++){
+                if(l[i].size()==1 && l[i].min()==t){
+                    l.erase(l.begin()+i);
+                }
+            }
+        
         }
 
         string str() {
@@ -357,6 +392,55 @@ namespace xsol4 {
                     return;
                 }
             }
+        }
+        
+        void applySubstitution(const short v, const line& l){
+            vector<int> torem(bits.size());
+            
+            int currsz=lines.size();
+            for(int i=0;i<currsz;i++){
+                line& x = lines[i];
+                if(x.locked) continue;
+                
+                auto nline=x.substitute(v,l);
+                if(nline.size()!=0){
+                    torem.push_back(i);
+                    lines.push_back(x);
+                }
+            }
+            
+            for(int  i=torem.size()-1;i>=0;i--){
+                lines.erase(torem[i]);
+            }
+            
+        }
+        
+        bool substitutionDeduction(){
+            bool found = false;
+            vector<int> coun(bits.size());
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if(lines[i].locked) continue;
+                short f=lines[i].uniqueSingleVar(coun);
+                
+                if(f!=-1){
+                    found=true;
+                    line model=lines[i];
+                    lines[i].locked=true;
+                    
+                   // cout << "subst found " << f << " <> " << model.str() << endl;
+                    
+                    model.remove(f);
+                    
+                   // cout << "keeping :  " << f << " <> " << model.str() << endl;
+                    applySubstitution(f,model);
+                    return true;
+                    
+                }
+                
+                
+                
+            }
+            return found;
         }
 
         bool basicDeduction() {
@@ -513,13 +597,13 @@ namespace xsol4 {
         //    cout << "input for depth " << depth << endl;
           //  cout << e.str() << endl;
 
-                        if (depth < 3) {
-                            cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-                            for (int i = 0; i < stsol.size(); i++) {
-                                cout << stsol[i] << "|";
-                            }
-                            cout << endl;
-                        }
+//                        if (depth < 3) {
+//                            cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+//                            for (int i = 0; i < stsol.size(); i++) {
+//                                cout << stsol[i] << "|";
+//                            }
+//                            cout << endl;
+//                        }
 
 
             // while (e.buble() || (!e.unsat && e.deduction()));
@@ -528,6 +612,9 @@ namespace xsol4 {
             do {
                 stop |= e.basicDeduction();
                 e.trimEmpty();
+                
+                stop |= e.substitutionDeduction();
+                
 
             } while (!stop);
             

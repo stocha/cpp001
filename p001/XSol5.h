@@ -20,7 +20,6 @@ using namespace std;
 
 namespace xsol5 {
 
-
     class term {
     public:
         vector<short> it;
@@ -202,6 +201,21 @@ namespace xsol5 {
 
 
     public:
+        
+        line addAll(line x){
+            line res;
+            
+            for(auto i : l){
+                res.add(i);
+            }
+            for(auto i : x.l){
+                res.add(i);
+            }
+            
+            res.sortMelt();
+            
+            return res;
+        }
 
         line fusion(const line& li) {
             line res;
@@ -385,8 +399,8 @@ namespace xsol5 {
             if (locked) sout << "<LOCK>";
             sout << "[";
             for (auto x : l) {
-                if (has) sout << "+"; 
-                sout << x.str();sout << endl;
+                if (has) sout << "+";
+                sout << x.str(); //sout << endl;
                 has = true;
             }
             sout << "]";
@@ -410,6 +424,31 @@ namespace xsol5 {
 
 
     public:
+
+        line anf() {
+
+            equation& eq = *this;
+            
+            // cout << eq.str() << endl;
+
+            line ll;
+            term tr;
+            ll.add(tr);
+
+           // cout << " --------- " << endl;
+            for (auto x : eq.lines) {
+                x.add(tr);
+                ll = ll.fusion(x);
+
+                // cout << " multiply " << x.str() << endl;
+
+                // cout << ll.str() << endl;
+            }
+
+            ll.add(tr);
+            
+            return ll;
+        }
 
         bool getUnsat() {
             return unsat;
@@ -587,10 +626,10 @@ namespace xsol5 {
 
 
         }
-        
-        equation(int sz, const line& xli) : bits(sz), bound(sz){
+
+        equation(int sz, const line& xli) : bits(sz), bound(sz) {
             lines.push_back(xli);
-            
+
         }
     private:
 
@@ -657,47 +696,56 @@ namespace xsol5 {
         }
     };
 
-    
-    
-
     class XSol5 {
-        
-      
-        
     public:
-        
-        void test00(){
+
+        void test00() {
         }
-        
-        vector<bool> strToBool(string s){
+
+        vector<bool> strToBool(string s) {
             vector<bool> res;
-            for(auto x : s){
-                if(x=='1') res.push_back(true);
-                if(x=='0') res.push_back(false);                
+            for (auto x : s) {
+                if (x == '1') res.push_back(true);
+                if (x == '0') res.push_back(false);
             }
             return res;
         }
-        
-        string boolToStr(vector<bool> it){
+
+        string boolToStr(vector<bool> it) {
             ostringstream sout;
-            
-            int c=0;
-            for(auto b : it){
-                    sout << b?1:0;
-                    if(c % 8 == 3) sout << ".";
-                    if(c % 8 == 7) sout << " ";
-                    
-                    ++c;
+
+            int c = 0;
+            for (auto b : it) {
+                sout << b ? 1 : 0;
+                if (c % 8 == 3) sout << ".";
+                if (c % 8 == 7) sout << " ";
+
+                ++c;
             }
             return sout.str();
-        }        
+        }
 
         XSol5(vector<bool> in) {
+
+            vector<bool> x00x = strToBool("0001 0010 0100 1000");
+
+
+            vector<bool> x000 = strToBool("00000000");
+            cout << boolToStr(x000) << endl;
+
+            equation eq000(x000);
+            line l000=eq000.anf();
+
+            cout << l000.str()<<endl;
             
-            vector<bool> x000=strToBool("0001 0010 0100 1000");
-            cout << boolToStr(x000);
-            
-            
+            for(int i=0;i<x000.size();i++){
+                vector<bool> sing=x000;
+                sing[i]=true;
+                cout << boolToStr(sing) << endl;
+                equation eqsin(sing);
+                cout << eqsin.anf().str()<<endl;
+                //cout << eqsin.anf().addAll(l000).str()<<endl;
+            }
 
         }
 

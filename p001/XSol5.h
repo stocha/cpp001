@@ -296,8 +296,42 @@ namespace xsol5 {
 
             return -1;
         }
-
+        
         line substitute(const short v, const line& expr) {
+            line res;
+            bool hascont = false;
+            for (auto x : l) {
+                if (!x.contains(v)) {
+                    res.add(x);
+                    continue;
+                };
+                x.toTrue(v);
+                hascont = true;
+                for (const term & e : expr.l) {
+                    term tt = x;
+                    for (auto t : e.it) {
+                        tt.add(t);
+                    }
+                    tt.makeUnique();
+                    res.add(tt);
+                }
+
+            }
+
+            if (hascont) {
+                // cout<< "res befro metl "<< endl  << res.str() << endl;
+                res.sortMelt();
+                // cout << "substitute " << v << " <> " << expr.str() << " in " << str() << endl;
+                // cout << res.str() << endl;
+                return res;
+            } else {
+                line ot;
+                return ot;
+            }        
+        
+        }
+
+        line substitute2(const short v, const line& expr) {
             line res;
 
 
@@ -698,9 +732,159 @@ namespace xsol5 {
 
     class XSol5 {
     public:
+        
+        void test01(){
+            // minimizing normal form
+            int sz=8;
+            
+            int minsz=0xFFFFFF;
+            
+            for (int i=0;i<(1<<sz);i++){
+                vector<bool> it=intToBool(i,sz);
+                
+                equation eqsin(it);
+                
+                
+                line anf=eqsin.anf();
+                int siz= anf.size();
+                
+                if(siz>1){
+                cout << boolToStr(it)<<endl;
+                cout << anf.str() << endl << endl;
+                }
+                
+                if(siz<minsz && siz > 1) minsz=siz;
+            }
+            
+            for (int i=0;i<(1<<sz);i++){
+                vector<bool> it=intToBool(i,sz);
+                
+                equation eqsin(it);
+                line anf=eqsin.anf();
+                int sz= anf.size();
+                
+                if(sz==minsz){
+                    cout << boolToStr(it)<<endl;
+                    cout << anf.str() << endl << endl;
+                }
+            }            
+            
+        }
 
         void test00() {
+
+            vector<bool> x00x = strToBool("0001 0010 0100 1000");
+
+
+            vector<bool> x000 = strToBool(" 0000 0000");
+            cout << boolToStr(x000) << endl;
+
+            equation eq000(x000);
+            line l000=eq000.anf();
+
+            cout << l000.str()<<endl;
+            
+            for(int i=0;i<x000.size();i++){
+                vector<bool> sing=x000;
+                sing[i]=true;
+                cout << boolToStr(sing) << endl;
+                equation eqsin(sing);
+                cout << eqsin.anf().str()<<endl;
+                //cout << eqsin.anf().addAll(l000).str()<<endl;
+            }   
+            
+            solveeq(x000.size(),eq000);
+            
+            cout << "soluces for" << endl;
+            for(auto x : solution){
+                cout << boolToStr(x) << endl;
+            }
         }
+        
+ vector<vector<bool>> solution;
+        void recsolve(int depth, equation& e, vector<int> stsol) {
+            //  cout << "input for depth " << depth << endl;
+            // cout << e.str() << endl;
+
+            //                                    if (depth < 18) {
+            //                                        cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+            //                                        for (int i = 0; i < stsol.size(); i++) {
+            //                                            cout << stsol[i] << "|";
+            //                                        }
+            //                                        cout << endl;
+            //                                    }
+
+
+            // while (e.buble() || (!e.unsat && e.deduction()));
+
+            bool loop = false;
+            do {
+                loop = false;
+
+                while (e.basicDeduction()) {
+                    //cout << " deducted base " << depth << endl;
+                    //cout << e.str() << endl;
+
+                };
+                e.trimEmpty();
+
+                loop |= e.substitutionDeduction();
+
+                if (loop) {
+                    //cout << " deductedsub " << depth << endl;
+                    //cout << e.str() << endl;
+
+                    e.trimEmpty();
+                }
+
+
+            } while (loop);
+
+
+
+
+
+            if (e.getUnsat()) {
+                //  cout << "IT IS UNSAT " << endl;
+                return;
+            }
+
+            //int f = e.findOneVar();
+            int f = e.findUnbound();
+            if (f == -1) {
+                // cout << " no var found ending " << " depth " << depth << endl;
+                //cout << endl << e.str() << endl;
+                solution.push_back(e.getResult());
+
+                return;
+            }
+
+            equation next = e;
+            next.forceBit(f, false);
+            stsol.push_back(-f);
+            // cout << "depth " << depth << " exploring " << f << " to false " << endl;
+            recsolve(depth + 1, next, stsol);
+            e.forceBit(f, true);
+            stsol.pop_back();
+            stsol.push_back(f);
+            //  cout << "depth " << depth << " setting " << f << " to true " << endl;
+            recsolve(depth + 1, e, stsol);
+
+
+
+
+
+        }
+        
+        
+        void solveeq(int sz,const equation& eq) {
+            vector<int> st;            
+
+            // cout << "solving " << endl << e.str() << endl;
+
+            equation e=eq;
+            recsolve(0, e, st);
+        }        
 
         vector<bool> strToBool(string s) {
             vector<bool> res;
@@ -711,6 +895,21 @@ namespace xsol5 {
             return res;
         }
 
+        vector<bool> intToBool(unsigned int s, int sz) {
+            vector<bool> res;
+            unsigned int curs=1;
+            int dec=0;
+            while (curs!=0 && (curs< (1<<sz))) {
+                unsigned int x=(s&curs)>>dec;
+                if (x == 1) res.push_back(true);
+                if (x == 0) res.push_back(false);
+                
+                dec++;
+                curs=curs<<1;
+            }
+            return res;
+        }        
+        
         string boolToStr(vector<bool> it) {
             ostringstream sout;
 
@@ -726,26 +925,8 @@ namespace xsol5 {
         }
 
         XSol5(vector<bool> in) {
-
-            vector<bool> x00x = strToBool("0001 0010 0100 1000");
-
-
-            vector<bool> x000 = strToBool("00000000");
-            cout << boolToStr(x000) << endl;
-
-            equation eq000(x000);
-            line l000=eq000.anf();
-
-            cout << l000.str()<<endl;
-            
-            for(int i=0;i<x000.size();i++){
-                vector<bool> sing=x000;
-                sing[i]=true;
-                cout << boolToStr(sing) << endl;
-                equation eqsin(sing);
-                cout << eqsin.anf().str()<<endl;
-                //cout << eqsin.anf().addAll(l000).str()<<endl;
-            }
+            //test00();
+            test01();
 
         }
 

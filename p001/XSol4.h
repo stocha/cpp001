@@ -383,8 +383,8 @@ namespace xsol4 {
             if (locked) sout << "<LOCK>";
             sout << "[";
             for (auto x : l) {
-                if (has) sout << "+";
-                sout << x.str();
+                if (has) sout << "+"; 
+                sout << x.str();sout << endl;
                 has = true;
             }
             sout << "]";

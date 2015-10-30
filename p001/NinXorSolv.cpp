@@ -484,6 +484,15 @@ void xs4_00_beta() {
     bitField f(sz);
     f.randomize();
     f.randomize();
+    
+    f.set(0, 0);
+    f.set(1, 0);
+    f.set(2, 0);
+    f.set(3, 0);
+    f.set(4, 0);
+    f.set(5, 0);
+    f.set(6, 0);
+    f.set(7, 0);    
 
     f.set(sz - 1, 0);
     cout << "input " << f.str() << endl;
@@ -660,7 +669,7 @@ void xs4_real() {
 
 void NinXorSolv::test() {
     //oldTest();
-    testCompImplxo();
+   // testCompImplxo();
     //test2();
 
     // xsolt00();
@@ -675,7 +684,7 @@ void NinXorSolv::test() {
      
       xs5_00();
 
-  //  xs4_00_beta();
+   // xs4_00_beta();
 
 
 }

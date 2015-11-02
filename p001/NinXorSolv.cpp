@@ -669,7 +669,7 @@ void xs4_real() {
 
 void NinXorSolv::test() {
     //oldTest();
-    //testCompImplxo();
+    testCompImplxo();
     //test2();
 
     // xsolt00();
@@ -679,10 +679,10 @@ void NinXorSolv::test() {
     //xs3_00();    
     //xs3_real();
 
-     // xs4_real();    
-    // xs4_00();
+      xs4_real();    
+   // xs4_00();
      
-      xs5_00();
+     // xs5_00();
 
    // xs4_00_beta();
 

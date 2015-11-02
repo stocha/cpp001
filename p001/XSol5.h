@@ -42,6 +42,12 @@ namespace xsol5 {
             makeUnique();
         }
 
+        term(short x) {
+            it.push_back(x);
+
+            makeUnique();
+        }
+
         void add(short v) {
             it.push_back(v);
         }
@@ -665,57 +671,55 @@ namespace xsol5 {
             lines.push_back(xli);
 
         }
-        
-        
-        
-        void factorize(){
+
+        void factorize() {
             vector<line> added;
-            
-            
-            for(int i=lines.size()-1;i>=0;--i){
+
+
+            for (int i = lines.size() - 1; i >= 0; --i) {
                 vector<int> coun(bits.size());
                 lines[i].countVars(coun);
                 vector<int> factor;
-                
-                if(!lines[i].hasTrue()) continue;
-                
-                for(int k=0;k<coun.size();k++){
-                  //  cout << k << " has " << coun[k] << endl;
-                    if(coun[k]==lines[i].size()-1){
+
+                if (!lines[i].hasTrue()) continue;
+
+                for (int k = 0; k < coun.size(); k++) {
+                    //  cout << k << " has " << coun[k] << endl;
+                    if (coun[k] == lines[i].size() - 1) {
                         factor.push_back(k);
                     }
                 }
-                
-                if(factor.size()>0){
-                    line r=lines[i];
-                    for(int f : factor){
-                        r.forceBit(f,true);
+
+                if (factor.size() > 0) {
+                    line r = lines[i];
+                    for (int f : factor) {
+                        r.forceBit(f, true);
                     }
                     r.sortMelt();
                     added.push_back(r);
-                    
+
                     line n;
                     term t;
-                    
-                    for(int f: factor){
+
+                    for (int f : factor) {
                         t.add(f);
                     }
                     n.add(t);
-                    
+
                     added.push_back(n);
-                    lines.erase(lines.begin()+i);
-                    
+                    lines.erase(lines.begin() + i);
+
                 }
-                
+
             }
-            
-            for(auto t : added){
+
+            for (auto t : added) {
                 lines.push_back(t);
             }
-        
-        
+
+
         }
-        
+
     private:
 
         line diag(int i, bool b, int sz) {
@@ -784,18 +788,208 @@ namespace xsol5 {
     class XSol5 {
     public:
 
+        void test02() {
+            // equations test
+            {// T T
+                cout << "0:T 1:T " << endl;
+                line _0;
+                // _0.add(term());
+                _0.add(term(0, 0 + 10));
+
+                line _1;
+
+                //_1.add(term());
+                _1.add(term(0, 1 + 10));
+                _1.add(term(1, 0 + 10));
+
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+
+                cout << " = " << synt001.str() << endl;
+            }
+
+            { // F T
+                cout << "0:F 1:T " << endl;
+                
+                line _0;
+                _0.add(term());
+                _0.add(term(0, 0 + 10));
+
+                line _1;
+
+                //_1.add(term());
+                _1.add(term(0, 1 + 10));
+                _1.add(term(1, 0 + 10));
+
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+
+                cout << " = " << synt001.str() << endl;
+            }
+
+            {
+                cout << "0:T 1:F " << endl;
+                
+                line _0;
+                // _0.add(term());
+                _0.add(term(0, 0 + 10));
+
+                line _1;
+
+                _1.add(term());
+                _1.add(term(0, 1 + 10));
+                _1.add(term(1, 0 + 10));
+
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+
+                cout << " = " << synt001.str() << endl;
+            }
+
+            { // 0 0
+                cout << "0:F 1:F " << endl;
+                
+                line _0;
+                _0.add(term());
+                _0.add(term(0, 0 + 10));
+
+                line _1;
+
+                _1.add(term());
+                _1.add(term(0, 1 + 10));
+                _1.add(term(1, 0 + 10));
+
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+
+                cout << " = " << synt001.str() << endl;
+            }
+
+            cout << "equivalences ..." << endl;
+
+            { // T T
+                cout << "T T BINOME" << endl;
+                line _0;
+                // _0.add(term());
+                _0.add(term(0, 0 + 10));
+
+                line _1;
+
+               // _1.add(term());
+                _1.add(term(1 + 10));
+                _1.add(term(1));
+
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+
+                cout << " = " << synt001.str() << endl;
+            }
+            
+            { // F T
+                line _0;
+                // _0.add(term());
+                //_0.add(term(0, 0 + 10));
+                _0.add(term(0));
+                _0.add(term( 0 + 10));
+
+                line _1;
+
+               // _1.add(term());
+              //  _1.add(term(1,1 + 10));
+                
+                _1.add(term(0, 1 + 10));
+                _1.add(term(1, 0 + 10));                
+                
+
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+
+                cout << " = " << synt001.str() << endl;
+            }      
+            
+            { // F T 2
+                cout << "F T BINOME" << endl;
+                
+                line _0;               
+                _0.add(term(0));
+                _0.add(term( 0 + 10));
+
+                line _1;
+                _1.add(term());
+                _1.add(term(0 + 10));
+                _1.add(term(1, 0 + 10));
+
+                line _2;
+                _2.add(term());
+                _2.add(term(0));
+                _2.add(term(1+10, 0));
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+                cout << _2.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+                synt001 = synt001.fusion(_2);
+
+                cout << " = " << synt001.str() << endl;
+            }              
+
+            {
+                line _0;
+                _0.add(term());
+                _0.add(term(0, 0 + 10));
+
+                line _1;
+                _1.add(term());
+                _1.add(term(1, 1 + 10));
+
+                line _2;
+                _2.add(term());
+                _2.add(term(0, 1 + 10));
+                _2.add(term(1, 0 + 10));
+
+                cout << _0.str() << endl;
+                cout << _1.str() << endl;
+                cout << _2.str() << endl;
+
+                line synt001 = _0.fusion(_1);
+                synt001 = synt001.fusion(_2);
+
+                cout << " = " << synt001.str() << endl;
+            }
+
+        }
+
         void test01() {
             // minimizing normal form
             int sz = 6;
 
             int minsz = 0xFFFFFF;
 
-            
+
             for (int i = 0; i < (1 << (sz - 1)); i++) {
                 vector<bool> it = intToBool(i, sz);
-                
-                if(it[0]) continue;
-                if(it[sz-2]) continue;
+
+                if (it[0]) continue;
+                if (it[sz - 2]) continue;
 
                 equation eqsin(it);
 
@@ -806,7 +1000,7 @@ namespace xsol5 {
                 int siz = anf.size();
 
                 if (siz > 1) {
-                   // cout << boolToStr(it) << endl;
+                    // cout << boolToStr(it) << endl;
                     //cout << anf.str() << endl << endl;
                 }
 
@@ -822,13 +1016,13 @@ namespace xsol5 {
                 int sz = anf.size();
 
                 if (sz == minsz) {
-                    
+
                     cout << eqsin.str() << endl;
                     cout << boolToStr(it) << endl;
-                    equation anfe(sz,anf);
+                    equation anfe(sz, anf);
                     anfe.factorize();
-                    cout<< "raw line " << anf.str() << endl << endl;
-                    
+                    cout << "raw line " << anf.str() << endl << endl;
+
                     cout << anfe.str() << endl << endl;
                 }
             }
@@ -990,7 +1184,8 @@ namespace xsol5 {
 
         XSol5(vector<bool> in) {
             //test00();
-            test01();
+            //test01();
+            test02();
 
         }
 

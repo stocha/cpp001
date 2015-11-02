@@ -441,7 +441,7 @@ void xs3_00() {
 
     srand(0xCAFEBABE);
 
-    int sz = 32;
+    int sz = 8;
 
     SoluSimp ss(sz);
     // ss.debug_coef();    

@@ -600,14 +600,14 @@ namespace xsol4 {
                         for (auto v1 : x.it) {
                             bool matching = false;
                             for (auto v2 : y.it) {
-                                if(v1>v2) continue;
+                                if (v1 > v2) continue;
                                 term thet(v1, v2);
 
-                               // cout << "examining" << lines[i].str() << " considering " << thet.str() << endl;
+                                // cout << "examining" << lines[i].str() << " considering " << thet.str() << endl;
 
                                 for (auto o : ort) {
                                     if (thet == o) {
-                                       // cout << "found " << lines[i].str() << " match with or " << o.str() << endl;
+                                        // cout << "found " << lines[i].str() << " match with or " << o.str() << endl;
 
 
                                         line xadd;
@@ -635,10 +635,10 @@ namespace xsol4 {
                                                 exit(1);
                                             }
                                         }
-                                        
-                                        if(lix.min()==liy.min()) continue;
-                                        
-                                        
+
+                                        if (lix.min() == liy.min()) continue;
+
+
                                         removed.push_back(i);
 
                                         xadd.add(term());
@@ -664,7 +664,7 @@ namespace xsol4 {
 
 
                                         matching = true;
-                                        
+
                                         //cout << " pushing new line " << endl;
                                         //cout << xadd.str() << endl;
                                         //cout << xlad.str() << endl;
@@ -697,24 +697,24 @@ namespace xsol4 {
 
                     }
                     continue;
-                } 
+                }
                 //if (!(lines[i].size() == 3 && !lines[i].hasTrue()));
 
             }// parcours lignes
 
-                for (int i : removed) {
-                    lines.erase(lines.begin() + i);
-                }
+            for (int i : removed) {
+                lines.erase(lines.begin() + i);
+            }
 
-                //cout << added.size() <<   " to add now " << endl;
-                for (auto l : added) {
-                    lines.push_back(l);
+            //cout << added.size() <<   " to add now " << endl;
+            for (auto l : added) {
+                lines.push_back(l);
 
-                    //cout << " adding to the official " << l.str() << endl;
-                }
-                
-                removed.clear();
-                added.clear();            
+                //cout << " adding to the official " << l.str() << endl;
+            }
+
+            removed.clear();
+            added.clear();
 
 
 
@@ -912,16 +912,16 @@ namespace xsol4 {
         }
 
         void recsolve(int depth, equation& e, vector<int> stsol) {
-           // cout << "input for depth " << depth << endl;
-           // cout << e.str() << endl;
-//
-            if (depth < 14) {
-                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-                for (int i = 0; i < stsol.size(); i++) {
-                    cout << stsol[i] << "|";
-                }
-                cout << endl;
-            }
+            //cout << "input for depth " << depth << endl;
+            // cout << e.str() << endl;
+            //
+            //            if (depth < 100) {
+            //                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+            //                for (int i = 0; i < stsol.size(); i++) {
+            //                    cout << stsol[i] << "|";
+            //                }
+            //                cout << endl;
+            //            }
 
 
             // while (e.buble() || (!e.unsat && e.deduction()));
@@ -938,33 +938,34 @@ namespace xsol4 {
                 };
 
 
-               // cout << " curr for rule " << depth << endl;
-              //  cout << e.str() << endl;
+                // cout << " curr for rule " << depth << endl;
+                //  cout << e.str() << endl;
 
 
-                while (e.rulebaseDeduction()) {
-                    //cout << " currsub " << depth << endl;
-                    //cout << e.str() << endl;
+                //                while (e.rulebaseDeduction()) {
+                //                    //cout << " currsub " << depth << endl;
+                //                    //cout << e.str() << endl;
+                //
+                //                    loop = true;
+                //                    e.trimEmpty();
+                //
+                //
+                //                }
 
-                    loop = true;
-                    e.trimEmpty();
+                // cout << " curr after rule " << depth << endl;
+                // cout << e.str() << endl;
 
-
-                }
-
-               // cout << " curr after rule " << depth << endl;
-               // cout << e.str() << endl;
-
-                while (e.substitutionDeduction()) {
-                    //cout << " deductedsub " << depth << endl;
-                    //cout << e.str() << endl;
-
-                    loop = true;
-                    e.trimEmpty();
-                }
+                //                while (e.substitutionDeduction()) 
+                //                {
+                //                    //cout << " deductedsub " << depth << endl;
+                //                    //cout << e.str() << endl;
+                //
+                //                    loop = true;
+                //                    e.trimEmpty();
+                //                }
 
                 //cout << " curr after sub " << depth << endl;
-               // cout << e.str() << endl;
+                // cout << e.str() << endl;
 
 
             } while (loop);
@@ -1012,11 +1013,21 @@ namespace xsol4 {
         }
 
         void solve() {
-            vector<int> st;
-            if (in[in.size() - 1]) return;
-            equation e(in);
-            // cout << "solving " << endl << e.str() << endl;
-            recsolve(0, e, st);
+            try {
+                // ...
+
+
+                vector<int> st;
+                if (in[in.size() - 1]) return;
+                equation e(in);
+                // cout << "solving " << endl << e.str() << endl;
+                recsolve(0, e, st);
+
+            } catch (...) {
+                // ...
+                cerr << "caught an exception " << endl;
+                exit(1);
+            }
         }
 
         void solveeq(int sz, const line& eq) {

@@ -604,14 +604,14 @@ namespace xsol3 {
         void recsolve(int depth, equation& e, vector<int> stsol) {
             // cout << "input for depth " << depth << endl;
             // cout << e.str() << endl;
-
-            if (depth < 20) {
-                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-                for (int i = 0; i < stsol.size(); i++) {
-                    cout << stsol[i] << "|";
-                }
-                cout << endl;
-            }
+//
+//            if (depth < 20) {
+//                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+//                for (int i = 0; i < stsol.size(); i++) {
+//                    cout << stsol[i] << "|";
+//                }
+//                cout << endl;
+//            }
 
 
             while (e.buble() || (!e.unsat && e.deduction()));

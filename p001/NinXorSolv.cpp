@@ -434,7 +434,7 @@ void testCompImplxo() {
    // compareImpl imp(&solinv4, &solinv4);
    // compareImpl imp(&solinv4beta, &seqSym);
   //    compareImpl imp(&solinv4beta, &solinv4beta);
-    imp.compareThem(nbBit, 50);
+    imp.compareThem(nbBit, 500);
 }
 
 void xs3_00() {
@@ -679,8 +679,8 @@ void NinXorSolv::test() {
     //xs3_00();    
     //xs3_real();
 
-  //    xs4_real();    
-    xs4_00();
+    // xs4_real();    
+   // xs4_00();
      
      // xs5_00();
 

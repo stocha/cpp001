@@ -593,7 +593,7 @@ namespace xsol4 {
                 if ((lines[i].size() == 3 && lines[i].hasTrue())) {
                     term& x = lines[i].l[1];
                     term& y = lines[i].l[2];
-                    if (x.size() > 1 || y.size() > 1) {
+                    if (x.size() == 2 && y.size() == 2) {
 
 
 
@@ -913,15 +913,15 @@ namespace xsol4 {
 
         void recsolve(int depth, equation& e, vector<int> stsol) {
            // cout << "input for depth " << depth << endl;
-            //cout << e.str() << endl;
+           // cout << e.str() << endl;
 //
-//            if (depth < 14) {
-//                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-//                for (int i = 0; i < stsol.size(); i++) {
-//                    cout << stsol[i] << "|";
-//                }
-//                cout << endl;
-//            }
+            if (depth < 14) {
+                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+                for (int i = 0; i < stsol.size(); i++) {
+                    cout << stsol[i] << "|";
+                }
+                cout << endl;
+            }
 
 
             // while (e.buble() || (!e.unsat && e.deduction()));

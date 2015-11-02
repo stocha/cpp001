@@ -550,7 +550,7 @@ void xs4_00() {
     f.set(4, 0);
     f.set(5, 0);
     f.set(6, 0);
-    f.set(7, 0);
+    f.set(7, 1);
 
     f.set(sz - 1, 0);
 
@@ -679,8 +679,8 @@ void NinXorSolv::test() {
     //xs3_00();    
     //xs3_real();
 
-      xs4_real();    
-   // xs4_00();
+  //    xs4_real();    
+    xs4_00();
      
      // xs5_00();
 

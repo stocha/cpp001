@@ -41,6 +41,12 @@ namespace xsol4 {
             makeUnique();
         }
 
+        term(short x) {
+            it.push_back(x);
+
+            makeUnique();
+        }
+
         void add(short v) {
             it.push_back(v);
         }
@@ -193,6 +199,7 @@ namespace xsol4 {
     };
 
     class line {
+    public:
         vector<term> l;
 
     public:
@@ -200,6 +207,15 @@ namespace xsol4 {
 
 
     public:
+
+        bool operator<(const line& ot) const {
+
+            if (l.size() < ot.l.size()) return true;
+            if (l.size() > ot.l.size()) return false;
+
+            if (ot.hasTrue()) return true;
+            return false;
+        }
 
         line fusion(const line& li) {
             line res;
@@ -262,7 +278,7 @@ namespace xsol4 {
             return l.size();
         }
 
-        bool hasTrue() {
+        bool hasTrue() const {
             return l.size() > 0 && l[0].isTrue();
         }
 
@@ -318,8 +334,8 @@ namespace xsol4 {
 
         short uniqueSingleVar(vector<int>& coun) {
             bool counted = false;
-            for (int i=l.size()-1;i>=0;i--) {
-                term& x=l[i];
+            for (int i = l.size() - 1; i >= 0; i--) {
+                term& x = l[i];
                 if (x.size() == 1) {
                     if (!counted) {
                         countVars(coun);
@@ -386,7 +402,7 @@ namespace xsol4 {
             for (auto x : l) {
                 if (has) sout << "+";
                 sout << x.str();
-                sout << endl;
+                // sout << endl;
                 has = true;
             }
             sout << "]";
@@ -471,6 +487,8 @@ namespace xsol4 {
                     return;
                 }
             }
+
+            sort(lines.begin(), lines.end());
         }
 
         void applySubstitution(const short v, const line& l) {
@@ -542,358 +560,517 @@ namespace xsol4 {
         //            return found;
         //        }
 
-        bool substitutionDeduction() {
-            
-                    bool found = false;
-                    vector<int> coun(bits.size());
-                    for (int i = lines.size() - 1; i >= 0; i--) {
-                        if (lines[i].locked) continue;
-                    if ( ! (lines[i].size() == 2 && !lines[i].hasTrue())) continue;
-                        short f = lines[i].uniqueSingleVar(coun);
-        
-                        if (f != -1) {
-        
-                            line model = lines[i];
-                            model.remove(f);
-        
-        
-                            found = true;
-                            lines[i].locked = true;
-        
-                            // cout << "subst found " << f << " <> " << model.str() << endl;
-        
-        
-        
-                             //cout << "keeping :  " << f << " <> " << model.str() << endl;
-                            applySubstitution(f, model);
-        
-                              // cout << "after sub "<< endl << str() << endl;
-                            return true;
-        
-                        }
-        
-        
-        
-                    }
-                    return found;            
-            
+        bool rulebaseDeduction() {
+            vector<term> ort;
+            vector<term> xrt;
+
+            bool found = false;
+
             for (int i = lines.size() - 1; i >= 0; i--) {
+
+                if ((lines[i].size() == 1 && !lines[i].hasTrue())) {
+                    term& x = lines[i].l[0];
+                    if (x.size() == 2) ort.push_back(x);
+                    continue;
+                }
+                if ((lines[i].size() == 3 && lines[i].hasTrue())) {
+                    term& x = lines[i].l[1];
+                    term& y = lines[i].l[2];
+                    if (x.size() == 1 && y.size() == 1) {
+                        xrt.push_back(term(x.min(), y.min()));
+                    }
+                    continue;
+                }
+                //if (!(lines[i].size() == 3 && !lines[i].hasTrue()));
+
+            }
+
+
+            vector<line> added;
+            vector<int> removed;
+
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if ((lines[i].size() == 3 && lines[i].hasTrue())) {
+                    term& x = lines[i].l[1];
+                    term& y = lines[i].l[2];
+                    if (x.size() > 1 || y.size() > 1) {
+
+
+
+                        for (auto v1 : x.it) {
+                            bool matching = false;
+                            for (auto v2 : y.it) {
+                                if(v1>v2) continue;
+                                term thet(v1, v2);
+
+                               // cout << "examining" << lines[i].str() << " considering " << thet.str() << endl;
+
+                                for (auto o : ort) {
+                                    if (thet == o) {
+                                       // cout << "found " << lines[i].str() << " match with or " << o.str() << endl;
+
+
+                                        line xadd;
+                                        term lix = x;
+                                        term liy = y;
+
+                                        if (lix.size() > 1) {
+                                            lix.toTrue(o.it[0]);
+                                        }
+                                        if (liy.size() > 1) {
+                                            liy.toTrue(o.it[1]);
+                                        }
+
+                                        if (lix.size() > 1 || liy.size() > 1) {
+                                            if (lix.size() > 1) {
+                                                lix.toTrue(o.it[1]);
+                                            }
+                                            if (liy.size() > 1) {
+                                                liy.toTrue(o.it[0]);
+                                            }
+
+                                            if (lix.size() > 1 || liy.size() > 1) {
+                                                cerr << "rulebaseDeduction  BROKE " << endl;
+                                                cerr << "found " << lines[i].str() << " match with or " << o.str() << endl;
+                                                exit(1);
+                                            }
+                                        }
+                                        
+                                        if(lix.min()==liy.min()) continue;
+                                        
+                                        
+                                        removed.push_back(i);
+
+                                        xadd.add(term());
+                                        xadd.add(term(o.it[0]));
+                                        xadd.add(term(o.it[1]));
+
+                                        added.push_back(xadd);
+
+                                        line xlad;
+                                        line ylad;
+
+                                        // xlad.add(term());
+                                        // ylad.add(term());
+
+                                        xlad.add(term(o.it[0]));
+                                        ylad.add(term(o.it[1]));
+
+                                        xlad.add(term(lix.min(), v1));
+                                        ylad.add(term(liy.min(), v2));
+
+                                        added.push_back(xlad);
+                                        added.push_back(ylad);
+
+
+                                        matching = true;
+                                        
+                                        //cout << " pushing new line " << endl;
+                                        //cout << xadd.str() << endl;
+                                        //cout << xlad.str() << endl;
+                                        //cout << ylad.str() << endl;
+                                        //cout << added.size() << " have been pushed " << endl;
+
+                                        break;
+                                    }
+                                }
+                                if (!matching)
+                                    for (auto o : xrt) {
+                                        continue;
+                                        if (thet == o) {
+                                            cout << "found " << lines[i].str() << " match with xor " << o.str() << endl;
+                                            cerr << "not implemented" << endl;
+                                            exit(1);
+
+                                            removed.push_back(i);
+
+                                            break;
+                                        }
+                                    }
+
+                                if (matching) break;
+                            }
+                            if (matching) break;
+
+
+                        }
+
+                    }
+                    continue;
+                } 
+                //if (!(lines[i].size() == 3 && !lines[i].hasTrue()));
+
+            }// parcours lignes
+
+                for (int i : removed) {
+                    lines.erase(lines.begin() + i);
+                }
+
+                //cout << added.size() <<   " to add now " << endl;
+                for (auto l : added) {
+                    lines.push_back(l);
+
+                    //cout << " adding to the official " << l.str() << endl;
+                }
                 
-                
-                if (lines[i].size() == 2 && !lines[i].hasTrue()) {
+                removed.clear();
+                added.clear();            
+
+
+
+            return found;
+        }
+
+        bool substitutionDeduction() {
+
+            bool found = false;
+            vector<int> coun(bits.size());
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if (lines[i].locked) continue;
+                if (!(lines[i].size() == 2 && !lines[i].hasTrue())) continue;
+                short f = lines[i].uniqueSingleVar(coun);
+
+                if (f != -1) {
+
+                    line model = lines[i];
+                    model.remove(f);
+
+
+                    found = true;
+                    lines[i].locked = true;
+
+                    // cout << "subst found " << f << " <> " << model.str() << endl;
+
+
+
+                    //cout << "keeping :  " << f << " <> " << model.str() << endl;
+                    applySubstitution(f, model);
+
+                    // cout << "after sub "<< endl << str() << endl;
+                    return true;
+
+                }
+
+
+
+            }
+            return found;
+
+        }
+
+        bool basicDeduction() {
+
+            //   cout << "basic deduction apply " << endl;
+
+            bool found = false;
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if (lines[i].size() == 2 && lines[i].hasTrue()) {
+
+                    term t = lines[i].lastPoly();
+
+                    //     cout << "basic simple true " << lines[i].str() << endl;
+
+                    for (short s : t.it) {
+                        forceBit(s, true);
+                        found = true;
+                    }
+
+                    lines.erase(lines.begin() + i);
+                } else if (lines[i].size() == 1 && !lines[i].hasTrue()) {
 
                     short s = lines[i].firstSingleVar();
                     if (s != -1) {
-                        
                         //       cout << "basic simple false " << lines[i].str() << endl;
                         forceBit(s, false);
                         found = true;
 
                         lines.erase(lines.begin() + i);
-                        
-                        
                     }
-
-                    
                 }
             }
-            
-            return false;
+
+            return found;
         }
 
-            bool basicDeduction() {
+        equation(vector<bool> in) : bits(in.size()), bound(in.size()) {
+            // cout << "building equation";
 
-                //   cout << "basic deduction apply " << endl;
+            lines.reserve(bits.size()*2);
 
-                bool found = false;
-                for (int i = lines.size() - 1; i >= 0; i--) {
-                    if (lines[i].size() == 2 && lines[i].hasTrue()) {
-
-                        term t = lines[i].lastPoly();
-
-                        //     cout << "basic simple true " << lines[i].str() << endl;
-
-                        for (short s : t.it) {
-                            forceBit(s, true);
-                            found = true;
-                        }
-
-                        lines.erase(lines.begin() + i);
-                    } else if (lines[i].size() == 1 && !lines[i].hasTrue()) {
-
-                        short s = lines[i].firstSingleVar();
-                        if (s != -1) {
-                            //       cout << "basic simple false " << lines[i].str() << endl;
-                            forceBit(s, false);
-                            found = true;
-
-                            lines.erase(lines.begin() + i);
-                        }
-                    }
-                }
-
-                return found;
+            for (int i = 0; i < in.size(); i++) {
+                lines.push_back(diag(i, in[i], in.size()));
             }
 
-            equation(vector<bool> in) : bits(in.size()), bound(in.size()) {
-                // cout << "building equation";
 
-                lines.reserve(bits.size()*2);
+        }
 
-                for (int i = 0; i < in.size(); i++) {
-                    lines.push_back(diag(i, in[i], in.size()));
-                }
+        equation(int sz, const line & xli) : bits(sz), bound(sz) {
+            lines.push_back(xli);
 
+        }
+    private:
 
+        line diag(int i, bool b, int sz) {
+            line res;
+
+            int half = sz / 2;
+
+            int y = max(0, i - half + 1);
+
+            if (b) res.add(term());
+            for (int x = min(i, half - 1); x >= 0 && y < half; x--) {
+
+                res.add(term(x, y + half));
+
+                y++;
             }
 
-            equation(int sz, const line & xli) : bits(sz), bound(sz) {
-                lines.push_back(xli);
 
+
+            return res;
+
+        }
+    public:
+
+        string strCurrSolve() {
+            std::ostringstream sout;
+
+            // cout << "dat cap " << dat.capacity() << endl;
+            // cout << "dat siz " << dat.size() << endl;
+            int sz = bits.size();
+            for (int i = sz - 1; i >= 0; i--) {
+
+                if (bound[i])
+                    sout << bits[i] << "|";
+                else
+                    sout << "(" << bits[i] << ")" << "|";
             }
-            private:
+            sout << endl;
 
-            line diag(int i, bool b, int sz) {
-                line res;
+            return sout.str();
+        }
 
-                int half = sz / 2;
-
-                int y = max(0, i - half + 1);
-
-                if (b) res.add(term());
-                for (int x = min(i, half - 1); x >= 0 && y < half; x--) {
-
-                    res.add(term(x, y + half));
-
-                    y++;
-                }
+        string str() {
+            std::ostringstream sout;
 
 
-
-                return res;
-
+            for (int i = 0; i < bits.size(); i++) {
+                if (i % 8 == 0) sout << " ";
+                if (bound[i]) sout << "|";
+                else sout << ".";
+                sout << (bits[i] ? "#" : "-");
             }
-            public:
 
-            string strCurrSolve() {
-                std::ostringstream sout;
 
-                // cout << "dat cap " << dat.capacity() << endl;
-                // cout << "dat siz " << dat.size() << endl;
-                int sz = bits.size();
-                for (int i = sz - 1; i >= 0; i--) {
 
-                    if (bound[i])
-                        sout << bits[i] << "|";
-                    else
-                        sout << "(" << bits[i] << ")" << "|";
-                }
+            for (auto x : lines) {
                 sout << endl;
-
-                return sout.str();
+                sout << x.str();
             }
 
-            string str() {
+            return sout.str();
+
+        }
+    };
+
+    class XSol4 {
+        vector<bool> in;
+
+
+    public:
+        vector<vector<bool>> solution;
+
+    public:
+
+        vector<string> hexSolution() {
+            vector<string> res;
+            for (auto inp : solution) {
                 std::ostringstream sout;
 
+                unsigned int acc = 0;
+                int nbBit = 0;
+                bool esp = false;
+                for (int i = 0; i < inp.size(); i++) {
+                    int val = inp[i];
+                    acc |= (val << nbBit);
+                    nbBit++;
 
-                for (int i = 0; i < bits.size(); i++) {
-                    if (i % 8 == 0) sout << " ";
-                    if (bound[i]) sout << "|";
-                    else sout << ".";
-                    sout << (bits[i] ? "#" : "-");
-                }
+                    if (nbBit == 32) {
+                        if (esp) sout << " ";
+                        sout << hex << setw(8) << setfill('0') << acc;
+                        acc = 0;
+                        nbBit = 0;
 
-
-
-                for (auto x : lines) {
-                    sout << endl;
-                    sout << x.str();
-                }
-
-                return sout.str();
-
-            }
-        };
-
-        class XSol4 {
-            vector<bool> in;
-
-
-        public:
-            vector<vector<bool>> solution;
-
-        public:
-
-            vector<string> hexSolution() {
-                vector<string> res;
-                for (auto inp : solution) {
-                    std::ostringstream sout;
-
-                    unsigned int acc = 0;
-                    int nbBit = 0;
-                    bool esp = false;
-                    for (int i = 0; i < inp.size(); i++) {
-                        int val = inp[i];
-                        acc |= (val << nbBit);
-                        nbBit++;
-
-                        if (nbBit == 32) {
-                            if (esp) sout << " ";
-                            sout << hex << setw(8) << setfill('0') << acc;
-                            acc = 0;
-                            nbBit = 0;
-
-                            esp = true;
-                        }
+                        esp = true;
                     }
-
-                    res.push_back(sout.str());
                 }
-                sort(res.begin(), res.end());
-                return res;
+
+                res.push_back(sout.str());
             }
+            sort(res.begin(), res.end());
+            return res;
+        }
 
-            void recsolve(int depth, equation& e, vector<int> stsol) {
-                //  cout << "input for depth " << depth << endl;
-                // cout << e.str() << endl;
+        void recsolve(int depth, equation& e, vector<int> stsol) {
+           // cout << "input for depth " << depth << endl;
+            //cout << e.str() << endl;
+//
+//            if (depth < 14) {
+//                cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+//                for (int i = 0; i < stsol.size(); i++) {
+//                    cout << stsol[i] << "|";
+//                }
+//                cout << endl;
+//            }
 
-                if (depth < 14) {
-                    cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-                    for (int i = 0; i < stsol.size(); i++) {
-                        cout << stsol[i] << "|";
-                    }
-                    cout << endl;
-                }
+
+            // while (e.buble() || (!e.unsat && e.deduction()));
+
+            bool loop = false;
+            do {
+                loop = false;
+
+                while (e.basicDeduction()) {
+                    //cout << " deducted base " << depth << endl;
+                    //cout << e.str() << endl;
+                    loop = true;
+                    e.trimEmpty();
+                };
 
 
-                // while (e.buble() || (!e.unsat && e.deduction()));
+               // cout << " curr for rule " << depth << endl;
+              //  cout << e.str() << endl;
 
-                bool loop = false;
-                do {
-                    loop = false;
 
-                    while (e.basicDeduction()) {
-                        //cout << " deducted base " << depth << endl;
-                        //cout << e.str() << endl;
+                while (e.rulebaseDeduction()) {
+                    //cout << " currsub " << depth << endl;
+                    //cout << e.str() << endl;
 
-                    };
+                    loop = true;
                     e.trimEmpty();
 
-                    loop |= e.substitutionDeduction();
 
-                    if (loop) {
-                        //cout << " deductedsub " << depth << endl;
-                        //cout << e.str() << endl;
-
-                        e.trimEmpty();
-                    }
-
-
-                } while (loop);
-
-
-
-
-
-                if (e.getUnsat()) {
-                    //  cout << "IT IS UNSAT " << endl;
-                    return;
                 }
 
-                //int f = e.findOneVar();
-                int f = e.findUnbound();
-                if (f == -1) {
-                    // cout << " no var found ending " << " depth " << depth << endl;
-                    //cout << endl << e.str() << endl;
-                    solution.push_back(e.getResult());
+               // cout << " curr after rule " << depth << endl;
+               // cout << e.str() << endl;
 
-                    return;
+                while (e.substitutionDeduction()) {
+                    //cout << " deductedsub " << depth << endl;
+                    //cout << e.str() << endl;
+
+                    loop = true;
+                    e.trimEmpty();
                 }
 
-                equation next = e;
-                next.forceBit(f, false);
-                stsol.push_back(-f);
-                // cout << "depth " << depth << " exploring " << f << " to false " << endl;
-                recsolve(depth + 1, next, stsol);
-                e.forceBit(f, true);
-                stsol.pop_back();
-                stsol.push_back(f);
-                //  cout << "depth " << depth << " setting " << f << " to true " << endl;
-                recsolve(depth + 1, e, stsol);
+                //cout << " curr after sub " << depth << endl;
+               // cout << e.str() << endl;
+
+
+            } while (loop);
 
 
 
 
 
+            if (e.getUnsat()) {
+                //  cout << "IT IS UNSAT " << endl;
+                return;
             }
 
-        public:
+            //int f = e.findOneVar();
+            int f = e.findUnbound();
+            if (f == -1) {
+                // cout << " no var found ending " << " depth " << depth << endl;
+                //cout << endl << e.str() << endl;
+                solution.push_back(e.getResult());
 
-            vector<vector<bool>> result() {
-                return solution;
+                return;
             }
 
-            void solve() {
-                vector<int> st;
-                if (in[in.size() - 1]) return;
-                equation e(in);
-                // cout << "solving " << endl << e.str() << endl;
-                recsolve(0, e, st);
-            }
+            equation next = e;
+            next.forceBit(f, false);
+            stsol.push_back(-f);
+            // cout << "depth " << depth << " exploring " << f << " to false " << endl;
+            recsolve(depth + 1, next, stsol);
+            e.forceBit(f, true);
+            stsol.pop_back();
+            stsol.push_back(f);
+            //  cout << "depth " << depth << " setting " << f << " to true " << endl;
+            recsolve(depth + 1, e, stsol);
 
-            void solveeq(int sz, const line& eq) {
-                vector<int> st;
 
 
 
-                equation e(sz, eq);
 
-                // cout << "solving " << endl << e.str() << endl;
+        }
 
-                recsolve(0, e, st);
-            }
+    public:
 
-            XSol4(string is) {
+        vector<vector<bool>> result() {
+            return solution;
+        }
 
-                int size;
-                std::istringstream sin(is);
-                sin >> size;
+        void solve() {
+            vector<int> st;
+            if (in[in.size() - 1]) return;
+            equation e(in);
+            // cout << "solving " << endl << e.str() << endl;
+            recsolve(0, e, st);
+        }
 
-                vector<bool> input(size * 2);
-                unsigned int read;
-                int curr = 0;
+        void solveeq(int sz, const line& eq) {
+            vector<int> st;
 
-                for (int i = 0; i < size / 16; i++) { // Read size / 16 integers to a
-                    sin >> hex >> read;
-                    for (int i = 0; i < 32; i++) {
-                        input[curr + i] = ((read >> i)&1);
-                    }
-                    curr += 32;
+
+
+            equation e(sz, eq);
+
+            // cout << "solving " << endl << e.str() << endl;
+
+            recsolve(0, e, st);
+        }
+
+        XSol4(string is) {
+
+            int size;
+            std::istringstream sin(is);
+            sin >> size;
+
+            vector<bool> input(size * 2);
+            unsigned int read;
+            int curr = 0;
+
+            for (int i = 0; i < size / 16; i++) { // Read size / 16 integers to a
+                sin >> hex >> read;
+                for (int i = 0; i < 32; i++) {
+                    input[curr + i] = ((read >> i)&1);
                 }
-
-                in = input;
-
-                for (int i = 0; i < in.size(); i++) {
-
-                    if (in[i])
-                        cerr << "X";
-                    else
-                        cerr << "-";
-                }
-                cerr << endl;
-
+                curr += 32;
             }
 
-            XSol4(const vector<bool>& inp) {
-                in = inp;
+            in = input;
+
+            for (int i = 0; i < in.size(); i++) {
+
+                if (in[i])
+                    cerr << "X";
+                else
+                    cerr << "-";
             }
+            cerr << endl;
 
-        private:
+        }
 
-        };
+        XSol4(const vector<bool>& inp) {
+            in = inp;
+        }
 
-    }
+    private:
+
+    };
+
+}
 
 #endif	/* XSOL4_H */
 

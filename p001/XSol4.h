@@ -506,38 +506,42 @@ namespace xsol4 {
             trimEmpty();
         }
 
+//        bool substitutionDeduction2() { // obsolete
+//            bool found = false;
+//            vector<int> coun(bits.size());
+//            for (int i = lines.size() - 1; i >= 0; i--) {
+//                if (lines[i].locked) continue;
+//                short f = lines[i].uniqueSingleVar(coun);
+//
+//                if (f != -1) {
+//
+//                    line model = lines[i];
+//                    model.remove(f);
+//
+//
+//                    found = true;
+//                    lines[i].locked = true;
+//
+//                    // cout << "subst found " << f << " <> " << model.str() << endl;
+//
+//
+//
+//                    // cout << "keeping :  " << f << " <> " << model.str() << endl;
+//                    applySubstitution(f, model);
+//
+//                    //   cout << "after sub "<< endl << str() << endl;
+//                    return true;
+//
+//                }
+//
+//
+//
+//            }
+//            return found;
+//        }
+        
         bool substitutionDeduction() {
-            bool found = false;
-            vector<int> coun(bits.size());
-            for (int i = lines.size() - 1; i >= 0; i--) {
-                if (lines[i].locked) continue;
-                short f = lines[i].uniqueSingleVar(coun);
-
-                if (f != -1) {
-
-                    line model = lines[i];
-                    model.remove(f);
-
-
-                    found = true;
-                    lines[i].locked = true;
-
-                    // cout << "subst found " << f << " <> " << model.str() << endl;
-
-
-
-                    // cout << "keeping :  " << f << " <> " << model.str() << endl;
-                    applySubstitution(f, model);
-
-                    //   cout << "after sub "<< endl << str() << endl;
-                    return true;
-
-                }
-
-
-
-            }
-            return found;
+            return false;
         }
 
         bool basicDeduction() {
@@ -697,13 +701,13 @@ namespace xsol4 {
             //  cout << "input for depth " << depth << endl;
             // cout << e.str() << endl;
 
-            //                                    if (depth < 18) {
-            //                                        cout << "d" << depth << "--" << e.strCurrSolve() << endl;
-            //                                        for (int i = 0; i < stsol.size(); i++) {
-            //                                            cout << stsol[i] << "|";
-            //                                        }
-            //                                        cout << endl;
-            //                                    }
+                                                if (depth < 14) {
+                                                    cout << "d" << depth << "--" << e.strCurrSolve() << endl;
+                                                    for (int i = 0; i < stsol.size(); i++) {
+                                                        cout << stsol[i] << "|";
+                                                    }
+                                                    cout << endl;
+                                                }
 
 
             // while (e.buble() || (!e.unsat && e.deduction()));

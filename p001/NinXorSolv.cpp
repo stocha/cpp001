@@ -404,8 +404,8 @@ void oldTest() {
 }
 
 void testCompImplxo() {
-    int nbBit = 32;
-   // int nbBit = 8;
+    //int nbBit = 32;
+   int nbBit = 16;
 
     SoluSimp ss(nbBit);
     //ss.debug_coef();
@@ -418,7 +418,7 @@ void testCompImplxo() {
     xsol2invert solinv;
     xsol3invert solinv3;
     xsol4invert solinv4; 
-    xsol4invertDistrib solinv4beta;
+  //  xsol4invertDistrib solinv4beta;
     //compareImpl imp(&refInv,&seqInv);   
     //compareImpl imp(&refInv,&refInv);
     // compareImpl imp(&seqInv,&seqInv); 
@@ -430,9 +430,9 @@ void testCompImplxo() {
     //compareImpl imp(&solinv, &solinv);
     //   compareImpl imp(&solinv3, &seqSym);
     //compareImpl imp(&solinv3, &solinv3);
-    //  compareImpl imp(&solinv4, &seqSym);
+      compareImpl imp(&solinv4, &seqSym);
    // compareImpl imp(&solinv4, &solinv4);
-    compareImpl imp(&solinv4beta, &seqSym);
+   // compareImpl imp(&solinv4beta, &seqSym);
   //    compareImpl imp(&solinv4beta, &solinv4beta);
     imp.compareThem(nbBit, 50);
 }
@@ -669,7 +669,7 @@ void xs4_real() {
 
 void NinXorSolv::test() {
     //oldTest();
-   // testCompImplxo();
+    //testCompImplxo();
     //test2();
 
     // xsolt00();
@@ -679,7 +679,7 @@ void NinXorSolv::test() {
     //xs3_00();    
     //xs3_real();
 
-    //  xs4_real();    
+     // xs4_real();    
     // xs4_00();
      
       xs5_00();

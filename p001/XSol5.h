@@ -901,6 +901,7 @@ namespace xsol5 {
             }
             
             { // F T
+                cout << "F T BASE" << endl;
                 line _0;
                 // _0.add(term());
                 //_0.add(term(0, 0 + 10));
@@ -950,21 +951,20 @@ namespace xsol5 {
                 synt001 = synt001.fusion(_2);
 
                 cout << " = " << synt001.str() << endl;
-            }              
-
-            {
-                line _0;
-                _0.add(term());
-                _0.add(term(0, 0 + 10));
+            }       
+            
+            { // T F
+                cout << "T F BINOME" << endl;
+                line _0;               
+                _0.add(term(0));
 
                 line _1;
-                _1.add(term());
-                _1.add(term(1, 1 + 10));
+                _1.add(term(0 + 10));
 
                 line _2;
                 _2.add(term());
-                _2.add(term(0, 1 + 10));
-                _2.add(term(1, 0 + 10));
+                _2.add(term(1));
+                _2.add(term(1+10));
 
                 cout << _0.str() << endl;
                 cout << _1.str() << endl;
@@ -974,7 +974,32 @@ namespace xsol5 {
                 synt001 = synt001.fusion(_2);
 
                 cout << " = " << synt001.str() << endl;
-            }
+            }       
+            
+            { // F F
+                cout << "F F" << endl;
+//                line _0;               
+//                _0.add(term(0));
+//
+//                line _1;
+//                _1.add(term(0 + 10));
+//
+//                line _2;
+//                _2.add(term());
+//                _2.add(term(1));
+//                _2.add(term(1+10));
+//
+//                cout << _0.str() << endl;
+//                cout << _1.str() << endl;
+//                cout << _2.str() << endl;
+//
+//                line synt001 = _0.fusion(_1);
+//                synt001 = synt001.fusion(_2);
+//
+//                cout << " = " << synt001.str() << endl;
+            }              
+
+
 
         }
 
